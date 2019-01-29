@@ -1,8 +1,9 @@
-#import paramiko
-#import sshtunnel
+# import paramiko
+# import sshtunnel
 import mysql.connector
 
 import configparser
+import sys
 from contextlib import closing
 
 config = configparser.ConfigParser()
@@ -33,11 +34,18 @@ class Client:
     '''
 
     def __enter__(self):
-        self.conn = mysql.connector.connect(
-            user=config['mfalncfm_main']['username'],
-            password=config['mfalncfm_main']['password'],
-            database="mfalncfm_main"
-        )
+        try:
+            self.conn = mysql.connector.connect(
+                user=config['mfalncfm_main']['username'],
+                password=config['mfalncfm_main']['password'],
+                database="mfalncfm_main"
+            )
+        except mysql.connector.errors.DatabaseError as identifier:
+            print('Error connecting to MySQL. Did you forget to set up port forwarding? \n'
+                  'https: // www.namecheap.com/support/knowledgebase/article.aspx/1249/89/how-to-remotely-connect-to-a-mysql-database-located-on-our-shared-server\n'
+                  f'{identifier}')
+            sys.exit(1)
+
         self.cursor = self.conn.cursor()
         return self.cursor
 
