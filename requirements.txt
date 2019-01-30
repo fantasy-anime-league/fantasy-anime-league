@@ -5,6 +5,9 @@
 # src\check_usernames.py: 5
 jikanpy == 2.3.2
 
+# src/clients/mfalncfm_main.py: 3
+mysql_connector_python == 8.0.14
+
 # test\test_check_usernames.py: 1
 pytest == 4.1.1
 
