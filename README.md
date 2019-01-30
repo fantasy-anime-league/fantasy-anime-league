@@ -103,3 +103,10 @@ Points for nuke-ups/nuke-downs change depending on the week. At the moment this 
 If a user changes his name then the old and new username needs to be written in `lists/name_changes.txt` in the format:
 
 > `old_username new_username`
+
+## Tests
+
+```shell
+# In root of repository
+$ python -m pytest
+```
