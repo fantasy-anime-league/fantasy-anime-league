@@ -10,9 +10,6 @@ generic.key
 # git secret
 .gitsecret/keys/random_seed
 
-# VCR cassettes
-test/vcr_cassettes/
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
