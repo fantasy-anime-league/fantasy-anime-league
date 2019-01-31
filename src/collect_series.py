@@ -3,20 +3,25 @@
 from jikanpy import Jikan
 import configparser
 
-config = configparser.ConfigParser()
 
-
-def get_series(season_info):
+def get_series(season, year):
     """Retrieve a list of (anime_id, anime_title) from the season info.
 
     Arguments:
-        season_info: dict containing season info from Jikanpy
+        season: season to get series from
+        year: year to get series from
 
     Returns:
         A dict from anime_id to anime_title. For example:
 
         {25879: 'Working!!!'}
     """
+    jikan = Jikan()
+    # Get list of anime in the season
+    season_info = jikan.season(year=year, season=season)
+    assert season_info["season_name"].lower() == season
+    assert season_info["season_year"] == year
+
     tv_anime = dict()
     for anime in season_info["anime"]:
         if anime["type"] == "TV":
@@ -45,19 +50,14 @@ def output_series_titles(titles, filename):
 
 
 def main():
+    config = configparser.ConfigParser()
     config.read("config.ini")
 
     # Ensure season is lowercase string and year is integer
-    season = config["myanimelist.net"]["season"].lower()
-    year = int(config["myanimelist.net"]["year"])
+    season = config["season info"]["season"].lower()
+    year = int(config["season info"]["year"])
 
-    jikan = Jikan()
-    # Get list of anime in the season
-    season_info = jikan.season(year=year, season=season)
-    assert season_info["season_name"].lower() == season
-    assert season_info["season_year"] == year
-
-    series_dict = get_series(season_info)
+    series_dict = get_series(season, year)
     series = series_dict.items()
     print(len(series))
 

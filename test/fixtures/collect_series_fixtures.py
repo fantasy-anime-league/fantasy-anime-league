@@ -2,6 +2,16 @@ import pytest
 
 
 @pytest.fixture
+def season():
+    return 'spring'
+
+
+@pytest.fixture
+def year():
+    return 2019
+
+
+@pytest.fixture
 def series_dict_fixture():
     return {34134: 'One Punch Man Season 2',
             34620: 'Kono Yo no Hate de Koi wo Utau Shoujo YU-NO',
