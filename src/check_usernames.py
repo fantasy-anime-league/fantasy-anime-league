@@ -13,7 +13,7 @@ def check(name):
 
     try:
         user = jikan.user(name)
-        assert name == user["username"]
+        assert name.lower() == user["username"].lower()
     except jikanpy.exceptions.APIException:
         print(f"username doesn't exist anymore: {name}")
 
