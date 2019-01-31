@@ -5,6 +5,8 @@ results/
 ptw-script/*.csv
 config-secret.ini
 generic.key
+series.txt
+series_sorted.txt
 
 
 # git secret
