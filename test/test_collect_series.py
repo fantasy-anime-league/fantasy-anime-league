@@ -6,6 +6,9 @@ from src.collect_series import get_series, output_series, output_series_titles
 from fixtures.collect_series_fixtures import *
 
 
+@pytest.mark.parametrize("season,year", [
+    ('spring', 2019),
+])
 @vcr.use_cassette('test/fixtures/vcr_cassettes/collect_series/get-series.yaml')
 def test_get_series(series_dict_fixture, season, year):
     series_dict = get_series(year=int(year), season=season.lower())
