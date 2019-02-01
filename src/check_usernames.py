@@ -1,8 +1,10 @@
 #!/usr/bin/python3.7
 
+import jikanpy
+
 import re
 import time
-import jikanpy
+import configparser
 
 jikan = jikanpy.Jikan()
 
@@ -19,12 +21,15 @@ def check(name):
 
 
 def main():
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+
     f_name = "lists/team_headcount.txt"
     names = re.findall(r"\[b\](.+?)\[/b\]\n", open(f_name).read())
 
     for name in names:
         check(name)
-        time.sleep(3)
+        time.sleep(config.getint('jikanpy', 'request-interval'))
 
 
 if __name__ == "__main__":
