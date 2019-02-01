@@ -24,7 +24,7 @@ def main():
 
     for name in names:
         check(name)
-        time.sleep(2)
+        time.sleep(3)
 
 
 if __name__ == "__main__":
