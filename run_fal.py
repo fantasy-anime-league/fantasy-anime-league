@@ -17,7 +17,6 @@ import fal.funcs
 
 # True = get new data (default) | False = get existing data
 fal.scorer.main()
-
 fal.results.main()
 fal.details.main()
 
@@ -28,10 +27,10 @@ fal.details.main()
 # ranking_overview.main()
 
 # functions for the registration
-# teams.create_teams()
-#teams.headcount("Fall", "2018")
+# fal.teams.create_teams()
+# fal.teams.headcount("Fall", "2018")
 
 # generate statistics
-# teams.team_overview()
-# teams.team_stats(True)
-# teams.team_dist(True)
+# fal.teams.team_overview()
+# fal.teams.team_stats(True)
+# fal.teams.team_dist(True)

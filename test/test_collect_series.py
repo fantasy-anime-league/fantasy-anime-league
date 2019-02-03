@@ -2,7 +2,7 @@ import pytest
 import vcr
 import json
 
-from src.collect_series import get_series, output_series, output_series_titles
+from fal.collect_series import get_series, output_series, output_series_titles
 from fixtures.collect_series_fixtures import *
 
 

@@ -21,7 +21,7 @@
 #-----------------------------------------------------------------------------
 
 # current week
-week = 14
+week = 1
 
 # start post of the swap thread
 post_start = 4924
