@@ -1,7 +1,7 @@
 import pytest
 import vcr
 
-from src.check_usernames import check
+from fal.check_usernames import check
 
 
 @vcr.use_cassette('test/fixtures/vcr_cassettes/check_usernames/check-username-success.yaml')
