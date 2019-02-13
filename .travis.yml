@@ -6,7 +6,6 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install git+git://github.com/AWConant/jikanpy.git
-  - pip install -e .
 script: pytest
 matrix:
   include:
