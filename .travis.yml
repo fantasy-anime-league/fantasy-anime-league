@@ -3,6 +3,7 @@ cache: pip
 install:
   - pip install -r requirements.txt
   - pip install git+git://github.com/AWConant/jikanpy.git
+  - pip install pytest-cov codecov
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
 script: pytest
 after_success:
