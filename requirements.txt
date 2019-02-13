@@ -3,7 +3,10 @@
 
 # ptw-script\ptw-script.py: 1
 # src\check_usernames.py: 5
-jikanpy == 2.3.2
+
+# Run `pip install git+git://github.com/AWConant/jikanpy.git` for jikanpy
+# It's commented out because jikanpy isn't on PyPI
+# jikanpy == 2.3.2
 
 # src/clients/mfalncfm_main.py: 3
 mysql_connector_python == 8.0.14
