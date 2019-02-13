@@ -6,6 +6,7 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install git+git://github.com/AWConant/jikanpy.git
+  - export PYTHONPATH=$PYTHONPATH:$(pwd)
 script: pytest
 matrix:
   include:
