@@ -1,5 +1,7 @@
 # Fantasy Anime League Engine
 
+[![Travis (.org)](https://img.shields.io/travis/fantasy-anime-league/fantasy-anime-league.svg?style=flat-square)](https://travis-ci.org/fantasy-anime-league/fantasy-anime-league)
+
 ## Requirements
 
 ```shell
