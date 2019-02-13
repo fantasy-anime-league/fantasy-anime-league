@@ -2,6 +2,13 @@
 
 ## Requirements
 
+```shell
+# Run these commands to get the dependencies
+# JikanPy is not on PyPI so we have to install it separately
+$ pip install -r requirements.txt
+$ pip install git+git://github.com/AWConant/jikanpy.git
+```
+
 * [git-secret](https://git-secret.io/)
 
   * be sure to run `git secret reveal` after checking out master to decrypt files containing private keys for development
