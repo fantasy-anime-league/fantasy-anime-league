@@ -5,6 +5,9 @@ install:
   - pip install git+git://github.com/AWConant/jikanpy.git
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
 script: pytest
+after_success:
+  - pytest --cov fal test/
+  - codecov
 matrix:
   include:
     - python: 3.6
