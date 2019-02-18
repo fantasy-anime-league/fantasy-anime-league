@@ -16,9 +16,9 @@ import fal.weekly_performance
 import fal.funcs
 
 # True = get new data (default) | False = get existing data
-fal.scorer.main()
-fal.results.main()
-fal.details.main()
+# fal.scorer.main()
+# fal.results.main()
+# fal.details.main()
 
 # teams.banner_data()
 
@@ -27,10 +27,10 @@ fal.details.main()
 # ranking_overview.main()
 
 # functions for the registration
-# fal.teams.create_teams()
-# fal.teams.headcount("Fall", "2018")
+fal.teams.create_teams()
+fal.teams.headcount("Fall", "2018")
 
 # generate statistics
-# fal.teams.team_overview()
-# fal.teams.team_stats(True)
-# fal.teams.team_dist(True)
+fal.teams.team_overview()
+fal.teams.team_stats(True)
+fal.teams.team_dist(True)
