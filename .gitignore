@@ -7,8 +7,8 @@ config-secret.ini
 generic.key
 series.txt
 series_sorted.txt
-test/series_test.txt
-test/series_sorted_test.txt
+test/unit/series_test.txt
+test/unit/series_sorted_test.txt
 
 
 # git secret
