@@ -19,7 +19,23 @@ $ pip install git+git://github.com/AWConant/jikanpy.git
 
 ## Tests
 
+### Unit Tests
+
 ```shell
 # In root of repository
 $ python -m pytest
 ```
+
+### Integration Tests
+
+Integration tests currently need to be run manually with:
+
+```shell
+$ python -m pytest test/integration
+...
+```
+
+This is for two reasons:
+
+* we can't really get Travis to run these tests without committing secure credentials to source control
+* issues with sshtunneling as currently described in [Issue #5](https://github.com/fantasy-anime-league/fantasy-anime-league/issues/5)
