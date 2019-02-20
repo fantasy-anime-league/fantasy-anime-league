@@ -133,3 +133,4 @@ dmypy.json
 
 # vscode settings
 .vscode/
+doc/README.md
