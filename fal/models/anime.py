@@ -12,4 +12,5 @@ class Anime(Base):
     season_id = Column(String, ForeignKey('season.id'))
     season = relationship("Season", back_populates='anime')
     sequel = Column(Boolean)
+    eligible = Column(Boolean, nullable=True)
     alias = Column(String, nullable=True)
