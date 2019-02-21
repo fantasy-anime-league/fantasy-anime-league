@@ -27,7 +27,7 @@ def output_ptw_info(season, year, ptw):
     filename = f'{season}-{year}-{today}.csv'
     with open(filename, 'w', encoding='utf8', newline='') as csv_file:
         writer = csv.writer(csv_file)
-        writer.writerows(sorted(ptw.items()))
+        writer.writerows(sorted(ptw))
     print(f'Outputted PTW info to {filename}')
 
 
@@ -47,10 +47,11 @@ def main():
     print(f'Length of list of anime: {len(anime_list)}')
 
     # Store PTW of each anime in a dict
-    ptw = dict()
+    ptw = list()
     for anime in anime_list:
         anime_stats = jikan.anime(anime['mal_id'], extension='stats')
-        ptw[anime['title']] = localize_number(anime_stats['plan_to_watch'])
+        anime_ptw_num = localize_number(anime_stats['plan_to_watch'])
+        ptw.append((anime['title'], anime['mal_id'], anime_ptw_num))
         time.sleep(0.5)
     pprint(ptw)
 

@@ -1,0 +1,91 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.21.0]
+    method: GET
+    uri: https://api.jikan.moe/v3/user/congress
+  response:
+    body:
+      string: !!binary |
+        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
+    headers:
+      Access-Control-Allow-Methods: ['*']
+      Access-Control-Allow-Origin: ['*']
+      Cache-Control: ['private, must-revalidate']
+      Connection: [keep-alive]
+      Content-Encoding: [gzip]
+      Content-Length: ['3638']
+      Content-Type: [application/json; charset=utf-8]
+      Date: ['Thu, 21 Feb 2019 01:03:43 GMT']
+      ETag: ['"0e47f2d552a42388c15c63b69b3275ec"']
+      Server: [nginx/1.15.5 (Ubuntu)]
+      Vary: [Accept-Encoding]
+    status: {code: 200, message: OK}
+version: 1
