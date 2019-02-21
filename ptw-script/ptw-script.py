@@ -46,7 +46,7 @@ def main():
     anime_list = get_tv_anime(season_info)
     print(f'Length of list of anime: {len(anime_list)}')
 
-    # Store PTW of each anime in a dict
+    # Store PTW of each anime in a list of tuples
     ptw = list()
     for anime in anime_list:
         anime_stats = jikan.anime(anime['mal_id'], extension='stats')
