@@ -1,6 +1,8 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, select, exc, event
 
+import pymysql
+
 from contextlib import contextmanager
 import sys
 import configparser
