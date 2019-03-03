@@ -9,5 +9,7 @@ class Team(Base):
 
     id = Column(Integer, primary_key=True)
     season_id = Column(String, ForeignKey('season.id'))
-    season = relationship("Season", back_populates='teams')
     name = Column(String)
+
+    season = relationship("Season", back_populates='teams')
+    wildcards = relationship("WildcardUsage", back_populates="team")

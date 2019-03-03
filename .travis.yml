@@ -5,7 +5,7 @@ install:
   - pip install git+git://github.com/AWConant/jikanpy.git
   - pip install pytest-cov codecov
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
-script: pytest
+script: python -m pytest test/unit
 after_success:
   - pytest --cov fal test/
   - codecov
