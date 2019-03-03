@@ -11,5 +11,5 @@ class Team(Base):
     season_id = Column(String, ForeignKey('season.id'))
     name = Column(String)
 
-    season = relationship("Season", back_populates='teams')
+    season = relationship("Season", back_populates="teams")
     wildcards = relationship("WildcardUsage", back_populates="team")

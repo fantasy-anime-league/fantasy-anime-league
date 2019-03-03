@@ -10,5 +10,5 @@ class WildcardUsage(Base):
     wildcard_id = Column(Integer, ForeignKey('wildcard.id'), primary_key=True)
     week = Column(Integer)
 
-    team = relationship("Team", back_populates='wildcards')
+    team = relationship("Team", back_populates="wildcards")
     wildcard = relationship("Wildcard", back_populates="teams")
