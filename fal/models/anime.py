@@ -14,3 +14,5 @@ class Anime(Base):
     sequel = Column(Boolean)
     eligible = Column(Boolean, nullable=True)
     alias = Column(String, nullable=True)
+
+    plan_to_watch = relationship("PlanToWatch", back_populates='anime')

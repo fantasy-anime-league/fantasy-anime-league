@@ -11,4 +11,4 @@ class PlanToWatch(Base):
     date = Column(Date, primary_key=True)
     count = Column(Integer)
 
-    anime = relationship("Anime")
+    anime = relationship("Anime", back_populates='plan_to_watch')
