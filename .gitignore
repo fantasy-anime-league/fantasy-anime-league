@@ -5,8 +5,6 @@ results/
 ptw-script/*.csv
 config-secret.ini
 generic.key
-series.txt
-series_sorted.txt
 test/unit/series_test.txt
 test/unit/series_sorted_test.txt
 test/series_test.txt
