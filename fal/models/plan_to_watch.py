@@ -3,6 +3,11 @@ from fal.models import Base
 from sqlalchemy import Column, Integer, Date, ForeignKey
 from sqlalchemy.orm import relationship
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from fal.models import Anime
+
 
 class PlanToWatch(Base):
     __tablename__ = 'plan_to_watch'

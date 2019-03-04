@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-# fal.py
+# run_fal.py
 # FAL (Fantasy Anime League)
 # http://myanimelist.net/clubs.php?cid=379
 # (c) 2012-2015, Luna_ (luna.myanimelist@gmail.com)
 
-import sys
 
 import fal.details
 import fal.ranking_overview

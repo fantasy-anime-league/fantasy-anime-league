@@ -26,16 +26,12 @@ $ pip install git+git://github.com/AWConant/jikanpy.git
 $ python -m pytest
 ```
 
-### Integration Tests
+### Type Checking
 
-Integration tests currently need to be run manually with:
+Currently not fully type-checkable until we convert all our legacy code!
 
 ```shell
-$ python -m pytest test/integration
+pip install -U mypy sqlalchemy-stubs
 ...
+mypy fal
 ```
-
-This is for two reasons:
-
-* we can't really get Travis to run these tests without committing secure credentials to source control
-* issues with sshtunneling as currently described in [Issue #5](https://github.com/fantasy-anime-league/fantasy-anime-league/issues/5)
