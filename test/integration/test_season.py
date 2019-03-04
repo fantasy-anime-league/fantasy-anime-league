@@ -2,7 +2,7 @@ from fal.models import Season
 from fal.clients.mfalncfm_main import session_scope
 
 
-def test_retrieve_teams() -> None:
+def test_retrieve_teams():
     with session_scope(True) as session:
         query = session.query(Season).filter(Season.id == 1)
         season = query.one()
