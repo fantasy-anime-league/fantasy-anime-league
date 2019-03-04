@@ -3,6 +3,10 @@ from fal.models import Base
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from fal.models import Season, WildcardUsage
+
 
 class Team(Base):
     __tablename__ = 'team'

@@ -1,9 +1,10 @@
-from sqlalchemy.orm import sessionmaker
+import sqlalchemy.orm
 from sqlalchemy import create_engine, select, exc, event
 
 import pymysql
 
 from contextlib import contextmanager
+from typing import Generator
 import sys
 import configparser
 import urllib
@@ -21,16 +22,24 @@ connect_string = f'mysql+pymysql://{config["mfalncfm_main"]["username"]}:' \
 
 
 @contextmanager
-def session_scope(echo=False):
+def session_scope(echo: bool = False) -> Generator[sqlalchemy.orm.Session, None, None]:
+    """Returns a database session to be managed in a with statement
+
+    e.g.
+    with session_scope() as session:
+        query = session.query(Season).filter(Season.id == 1)
+        ...
+    """
+
     engine = create_engine(connect_string, echo=echo,
                            echo_pool=echo, pool_pre_ping=True)
-    Session = sessionmaker(bind=engine)
+    Session = sqlalchemy.orm.sessionmaker(bind=engine)
     session = Session()
 
     # neither pool_pre_ping nor the legacy recipe on sqlalchemy's website to test connection seems to work so
     # here we do a crude ping on the connection to see if we're successful
     try:
-        session.scalar(select([1]))
+        session.scalar(select([1]))  # type: ignore
     except exc.OperationalError as identifier:
         print('Error connecting to MySQL. Did you forget to set up port forwarding? \n'
               'https: // www.namecheap.com/support/knowledgebase/article.aspx/1249/89/how-to-remotely-connect-to-a-mysql-database-located-on-our-shared-server\n'
