@@ -25,7 +25,7 @@ $ pip install -r requirements.txt
 
 ## Tests
 
-### Unit Tests
+### Unit and Integration Tests
 
 ```shell
 # In root of repository
