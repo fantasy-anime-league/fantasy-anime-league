@@ -10,7 +10,7 @@ Main file to run Fantasy Anime League Engine. Should replace run_fal.py once
 it is able to replicate all functionality
 """
 
-import fal
+import fal.collect_series
 
 import argparse
 
@@ -21,4 +21,4 @@ args = parser.parse_args()
 
 
 if args.collect_series:
-    fal.collect_series()
+    fal.collect_series.collect_series()

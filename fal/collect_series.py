@@ -1,12 +1,15 @@
+from __future__ import annotations
+
 from fal.clients.mfalncfm_main import session_scope
 from fal.models import Anime, Season
 
-
 from jikanpy import Jikan
-from sqlalchemy.orm import Session
 
-from typing import Dict, ItemsView, ValuesView
+from typing import Dict, ItemsView, ValuesView, TYPE_CHECKING
 import configparser
+
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
 
 
 def get_series(season: str, year: int) -> Dict[int, str]:
