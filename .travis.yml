@@ -2,7 +2,6 @@ language: python
 cache: pip
 install:
   - pip install -r requirements.txt
-  - pip install git+git://github.com/AWConant/jikanpy.git
   - pip install pytest-cov codecov
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
   - cp config-secret-stub.ini config-secret.ini
