@@ -4,7 +4,9 @@ from datetime import date
 import time
 import csv
 
-import config
+from fal.collect_series import add_anime_to_database
+
+import configparser
 
 
 def get_tv_anime(season_info):
@@ -24,23 +26,26 @@ def localize_number(num):
 def output_ptw_info(season, year, ptw):
     """Outputs PTW info to CSV file"""
     today = str(date.today())
-    filename = f'{season}-{year}-{today}.csv'
+    filename = f'ptw_csv/{season}-{year}-{today}.csv'
     with open(filename, 'w', encoding='utf8', newline='') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerows(sorted(ptw))
     print(f'Outputted PTW info to {filename}')
 
 
-def main():
+def ptw_counter():
     jikan = Jikan()
 
+    config = configparser.ConfigParser()
+    config.read("config.ini")
+
     # Ensure season is lowercase string and year is integer
-    season = config.season.lower()
-    year = int(config.year)
+    season_of_year = config["season info"]["season"].lower()
+    year = int(config["season info"]["year"])
 
     # Get list of anime in the season
-    season_info = jikan.season(year=year, season=season)
-    assert season_info['season_name'].lower() == season
+    season_info = jikan.season(year=year, season=season_of_year)
+    assert season_info['season_name'].lower() == season_of_year
     assert season_info['season_year'] == year
 
     anime_list = get_tv_anime(season_info)
@@ -52,11 +57,10 @@ def main():
         anime_stats = jikan.anime(anime['mal_id'], extension='stats')
         anime_ptw_num = localize_number(anime_stats['plan_to_watch'])
         ptw.append((anime['title'], anime['mal_id'], anime_ptw_num))
-        time.sleep(0.5)
+        time.sleep(5)
     pprint(ptw)
 
     output_ptw_info(season_info['season_name'], str(year), ptw)
 
-
-if __name__ == '__main__':
-    main()
+    # Database workflow
+    print('Adding anime to database if not present and adding to PTW table')

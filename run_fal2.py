@@ -11,14 +11,18 @@ it is able to replicate all functionality
 """
 
 import fal.collect_series
+import fal.ptw_counter
 
 import argparse
 
 parser = argparse.ArgumentParser(
     description="Run the Fantasy Anime League Engine")
 parser.add_argument("--collect-series", action="store_true")
+parser.add_argument("--ptw-counter", action="store_true")
 args = parser.parse_args()
 
 
 if args.collect_series:
     fal.collect_series.collect_series()
+elif args.ptw_counter:
+    fal.ptw_counter.ptw_counter()
