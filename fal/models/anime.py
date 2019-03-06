@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from fal.models import PlanToWatch, Season, AnimeWeeklyStat
+    from fal.models import PlanToWatch, Season, AnimeWeeklyStat, TeamWeeklyAnime
 
 
 class Anime(Base):
@@ -22,6 +22,7 @@ class Anime(Base):
     plan_to_watch = relationship("PlanToWatch", back_populates="anime")
     anime_weekly_stats = relationship(
         "AnimeWeeklyStat", back_populates="anime")
+    team_weekly_anime = relationship("TeamWeeklyAnime", back_populates="anime")
 
     def __repr__(self):
         return f"{self.name} - {self.id} from season id {self.season_id}"

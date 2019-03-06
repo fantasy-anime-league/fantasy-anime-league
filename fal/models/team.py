@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from fal.models import Season, WildcardUsage
+    from fal.models import Season, WildcardUsage, TeamWeeklyAnime
 
 
 class Team(Base):
@@ -17,3 +17,4 @@ class Team(Base):
 
     season = relationship("Season", back_populates="teams")
     wildcards = relationship("WildcardUsage", back_populates="team")
+    team_weekly_anime = relationship("TeamWeeklyAnime", back_populates="team")

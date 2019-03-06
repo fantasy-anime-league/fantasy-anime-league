@@ -6,3 +6,4 @@ from .wildcard import Wildcard
 from .wildcard_usage import WildcardUsage
 from .plan_to_watch import PlanToWatch
 from .anime_weekly_stat import AnimeWeeklyStat
+from .team_weekly_anime import TeamWeeklyAnime
