@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from fal.clients.mfalncfm_main import session_scope
-from fal.models import PlanToWatch
-from fal.collect_series import get_series, get_season_from_database, add_anime_to_database
+from fal.models import PlanToWatch, Anime
+from fal.collect_series import get_season_from_database
 
 from jikanpy import Jikan
 
@@ -12,7 +12,7 @@ import time
 from collections import namedtuple
 from datetime import date
 from pprint import pprint
-from typing import List, Tuple, Iterable, Mapping, TYPE_CHECKING
+from typing import List, Iterable, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -25,14 +25,14 @@ def localize_number(num: int) -> str:
     return '{:,}'.format(num)
 
 
-def get_ptw_info(series_dict: Mapping[int, str]) -> List[PTWEntry]:
+def get_ptw_info(anime_list: Iterable[Anime]) -> List[PTWEntry]:
     """Store PTW of each anime in a list of tuples"""
     jikan = Jikan()
     ptw = list()
-    for anime_id, anime_title in series_dict.items():
-        anime_stats = jikan.anime(anime_id, extension='stats')  # type: ignore
+    for anime in anime_list:
+        anime_stats = jikan.anime(anime.id, extension='stats')  # type: ignore
         anime_ptw_num = localize_number(anime_stats['plan_to_watch'])
-        ptw.append(PTWEntry(anime_title, anime_id, anime_ptw_num))
+        ptw.append(PTWEntry(anime.name, anime.id, anime_ptw_num))
         time.sleep(5)
     return ptw
 
@@ -64,22 +64,21 @@ def ptw_counter() -> None:
     season_of_year = config["season info"]["season"].lower()
     year = int(config["season info"]["year"])
 
-    series_dict = get_series(season_of_year, year)
-    print(f'Length of list of anime: {len(series_dict)}')
-
-    # Store PTW of each anime in a list of tuples
-    ptw = get_ptw_info(series_dict)
-    pprint(ptw)
-
-    output_ptw_info(season_of_year, year, ptw, 'ptw_csv')
-
     today = date.today()
 
     # Database workflow
-    print('Adding anime to database if not present and adding to PTW table')
     with session_scope() as session:
         season = get_season_from_database(season_of_year, year, session)
+        query = session.query(Anime).filter(Anime.season_id == season.id)
+        anime_list = query.all()
+        print(f'Length of list of anime: {len(anime_list)}')
+
+        # Store PTW of each anime in a list of tuples
+        ptw = get_ptw_info(anime_list)
+        pprint(ptw)
+        output_ptw_info(season_of_year, year, ptw, 'ptw_csv')
+
+        print('Adding PTW entries to PTW table')
         for entry in ptw:
             ptw_count = int(entry.ptw_count.replace(',', ''))
-            add_anime_to_database(entry.id, entry.title, season, session)
             add_ptw_to_database(entry.id, today, ptw_count, session)

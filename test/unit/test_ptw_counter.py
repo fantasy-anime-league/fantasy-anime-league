@@ -1,5 +1,5 @@
 from fixtures.ptw_counter_fixtures import *
-from fal.models import PlanToWatch
+from fal.models import PlanToWatch, Anime
 import fal.ptw_counter as ptw_counter
 
 from unittest.mock import patch, MagicMock
@@ -13,12 +13,13 @@ def test_localize_number():
     assert ptw_counter.localize_number(1034) == '1,034'
 
 
-@pytest.mark.parametrize("series_dict", [
-    ({34134: 'One Punch Man Season 2', 38524: 'Shingeki no Kyojin Season 3 Part 2'}),
+@pytest.mark.parametrize("anime_list", [
+    ([Anime(id=34134, name='One Punch Man Season 2', season_id=2),
+      Anime(id=38524, name='Shingeki no Kyojin Season 3 Part 2', season_id=2)]),
 ])
 @vcr.use_cassette('test/unit/fixtures/vcr_cassettes/ptw_counter/get-ptw-info.yaml')
-def test_get_ptw_info(ptw_fixture, series_dict):
-    ptw = ptw_counter.get_ptw_info(series_dict)
+def test_get_ptw_info(ptw_fixture, anime_list):
+    ptw = ptw_counter.get_ptw_info(anime_list)
     assert ptw == ptw_fixture
 
 
