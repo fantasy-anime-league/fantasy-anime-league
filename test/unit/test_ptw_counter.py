@@ -23,8 +23,8 @@ def test_get_ptw_info(ptw_fixture, series_dict):
 
 
 @pytest.mark.parametrize("season_of_year, year, ptw", [
-    ('spring', 2019, [('One Punch Man Season 2', 34134, '311,499'),
-                      ('Shingeki no Kyojin Season 3 Part 2', 38524, '98,614')]),
+    ('spring', 2019, [ptw_counter.PTWEntry('One Punch Man Season 2', 34134, '311,499'),
+                      ptw_counter.PTWEntry('Shingeki no Kyojin Season 3 Part 2', 38524, '98,614')]),
 ])
 def test_output_ptw_info(season_of_year, year, ptw):
     directory = 'test/unit'

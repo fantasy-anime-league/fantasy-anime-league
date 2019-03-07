@@ -9,12 +9,15 @@ from jikanpy import Jikan
 import configparser
 import csv
 import time
+from collections import namedtuple
 from datetime import date
 from pprint import pprint
-from typing import List, Tuple, Dict, TYPE_CHECKING
+from typing import List, Tuple, Iterable, Mapping, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
+
+PTWEntry = namedtuple('PTWEntry', 'title id ptw_count')
 
 
 def localize_number(num: int) -> str:
@@ -22,19 +25,19 @@ def localize_number(num: int) -> str:
     return '{:,}'.format(num)
 
 
-def get_ptw_info(series_dict: Dict[int, str]) -> List[Tuple[str, int, str]]:
+def get_ptw_info(series_dict: Mapping[int, str]) -> List[PTWEntry]:
     """Store PTW of each anime in a list of tuples"""
     jikan = Jikan()
     ptw = list()
     for anime_id, anime_title in series_dict.items():
         anime_stats = jikan.anime(anime_id, extension='stats')  # type: ignore
         anime_ptw_num = localize_number(anime_stats['plan_to_watch'])
-        ptw.append((anime_title, anime_id, anime_ptw_num))
+        ptw.append(PTWEntry(anime_title, anime_id, anime_ptw_num))
         time.sleep(5)
     return ptw
 
 
-def output_ptw_info(season_of_year: str, year: int, ptw: List[Tuple[str, int, str]], directory: str) -> None:
+def output_ptw_info(season_of_year: str, year: int, ptw: Iterable[PTWEntry], directory: str) -> None:
     """Outputs PTW info to CSV file"""
     season_of_year = season_of_year.capitalize()
     year_str = str(year)
@@ -77,8 +80,6 @@ def ptw_counter() -> None:
     with session_scope() as session:
         season = get_season_from_database(season_of_year, year, session)
         for entry in ptw:
-            anime_title = entry[0]
-            anime_id = entry[1]
-            anime_ptw_count = int(entry[2].replace(',', ''))
-            add_anime_to_database(entry[1], entry[0], season, session)
-            add_ptw_to_database(anime_id, today, anime_ptw_count, session)
+            ptw_count = int(entry.ptw_count.replace(',', ''))
+            add_anime_to_database(entry.id, entry.title, season, session)
+            add_ptw_to_database(entry.id, today, ptw_count, session)
