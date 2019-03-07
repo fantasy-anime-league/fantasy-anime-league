@@ -1,41 +1,49 @@
-from jikanpy import Jikan
-from pprint import pprint
-from datetime import date
-import time
-import csv
+from __future__ import annotations
 
-from fal.collect_series import add_anime_to_database
+from fal.clients.mfalncfm_main import session_scope
+from fal.models import Anime, Season, PlanToWatch
+from fal.collect_series import get_series, get_season_from_database, add_anime_to_database
+
+from jikanpy import Jikan
 
 import configparser
+import csv
+import time
+from datetime import date
+from pprint import pprint
+from typing import List, Tuple, Dict
 
 
-def get_tv_anime(season_info):
-    """Return list of TV anime objects from season info"""
-    tv_anime = list()
-    for anime in season_info['anime']:
-        if anime['type'] == 'TV':
-            tv_anime.append(anime)
-    return tv_anime
-
-
-def localize_number(num):
+def localize_number(num: int) -> str:
     """Add commas to integer at every thousands place"""
     return '{:,}'.format(num)
 
 
-def output_ptw_info(season, year, ptw):
+def get_ptw_info(series_dict: Dict[int, str]) -> List[Tuple[str, int, str]]:
+    """Store PTW of each anime in a list of tuples"""
+    jikan = Jikan()
+    ptw = list()
+    for anime_id, anime_title in series_dict.items():
+        anime_stats = jikan.anime(anime_id, extension='stats')  # type: ignore
+        anime_ptw_num = localize_number(anime_stats['plan_to_watch'])
+        ptw.append((anime_title, anime_id, anime_ptw_num))
+        time.sleep(5)
+    return ptw
+
+
+def output_ptw_info(season_of_year: str, year: int, ptw: List[Tuple[str, int, str]]) -> None:
     """Outputs PTW info to CSV file"""
+    season_of_year = season_of_year.capitalize()
+    year_str = str(year)
     today = str(date.today())
-    filename = f'ptw_csv/{season}-{year}-{today}.csv'
+    filename = f'ptw_csv/{season_of_year}-{year_str}-{today}.csv'
     with open(filename, 'w', encoding='utf8', newline='') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerows(sorted(ptw))
     print(f'Outputted PTW info to {filename}')
 
 
-def ptw_counter():
-    jikan = Jikan()
-
+def ptw_counter() -> None:
     config = configparser.ConfigParser()
     config.read("config.ini")
 
@@ -43,24 +51,19 @@ def ptw_counter():
     season_of_year = config["season info"]["season"].lower()
     year = int(config["season info"]["year"])
 
-    # Get list of anime in the season
-    season_info = jikan.season(year=year, season=season_of_year)
-    assert season_info['season_name'].lower() == season_of_year
-    assert season_info['season_year'] == year
-
-    anime_list = get_tv_anime(season_info)
-    print(f'Length of list of anime: {len(anime_list)}')
+    series_dict = get_series(season_of_year, year)
+    print(f'Length of list of anime: {len(series_dict)}')
 
     # Store PTW of each anime in a list of tuples
-    ptw = list()
-    for anime in anime_list:
-        anime_stats = jikan.anime(anime['mal_id'], extension='stats')
-        anime_ptw_num = localize_number(anime_stats['plan_to_watch'])
-        ptw.append((anime['title'], anime['mal_id'], anime_ptw_num))
-        time.sleep(5)
+    ptw = get_ptw_info(series_dict)
     pprint(ptw)
 
-    output_ptw_info(season_info['season_name'], str(year), ptw)
+    output_ptw_info(season_of_year, year, ptw)
 
     # Database workflow
-    print('Adding anime to database if not present and adding to PTW table')
+    # print('Adding anime to database if not present and adding to PTW table')
+    # with session_scope() as session:
+    #     season = get_season_from_database(season_of_year, year, session)
+    #     for anime_id, anime_name in series_dict.items():
+    #         # Add anime to database in case it's not there
+    #         add_anime_to_database(anime_id, anime_name, season, session)
