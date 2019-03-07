@@ -1,0 +1,60 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.21.0]
+    method: GET
+    uri: https://api.jikan.moe/v3/anime/34134/stats
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4WMQW7DIBBF7zJrFHmMiYHLWGOYBEsOUEzSRpHvHjtqq7abbkb/f703Dyj8duWl
+        DoGWAParWorTha1selKjR3Vkf5KejqqjUWtDJy9ZmxaRDLoRQXz/ceQCe7C1XPnPOvBHnsodbKva
+        HgW8U3VhimewKAW4dMkz191tBKQ4hDRvWQvwJeX8ueeZ4lDT8HLBSsTOGAE1VZpfVbUbtbhUeAH7
+        AGz2e0t1r2rzuTiOlc4MtsdDtwowPwj8TWB3kBuh/yHW9QkZhbqBSAEAAA==
+    headers:
+      Access-Control-Allow-Methods: ['*']
+      Access-Control-Allow-Origin: ['*']
+      Cache-Control: ['private, must-revalidate']
+      Connection: [keep-alive]
+      Content-Encoding: [gzip]
+      Content-Length: ['214']
+      Content-Type: [application/json; charset=utf-8]
+      Date: ['Thu, 07 Mar 2019 01:49:47 GMT']
+      ETag: ['"e8dbab0a80985f26aac48b9cacbd4be7"']
+      Server: [nginx/1.15.5 (Ubuntu)]
+      Vary: [Accept-Encoding]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.21.0]
+    method: GET
+    uri: https://api.jikan.moe/v3/anime/38524/stats
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4WNzW4DIQyE38VnVPGzgYWXQYS4YaUNUNZJW0X77mUjNUpyycXyzHxjX6Hh1xkX
+        8iksCdy/dCFPJ3TCDCOaqD/3aLTtm1R6MIZby/dRDtwowYNVHNj9Tgwx4QEctTO+uB5/6tR+wcmd
+        1COD70AxTfkIzjCI5VRnpK26Y1CyT2Xu+8Dg0Eqtmy8Z1DlkT8XfquDsqEUnqFCYb0p1Zoml4QLu
+        CoJv81Jok6q3sUXMFI7Yn/CVgX3IxXMu9IfpxPiWMG+Idf0DIapUqWUBAAA=
+    headers:
+      Access-Control-Allow-Methods: ['*']
+      Access-Control-Allow-Origin: ['*']
+      Cache-Control: ['private, must-revalidate']
+      Connection: [keep-alive]
+      Content-Encoding: [gzip]
+      Content-Length: ['215']
+      Content-Type: [application/json; charset=utf-8]
+      Date: ['Thu, 07 Mar 2019 01:49:52 GMT']
+      ETag: ['"1319a7ccf54e06153dbf204e2d0a4fea"']
+      Server: [nginx/1.15.5 (Ubuntu)]
+      Vary: [Accept-Encoding]
+    status: {code: 200, message: OK}
+version: 1

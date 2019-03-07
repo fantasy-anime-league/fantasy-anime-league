@@ -5,7 +5,6 @@ import fal.collect_series as collect_series
 from unittest.mock import patch, MagicMock
 import pytest
 import vcr
-import json
 
 
 @pytest.mark.parametrize("season,year", [

@@ -4,15 +4,15 @@ Script to get PTW count of all anime in a certain season
 
 ## Running the script
 
-1. Set the season and year in `config.py`.
+1. Set the season and year in `config.ini`.
 2. Run the script.
     ```shell
-    $ python ptw-script.py
+    $ python run_fal2.py --ptw-counter
     ```
 
 ## Output
 
-The script will generate a CSV file with the name in the format `<season>-<year>-<date>.csv`.
+The script will generate a CSV file with the name in the format `<season>-<year>-<date>.csv` in the ptw_csv directory.
 
 For example, I ran the script on Spring 2019 on January 17, 2019. The filename was `Spring-2019-2019-01-19.csv`.
 

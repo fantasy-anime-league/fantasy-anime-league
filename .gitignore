@@ -2,11 +2,13 @@
 bannerdata/week*.txt
 data/
 results/
-ptw-script/*.csv
+ptw_csv/
 config-secret.ini
 generic.key
 **/series*.txt
 **/series_sorted*.txt
+test/unit/*.csv
+src/
 
 
 # git secret
