@@ -31,12 +31,12 @@ def get_ptw_info(series_dict: Dict[int, str]) -> List[Tuple[str, int, str]]:
     return ptw
 
 
-def output_ptw_info(season_of_year: str, year: int, ptw: List[Tuple[str, int, str]]) -> None:
+def output_ptw_info(season_of_year: str, year: int, ptw: List[Tuple[str, int, str]], directory: str) -> None:
     """Outputs PTW info to CSV file"""
     season_of_year = season_of_year.capitalize()
     year_str = str(year)
     today = str(date.today())
-    filename = f'ptw_csv/{season_of_year}-{year_str}-{today}.csv'
+    filename = directory + f'/{season_of_year}-{year_str}-{today}.csv'
     with open(filename, 'w', encoding='utf8', newline='') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerows(sorted(ptw))
@@ -58,7 +58,7 @@ def ptw_counter() -> None:
     ptw = get_ptw_info(series_dict)
     pprint(ptw)
 
-    output_ptw_info(season_of_year, year, ptw)
+    output_ptw_info(season_of_year, year, ptw, 'ptw_csv')
 
     # Database workflow
     # print('Adding anime to database if not present and adding to PTW table')
