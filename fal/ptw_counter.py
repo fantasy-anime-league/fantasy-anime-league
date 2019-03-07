@@ -50,10 +50,19 @@ def output_ptw_info(season_of_year: str, year: int, ptw: Iterable[PTWEntry], dir
 
 
 def add_ptw_to_database(anime_id: int, date: date, ptw_count: int, session: Session) -> None:
-    """Adds Plan To Watch entry to database"""
-    ptw_entry = PlanToWatch(anime_id=anime_id, date=date, count=ptw_count)
-    print(f'Adding {ptw_entry} to database')
-    session.add(ptw_entry)
+    """Adds or updates Plan To Watch entry to database"""
+    query = session.query(PlanToWatch). \
+        filter(PlanToWatch.anime_id == anime_id, PlanToWatch.date == date)
+    ptw_entry = query.one_or_none()
+
+    if ptw_entry:
+        ptw_entry.count = ptw_count
+        print(f'Updating {ptw_entry} in database')
+        session.commit()
+    else:
+        ptw_entry = PlanToWatch(anime_id=anime_id, date=date, count=ptw_count)
+        print(f'Adding {ptw_entry} to database')
+        session.add(ptw_entry)
 
 
 def ptw_counter() -> None:
