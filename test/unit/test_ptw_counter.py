@@ -29,9 +29,8 @@ def test_get_ptw_info(ptw_fixture, anime_list):
 ])
 def test_output_ptw_info(season_of_year, year, ptw):
     directory = 'test/unit'
-    path = directory + \
-        f'/{season_of_year.capitalize()}-{str(year)}-{str(date.today())}.csv'
-    ptw_counter.output_ptw_info(season_of_year, year, ptw, directory)
+    path = f'{season_of_year.capitalize()}-{str(year)}-{str(date.today())}.csv'
+    ptw_counter.output_ptw_info(season_of_year, year, ptw)
     with open(path) as test_f, open('test/unit/fixtures/ptw_info_fixture.csv') as fixture_f:
         assert test_f.read() == fixture_f.read()
 

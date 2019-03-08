@@ -19,6 +19,9 @@ if TYPE_CHECKING:
 
 PTWEntry = namedtuple('PTWEntry', 'title id ptw_count')
 
+config = configparser.ConfigParser()
+config.read("config.ini")
+
 
 def localize_number(num: int) -> str:
     """Add commas to integer at every thousands place"""
@@ -29,21 +32,24 @@ def get_ptw_info(anime_list: Iterable[Anime]) -> List[PTWEntry]:
     """Store PTW of each anime in a list of tuples"""
     jikan = Jikan()
     ptw = list()
+
+    print("Requesting ptw via Jikan")
     for anime in anime_list:
+        print(f"Looking up stats for {anime.name}")
         anime_stats = jikan.anime(anime.id, extension='stats')  # type: ignore
         anime_ptw_num = localize_number(anime_stats['plan_to_watch'])
         ptw.append(PTWEntry(anime.name, anime.id, anime_ptw_num))
-        time.sleep(5)
+        time.sleep(config.getint('jikanpy', 'request-interval'))
     return ptw
 
 
-def output_ptw_info(season_of_year: str, year: int, ptw: Iterable[PTWEntry], directory: str) -> None:
+def output_ptw_info(season_of_year: str, year: int, ptw: Iterable[PTWEntry]) -> None:
     """Outputs PTW info to CSV file"""
     season_of_year = season_of_year.capitalize()
     year_str = str(year)
     today = str(date.today())
-    filename = directory + f'/{season_of_year}-{year_str}-{today}.csv'
-    with open(filename, 'w', encoding='utf8', newline='') as csv_file:
+    filename = f'{season_of_year}-{year_str}-{today}.csv'
+    with open(filename, 'w+', encoding='utf8', newline='') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerows(sorted(ptw))
     print(f'Outputted PTW info to {filename}')
@@ -66,9 +72,6 @@ def add_ptw_to_database(anime_id: int, date: date, ptw_count: int, session: Sess
 
 
 def ptw_counter() -> None:
-    config = configparser.ConfigParser()
-    config.read("config.ini")
-
     # Ensure season is lowercase string and year is integer
     season_of_year = config["season info"]["season"].lower()
     year = int(config["season info"]["year"])
@@ -85,7 +88,7 @@ def ptw_counter() -> None:
         # Store PTW of each anime in a list of tuples
         ptw = get_ptw_info(anime_list)
         pprint(ptw)
-        output_ptw_info(season_of_year, year, ptw, 'ptw_csv')
+        output_ptw_info(season_of_year, year, ptw)
 
         print('Adding PTW entries to PTW table')
         for entry in ptw:

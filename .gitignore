@@ -2,12 +2,11 @@
 bannerdata/week*.txt
 data/
 results/
-ptw_csv/
 config-secret.ini
 generic.key
 **/series*.txt
 **/series_sorted*.txt
-test/unit/*.csv
+*.csv
 src/
 
 
