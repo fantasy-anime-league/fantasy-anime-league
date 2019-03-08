@@ -19,6 +19,9 @@ if TYPE_CHECKING:
 
 PTWEntry = namedtuple('PTWEntry', 'title id ptw_count')
 
+config = configparser.ConfigParser()
+config.read("config.ini")
+
 
 def localize_number(num: int) -> str:
     """Add commas to integer at every thousands place"""
@@ -29,11 +32,14 @@ def get_ptw_info(anime_list: Iterable[Anime]) -> List[PTWEntry]:
     """Store PTW of each anime in a list of tuples"""
     jikan = Jikan()
     ptw = list()
+
+    print("Requesting ptw via Jikan")
     for anime in anime_list:
+        print(f"Looking up stats for {anime.name}")
         anime_stats = jikan.anime(anime.id, extension='stats')  # type: ignore
         anime_ptw_num = localize_number(anime_stats['plan_to_watch'])
         ptw.append(PTWEntry(anime.name, anime.id, anime_ptw_num))
-        time.sleep(5)
+        time.sleep(config.getint('jikanpy', 'request-interval'))
     return ptw
 
 
@@ -66,9 +72,6 @@ def add_ptw_to_database(anime_id: int, date: date, ptw_count: int, session: Sess
 
 
 def ptw_counter() -> None:
-    config = configparser.ConfigParser()
-    config.read("config.ini")
-
     # Ensure season is lowercase string and year is integer
     season_of_year = config["season info"]["season"].lower()
     year = int(config["season info"]["year"])
@@ -76,7 +79,7 @@ def ptw_counter() -> None:
     today = date.today()
 
     # Database workflow
-    with session_scope() as session:
+    with session_scope(True) as session:
         season = get_season_from_database(season_of_year, year, session)
         query = session.query(Anime).filter(Anime.season_id == season.id)
         anime_list = query.all()
