@@ -43,13 +43,13 @@ def get_ptw_info(anime_list: Iterable[Anime]) -> List[PTWEntry]:
     return ptw
 
 
-def output_ptw_info(season_of_year: str, year: int, ptw: Iterable[PTWEntry], directory: str) -> None:
+def output_ptw_info(season_of_year: str, year: int, ptw: Iterable[PTWEntry]) -> None:
     """Outputs PTW info to CSV file"""
     season_of_year = season_of_year.capitalize()
     year_str = str(year)
     today = str(date.today())
-    filename = directory + f'/{season_of_year}-{year_str}-{today}.csv'
-    with open(filename, 'w', encoding='utf8', newline='') as csv_file:
+    filename = f'{season_of_year}-{year_str}-{today}.csv'
+    with open(filename, 'w+', encoding='utf8', newline='') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerows(sorted(ptw))
     print(f'Outputted PTW info to {filename}')
@@ -79,7 +79,7 @@ def ptw_counter() -> None:
     today = date.today()
 
     # Database workflow
-    with session_scope(True) as session:
+    with session_scope() as session:
         season = get_season_from_database(season_of_year, year, session)
         query = session.query(Anime).filter(Anime.season_id == season.id)
         anime_list = query.all()
@@ -88,7 +88,7 @@ def ptw_counter() -> None:
         # Store PTW of each anime in a list of tuples
         ptw = get_ptw_info(anime_list)
         pprint(ptw)
-        output_ptw_info(season_of_year, year, ptw, 'ptw_csv')
+        output_ptw_info(season_of_year, year, ptw)
 
         print('Adding PTW entries to PTW table')
         for entry in ptw:
