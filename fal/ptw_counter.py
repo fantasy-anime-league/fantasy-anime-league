@@ -49,7 +49,8 @@ def output_ptw_info(season_of_year: str, year: int, ptw: Iterable[PTWEntry]) -> 
     year_str = str(year)
     today = str(date.today())
     filename = f'{season_of_year}-{year_str}-{today}.csv'
-    with open(filename, 'w+', encoding='utf8', newline='') as csv_file:
+    # Open file as UTF-8 encoded with BOM
+    with open(filename, 'w', encoding='utf-8-sig', newline='') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerows(sorted(ptw))
     print(f'Outputted PTW info to {filename}')
