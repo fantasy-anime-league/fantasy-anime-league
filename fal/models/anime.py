@@ -15,8 +15,8 @@ class Anime(Base):
     name = Column(String)
     season_id = Column(Integer, ForeignKey("season.id"))
     season = relationship("Season", back_populates="anime")
-    sequel = Column(Boolean, default=0)
-    eligible = Column(Boolean, nullable=True)
+    derivative = Column(Boolean, default=0)
+    eligible = Column(Boolean, default=1)
     alias = Column(String, nullable=True)
 
     plan_to_watch = relationship("PlanToWatch", back_populates="anime")
