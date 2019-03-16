@@ -2,7 +2,7 @@ language: python
 cache: pip
 install:
   - pip install -r requirements-dev.txt
-  - pip install pytest-cov codecov pytest-datadir
+  - pip install pytest-cov codecov
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
   - cp config-secret-stub.ini config-secret.ini
 script: pytest test/unit
