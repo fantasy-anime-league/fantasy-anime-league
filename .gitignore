@@ -2,7 +2,7 @@
 config-secret.ini
 generic.key
 *.csv
-!test/unit/data/ptw_info_fixture.csv
+!test/unit/test_ptw_counter/data/ptw_info_fixture.csv
 series.txt
 series_sorted.txt
 
