@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 @dataclasses.dataclass
 class TeamLines():
     teamname: str
-    active: List[str]
-    bench: List[str]
+    active: Sequence[str]
+    bench: Sequence[str]
 
 
 config = configparser.ConfigParser()
@@ -27,16 +27,19 @@ def slice_up_team_input(team_lines: Sequence[str]) -> TeamLines:
     break it up into 3 distinct sections:
     Teamname, Active Anime, and Bench Anime
 
-    Return these sections in a namedtuple TeamTuple
+    Parse out the teamname as well
+
+    Return these sections in a TeamLines object
     """
 
-    active_len = config['season info']['num-active-on-team']
-    bench_len = config['season info']['num-on-bench']
+    active_len = config.getint('season info', 'num-active-on-team')
+    bench_len = config.getint('season info', 'num-on-bench')
 
     # teamname + main team + bench
     assert len(team_lines) == active_len + bench_len + 1
+    assert team_lines[0][:6] == "Team: "
 
-    return TeamTuple(team_lines[0], team_lines[1: active_len], team_lines[-bench_len])
+    return TeamLines(team_lines[0][6:], team_lines[1: active_len], team_lines[-1 * bench_len])
 
 
 def add_anime_to_team(team: Team, anime_lines: List[str], bench: bool, session: Session) -> None:
@@ -52,24 +55,34 @@ def add_anime_to_team(team: Team, anime_lines: List[str], bench: bool, session: 
 
 
 def load_teams(registration_file: str) -> None:
-    assert config['weekly info']['current-week'] <= 1, "Cannot add teams after week 1"
+    assert config.getint('weekly info', 'current-week') <= 1, \
+        "Cannot add teams after week 1"
 
     with open(registration_file) as f:
         registration_data = f.readlines()
 
+    # group the contents of the input registration file into separate teams,
+    # loaded into TeamLines objects
+    accumulated_team_input: List[str] = []
+    team_lines_list: List[TeamLines] = []
+    for line_num, line in enumerate(registration_data, 1):
+        if line.strip() == "":
+            assert accumulated_team_input, f"Hit a line of whitespace at line {line_num} but no team was assembled"
+            team_lines_list.append(
+                slice_up_team_input(accumulated_team_input))
+            accumulated_team_input = []
+        else:
+            accumulated_team_input.append(line)
+
+    # take the TeamLines objects and load them into the database
     with session_scope() as session:
         current_season = Season.get_season_from_database(
-            config['season info']['season'], config['season info']['year'], session)
+            config['season info']['season'], config.getint('season info', 'year'), session)
 
-        team_lines = []
-        for line_num, line in enumerate(registration_data, 1):
-            if line.strip() == "":
-                assert team, f"Hit a line of whitespace at line {line_num} but no team was assembled"
-                teamtuple = slice_up_team_input(team)
-                team = Team.get_team_from_database(
-                    teamtuple.teamname, current_season, session)
-                add_anime_to_team(team, teamtuple.active, False, session)
-                add_anime_to_team(team, teamtuple.bench, True, session)
-                team_lines = []
-            else:
-                team_lines.append(line)
+        for team_lines in team_lines_list:
+            team = Team.get_team_from_database(
+                team_lines.teamname, current_season, session)
+            add_anime_to_team(
+                team, team_lines.active, False, session)
+            add_anime_to_team(
+                team, team_lines.bench, True, session)
