@@ -1,6 +1,6 @@
 import pytest
 
-from fal.ptw_counter import PTWEntry
+from fal.controllers.ptw_counter import PTWEntry
 
 
 @pytest.fixture

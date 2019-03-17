@@ -1,6 +1,6 @@
 from fixtures.ptw_counter_fixtures import *
 from fal.models import PlanToWatch, Anime
-import fal.ptw_counter as ptw_counter
+import fal.controllers.ptw_counter as ptw_counter
 
 from unittest.mock import patch, MagicMock
 
