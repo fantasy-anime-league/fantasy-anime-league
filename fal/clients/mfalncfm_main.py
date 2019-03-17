@@ -2,8 +2,6 @@ from sqlalchemy import create_engine, select, exc, event
 from sqlalchemy.sql.expression import ColumnElement
 import sqlalchemy.orm
 
-import pymysql
-
 from contextlib import contextmanager
 from typing import Generator, cast
 import sys
@@ -34,8 +32,8 @@ def session_scope(echo: bool = False) -> Generator[sqlalchemy.orm.Session, None,
 
     engine = create_engine(connect_string, echo=echo,
                            echo_pool=echo, pool_pre_ping=True)
-    Session = sqlalchemy.orm.sessionmaker(bind=engine)
-    session = Session()
+    session_factory = sqlalchemy.orm.sessionmaker(bind=engine)
+    session = session_factory()
 
     # neither pool_pre_ping nor the legacy recipe on sqlalchemy's website to test connection seems to work so
     # here we do a crude ping on the connection to see if we're successful
