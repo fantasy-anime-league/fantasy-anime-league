@@ -1,14 +1,10 @@
 # FAL specific
-bannerdata/week*.txt
-data/
-results/
 config-secret.ini
 generic.key
-**/series*.txt
-**/series_sorted*.txt
 *.csv
-src/
-
+!test/unit/test_ptw_counter/data/ptw_info_fixture.csv
+series.txt
+series_sorted.txt
 
 # git secret
 .gitsecret/keys/random_seed

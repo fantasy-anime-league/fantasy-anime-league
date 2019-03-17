@@ -1,12 +1,12 @@
-from fixtures.ptw_counter_fixtures import *
 from fal.models import PlanToWatch, Anime
 import fal.controllers.ptw_counter as ptw_counter
 
 from unittest.mock import patch, MagicMock
 
+from datetime import date
 import pytest
 import vcr
-from datetime import date
+import os
 
 
 def test_localize_number():
@@ -17,7 +17,7 @@ def test_localize_number():
     ([Anime(id=34134, name='One Punch Man Season 2', season_id=2),
       Anime(id=38524, name='Shingeki no Kyojin Season 3 Part 2', season_id=2)]),
 ])
-@vcr.use_cassette('test/unit/fixtures/vcr_cassettes/ptw_counter/get-ptw-info.yaml')
+@vcr.use_cassette('test/unit/vcr_cassettes/ptw_counter/get-ptw-info.yaml')
 def test_get_ptw_info(ptw_fixture, anime_list):
     ptw = ptw_counter.get_ptw_info(anime_list)
     assert ptw == ptw_fixture
@@ -27,12 +27,13 @@ def test_get_ptw_info(ptw_fixture, anime_list):
     ('spring', 2019, [ptw_counter.PTWEntry('One Punch Man Season 2', 34134, '311,499'),
                       ptw_counter.PTWEntry('Shingeki no Kyojin Season 3 Part 2', 38524, '98,614')]),
 ])
-def test_output_ptw_info(season_of_year, year, ptw):
-    directory = 'test/unit'
+def test_output_ptw_info(season_of_year, year, ptw, shared_datadir):
     path = f'{season_of_year.capitalize()}-{str(year)}-{str(date.today())}.csv'
     ptw_counter.output_ptw_info(season_of_year, year, ptw)
-    with open(path) as test_f, open('test/unit/fixtures/ptw_info_fixture.csv') as fixture_f:
-        assert test_f.read() == fixture_f.read()
+    expected_ptw = (shared_datadir / 'ptw_info_fixture.csv').read_text()
+    with open(path) as test_f:
+        assert test_f.read() == expected_ptw
+    os.remove(path)
 
 
 def test_add_ptw_to_database():
