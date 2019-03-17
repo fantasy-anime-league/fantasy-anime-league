@@ -1,4 +1,3 @@
-from fixtures.collect_series_fixtures import series_dict_fixture, series, series_titles
 from fal.models import Season, Anime
 import fal.collect_series as collect_series
 
@@ -11,7 +10,7 @@ import os
 @pytest.mark.parametrize("season,year", [
     ('spring', 2019),
 ])
-@vcr.use_cassette('test/unit/fixtures/vcr_cassettes/collect_series/get-series.yaml')
+@vcr.use_cassette('test/unit/vcr_cassettes/collect_series/get-series.yaml')
 def test_get_series(series_dict_fixture, season, year):
     series_dict = collect_series.get_series(
         year=int(year), season=season.lower())
