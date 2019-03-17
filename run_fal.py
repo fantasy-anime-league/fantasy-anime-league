@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# run_fal2.py
+# run_fal.py
 # FAL (Fantasy Anime League)
 # http://myanimelist.net/clubs.php?cid=379
 
 """
-Main file to run Fantasy Anime League Engine. Should replace run_fal.py once
+Main file to run Fantasy Anime League Engine. Should replace old_run_fal.py once
 it is able to replicate all functionality
 """
 
