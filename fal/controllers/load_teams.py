@@ -42,7 +42,7 @@ def slice_up_team_input(team_lines: Sequence[str]) -> TeamLines:
     return TeamLines(team_lines[0][6:], team_lines[1: active_len], team_lines[-1 * bench_len])
 
 
-def add_anime_to_team(team: Team, anime_lines: List[str], bench: bool, session: Session) -> None:
+def add_anime_to_team(team: Team, anime_lines: Sequence[str], bench: bool, session: Session) -> None:
     for anime_name in anime_lines:
         anime = Anime.get_anime_from_database_by_name(anime_name, session)
         team_weekly_anime = TeamWeeklyAnime(
