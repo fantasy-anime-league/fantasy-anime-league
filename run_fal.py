@@ -30,4 +30,6 @@ if args.collect_series:
 elif args.ptw_counter:
     ptw_counter()
 elif args.load_teams:
-    load_teams(args.registration_file)
+    with open(args.registration_file) as f:
+        registration_data = f.readlines()
+    load_teams(registration_data)

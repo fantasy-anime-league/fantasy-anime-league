@@ -22,7 +22,7 @@ config = configparser.ConfigParser()
 config.read("config.ini")
 
 
-def slice_up_team_input(team_lines: Sequence[str]) -> TeamLines:
+def slice_up_team_input(team_input: Sequence[str]) -> TeamLines:
     """ Take in a block of lines from the registration file,
     break it up into 3 distinct sections:
     Teamname, Active Anime, and Bench Anime
@@ -36,15 +36,29 @@ def slice_up_team_input(team_lines: Sequence[str]) -> TeamLines:
     bench_len = config.getint('season info', 'num-on-bench')
 
     # teamname + main team + bench
-    assert len(team_lines) == active_len + bench_len + 1
-    assert team_lines[0][:6] == "Team: "
+    assert len(team_input) == active_len + bench_len + 1
+    assert team_input[0][:6] == "Team: "
 
-    return TeamLines(team_lines[0][6:], team_lines[1: active_len], team_lines[-1 * bench_len])
+    return TeamLines(team_input[0][6:].strip(), team_input[1:1+active_len], team_input[-1 * bench_len:])
 
 
 def add_anime_to_team(team: Team, anime_lines: Sequence[str], bench: bool, session: Session) -> None:
+    """Add anime by name to the team in the database.
+       Raises an exception if anime cannot be found in database
+       """
+
     for anime_name in anime_lines:
+        anime_name = anime_name.strip()
         anime = Anime.get_anime_from_database_by_name(anime_name, session)
+        if not anime:
+            print(f'{team.name} has {anime_name} on their team,'
+                  ' which is not in the database')
+            return
+
+        if not anime.eligible:
+            print(f'{team.name} has {anime_name} on their team,'
+                  ' which is not eligible for this season')
+
         team_weekly_anime = TeamWeeklyAnime(
             team_id=team.id,
             anime_id=anime.id,
@@ -54,12 +68,11 @@ def add_anime_to_team(team: Team, anime_lines: Sequence[str], bench: bool, sessi
         session.add(team_weekly_anime)
 
 
-def load_teams(registration_file: str) -> None:
+def load_teams(registration_data: Sequence[str]) -> None:
+    """Takes the contents of registration.txt (read into a list already) and marshalls them into the database"""
+
     assert config.getint('weekly info', 'current-week') <= 1, \
         "Cannot add teams after week 1"
-
-    with open(registration_file) as f:
-        registration_data = f.readlines()
 
     # group the contents of the input registration file into separate teams,
     # loaded into TeamLines objects
@@ -73,6 +86,10 @@ def load_teams(registration_file: str) -> None:
             accumulated_team_input = []
         else:
             accumulated_team_input.append(line)
+
+    # one more time in case we don't have a trailing whitespace line
+    if accumulated_team_input:
+        team_lines_list.append(slice_up_team_input(accumulated_team_input))
 
     # take the TeamLines objects and load them into the database
     with session_scope() as session:

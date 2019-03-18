@@ -42,3 +42,6 @@ class Team(Base):
             team = query.one()
 
         return team
+
+    def __repr__(self):
+        return f'{self.id}: {self.name} from season {self.season_id}'

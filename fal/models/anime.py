@@ -5,7 +5,7 @@ from fal.models import Base
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
     from fal.models import PlanToWatch, Season, AnimeWeeklyStat, TeamWeeklyAnime
     from sqlalchemy.orm import relationship, Session
@@ -44,9 +44,9 @@ class Anime(Base):
             session.add(anime)
 
     @staticmethod
-    def get_anime_from_database_by_name(name: str, session: Session) -> Anime:
-        """Get anime from database based on name. Throws an exception if it can't find the name."""
+    def get_anime_from_database_by_name(name: str, session: Session) -> Optional[Anime]:
+        """Get anime from database based on name. Return None if it's not there."""
         query = session.query(Anime).filter(Anime.name == name)
-        anime = query.one()
+        anime = query.one_or_none()
 
         return anime
