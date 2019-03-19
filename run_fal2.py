@@ -13,12 +13,23 @@ it is able to replicate all functionality
 import fal.collect_series
 import fal.ptw_counter
 
+import views.teams
+
 import argparse
+import configparser
+
+config = configparser.ConfigParser()
+config.read("config.ini")
+season_str: str = config["season info"]["season"]
+year: int = config.getint("season info", "year")
 
 parser = argparse.ArgumentParser(
     description="Run the Fantasy Anime League Engine")
 parser.add_argument("--collect-series", action="store_true")
 parser.add_argument("--ptw-counter", action="store_true")
+parser.add_argument("--headcount", action="store_true")
+parser.add_argument("--season", default=season_str)
+parser.add_argument("--year", default=year)
 args = parser.parse_args()
 
 
@@ -26,3 +37,5 @@ if args.collect_series:
     fal.collect_series.collect_series()
 elif args.ptw_counter:
     fal.ptw_counter.ptw_counter()
+elif args.headcount:
+    views.teams.headcount(args.season, args.year)
