@@ -29,6 +29,7 @@ parser.add_argument("--collect-series", action="store_true")
 parser.add_argument("--ptw-counter", action="store_true")
 parser.add_argument("--headcount", action="store_true")
 parser.add_argument("--team-overview", action="store_true")
+parser.add_argument("--team-stats", action="store_true")
 parser.add_argument("--season", default=season_str)
 parser.add_argument("--year", default=year)
 args = parser.parse_args()
@@ -42,3 +43,5 @@ elif args.headcount:
     views.teams.headcount(args.season, args.year)
 elif args.team_overview:
     views.teams.team_overview(args.season, args.year)
+elif args.team_stats:
+    views.teams.team_stats(args.season, args.year)

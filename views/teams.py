@@ -1,16 +1,23 @@
+from dataclasses import dataclass
 import configparser
 
 from fal.clients.mfalncfm_main import session_scope
 from fal.models import Team, Season, TeamWeeklyAnime, Anime
 from fal.collect_series import get_season_from_database
 
-from typing import Sequence, TYPE_CHECKING
+from typing import Sequence, Dict, TYPE_CHECKING
 from sqlalchemy.orm import Session
 
 config = configparser.ConfigParser()
 config.read("config.ini")
 season_str: str = config["season info"]["season"]
 year: int = config.getint("season info", "year")
+
+
+@dataclass()
+class AnimeTeamCount:
+    num_teams: int
+    num_active: int
 
 
 # Implicitly combined strings for headcount intro and conclusion
@@ -27,6 +34,12 @@ HEADCOUNT_CONC_TEXT = (
     "hours), then you are [b]NOT[/b] registered. In that case, please contact "
     "the FAL staff.\n\nAfter the registration is closed, we'll put up the team "
     "list thread so you can check to make sure your team is correct."
+)
+
+TEAM_STATS_TEXT = (
+    "[u]Team Stats:[/u]\nThe list is ordered on how many times people chose a "
+    "certain anime in their team. The number in the brackets is the amount of "
+    "people who have the anime in their active team.\n\n"
 )
 
 
@@ -76,39 +89,40 @@ def team_overview(season_str: str = season_str, year: int = year) -> None:
             f.write("[/spoiler]")
 
 
-# def team_stats(prep=False):
-#     """
-#     Creates a statistic of the titles distribution for the team overview thread.
-#     This function can also be used during the game to obtain the distribution
-#     of the current week.
-#     @param prep during the real game (False) or before the game (True)
-#     """
-#     if not prep:
-#         teams, _, _, _, anime, _, _ = funcs.load_all_data(WEEK)
-#         stats_file = open("lists/team_stats_%.2d.txt" % WEEK, "w")
-#     else:
-#         teams = pickle.load(open("lists/teams.obj"))
-#         stats_file = open("lists/team_stats.txt", "w")
-#     stats_file.write("[u]Team Stats:[/u]\n")
-#     stats_file.write(
-#         "The list is ordered on how many times people chose a certain anime ")
-#     stats_file.write(
-#         "in their team. The number in the brackets is the amount of people ")
-#     stats_file.write("who have the anime in their active team.\n\n")
-#     anime = re.findall(r'(\d+)\s(.+)', open("lists/anime_list.txt").read())
-#     stats = {a_title.strip(): [0, 0] for a_id, a_title in anime}
-#     for series in teams.values():
-#         for _, a_title in series:
-#             stats[a_title][0] += 1
-#         for _, a_title in series[:TEAM_LEN]:
-#             stats[a_title][1] += 1
-#     s_name = sorted(stats.items(), key=lambda x: x[0].lower())
-#     s_act = sorted(s_name, key=lambda x: x[1][1], reverse=True)
-#     s_all = sorted(s_act, key=lambda x: x[1][0], reverse=True)
-#     for n, (a_title, _) in enumerate(s_all):
-#         stats_file.write("%i - %s: %i (%i)\n" %
-#                          ((n+1), a_title, stats[a_title][0], stats[a_title][1]))
-#     stats_file.close()
+def team_stats(season_str: str = season_str, year: int = year, prep: bool = True) -> None:
+    """
+    Creates a statistic of the titles distribution for the team overview thread.
+    This function can also be used during the game to obtain the distribution
+    of the current week.
+    @param prep during the real game (False) or before the game (True)
+    """
+    if not prep:
+        filename = f"lists/team_stats_{config.getint('weekly info', 'current-week')}.txt"
+        raise NotImplementedError("Haven't implemented stats during real game")
+    else:
+        filename = "lists/team_stats.txt"
+    with session_scope() as session:
+        teams: Sequence[Team] = get_team_from_season(season_str, year, session)
+        season: Season = get_season_from_database(season_str, year, session)
+        query = session.query(Anime).filter(Anime.season_id == season.id)
+        anime_list: Sequence[Anime] = query.all()
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(TEAM_STATS_TEXT)
+            stats: Dict[int, AnimeTeamCount] = {
+                a.id: AnimeTeamCount(0, 0) for a in anime_list}
+            for team in teams:
+                base_query = session.query(TeamWeeklyAnime). \
+                    filter(TeamWeeklyAnime.team_id == team.id)
+                series: Sequence[TeamWeeklyAnime] = base_query.all()
+                for anime in series:
+                    stats[anime.anime_id].num_teams += 1
+                    if not anime.bench:
+                        stats[anime.anime_id].num_active += 1
+            s_all = sorted(
+                anime_list, key=lambda a: stats[a.id].num_teams, reverse=True)
+            for n, a in enumerate(s_all, 1):
+                f.write(
+                    f"{n} - {a.name}: {stats[a.id].num_teams} ({stats[a.id].num_active})\n")
 
 
 # def team_dist(prep=False):
