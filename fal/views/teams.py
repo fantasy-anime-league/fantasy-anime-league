@@ -109,21 +109,21 @@ def team_stats(season_str: str = season_str, year: int = year, prep: bool = True
         season: Season = get_season_from_database(season_str, year, session)
         query = session.query(Anime).filter(Anime.season_id == season.id)
         anime_list: Sequence[Anime] = query.all()
+        stats: Dict[int, AnimeTeamCount] = {
+            a.id: AnimeTeamCount(0, 0) for a in anime_list}
+        for team in teams:
+            base_query = session.query(TeamWeeklyAnime). \
+                filter(TeamWeeklyAnime.team_id == team.id). \
+                filter(TeamWeeklyAnime.week == week)
+            series: Sequence[TeamWeeklyAnime] = base_query.all()
+            for anime in series:
+                stats[anime.anime_id].num_teams += 1
+                if not anime.bench:
+                    stats[anime.anime_id].num_active += 1
+        s_all = sorted(
+            anime_list, key=lambda a: stats[a.id].num_teams, reverse=True)
         with open(filename, "w", encoding="utf-8") as f:
             f.write(TEAM_STATS_TEXT)
-            stats: Dict[int, AnimeTeamCount] = {
-                a.id: AnimeTeamCount(0, 0) for a in anime_list}
-            for team in teams:
-                base_query = session.query(TeamWeeklyAnime). \
-                    filter(TeamWeeklyAnime.team_id == team.id). \
-                    filter(TeamWeeklyAnime.week == week)
-                series: Sequence[TeamWeeklyAnime] = base_query.all()
-                for anime in series:
-                    stats[anime.anime_id].num_teams += 1
-                    if not anime.bench:
-                        stats[anime.anime_id].num_active += 1
-            s_all = sorted(
-                anime_list, key=lambda a: stats[a.id].num_teams, reverse=True)
             for n, a in enumerate(s_all, 1):
                 f.write(
                     f"{n} - {a.name}: {stats[a.id].num_teams} ({stats[a.id].num_active})\n")
