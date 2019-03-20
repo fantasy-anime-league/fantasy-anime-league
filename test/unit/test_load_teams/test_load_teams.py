@@ -109,6 +109,9 @@ def test_add_anime_to_team(session, team_factory):
     team_bench_anime = session.query(TeamWeeklyAnime).filter(
         TeamWeeklyAnime.team_id == team.id, TeamWeeklyAnime.bench == True).all()
 
+    assert len(team_active_anime) == 2
+    assert len(team_bench_anime) == 2
+    
     for anime in team_active_anime:
         assert anime.name in active_anime
     for anime in team_bench_anime:
