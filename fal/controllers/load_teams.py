@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class TeamLines():
     teamname: str
     active: Sequence[str]
