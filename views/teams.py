@@ -65,6 +65,7 @@ def team_overview(season_str: str = season_str, year: int = year) -> None:
     """
     Creates a formatted forum post for the team overview thread.
     """
+    week: int = config.getint('weekly info', 'current-week')
     with session_scope() as session:
         teams: Sequence[Team] = get_team_from_season(season_str, year, session)
         with open("lists/team_overview.txt", "w", encoding="utf-8") as f:
@@ -72,7 +73,8 @@ def team_overview(season_str: str = season_str, year: int = year) -> None:
             for team in sorted(teams, key=lambda t: t.name):
                 base_query = session.query(TeamWeeklyAnime, Anime). \
                     filter(TeamWeeklyAnime.team_id == team.id). \
-                    filter(TeamWeeklyAnime.anime_id == Anime.id)
+                    filter(TeamWeeklyAnime.anime_id == Anime.id). \
+                    filter(TeamWeeklyAnime.week == week)
                 active_anime = base_query.filter(
                     TeamWeeklyAnime.bench.is_(False)).all()
                 bench_anime = base_query.filter(
@@ -96,8 +98,9 @@ def team_stats(season_str: str = season_str, year: int = year, prep: bool = True
     of the current week.
     @param prep during the real game (False) or before the game (True)
     """
+    week: int = config.getint('weekly info', 'current-week')
     if not prep:
-        filename = f"lists/team_stats_{config.getint('weekly info', 'current-week')}.txt"
+        filename = f"lists/team_stats_{week}.txt"
         raise NotImplementedError("Haven't implemented stats during real game")
     else:
         filename = "lists/team_stats.txt"
@@ -112,7 +115,8 @@ def team_stats(season_str: str = season_str, year: int = year, prep: bool = True
                 a.id: AnimeTeamCount(0, 0) for a in anime_list}
             for team in teams:
                 base_query = session.query(TeamWeeklyAnime). \
-                    filter(TeamWeeklyAnime.team_id == team.id)
+                    filter(TeamWeeklyAnime.team_id == team.id). \
+                    filter(TeamWeeklyAnime.week == week)
                 series: Sequence[TeamWeeklyAnime] = base_query.all()
                 for anime in series:
                     stats[anime.anime_id].num_teams += 1
