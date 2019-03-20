@@ -37,6 +37,6 @@ $ python -m pytest
 Currently not fully type-checkable until we convert all our legacy code!
 
 ```shell
-$ mypy fal run_fal.py views
+$ mypy fal run_fal.py
 ...
 ```

@@ -12,8 +12,7 @@ it is able to replicate all functionality
 
 import fal.collect_series
 import fal.ptw_counter
-
-import views.teams
+import fal.views.teams
 
 import argparse
 import configparser
@@ -40,8 +39,8 @@ if args.collect_series:
 elif args.ptw_counter:
     fal.ptw_counter.ptw_counter()
 elif args.headcount:
-    views.teams.headcount(args.season, args.year)
+    fal.views.teams.headcount(args.season, args.year)
 elif args.team_overview:
-    views.teams.team_overview(args.season, args.year)
+    fal.views.teams.team_overview(args.season, args.year)
 elif args.team_stats:
-    views.teams.team_stats(args.season, args.year)
+    fal.views.teams.team_stats(args.season, args.year)
