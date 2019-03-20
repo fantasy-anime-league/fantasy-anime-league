@@ -1,10 +1,11 @@
 import configparser
 
 from fal.clients.mfalncfm_main import session_scope
-from fal.models import Team, Season
+from fal.models import Team, Season, TeamWeeklyAnime, Anime
 from fal.collect_series import get_season_from_database
 
-from typing import Sequence
+from typing import Sequence, TYPE_CHECKING
+from sqlalchemy.orm import Session
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -12,7 +13,7 @@ season_str: str = config["season info"]["season"]
 year: int = config.getint("season info", "year")
 
 
-# Implicitly combined strings for intro and conclusion
+# Implicitly combined strings for headcount intro and conclusion
 HEADCOUNT_INTRO_TEXT = (
     "This is the headcount of the people who have been accepted in Fantasy "
     "Anime League {} {}.\n\n"
@@ -29,46 +30,50 @@ HEADCOUNT_CONC_TEXT = (
 )
 
 
+def get_team_from_season(season_str: str, year: int, session: Session) -> Sequence[Team]:
+    season: Season = get_season_from_database(season_str, year, session)
+    return session.query(Team).filter(Team.season_id == season.id).all()
+
+
 def headcount(season_str: str = season_str, year: int = year) -> None:
     """
     Creates a formatted forum post for the headcount thread.
     """
     with session_scope() as session:
-        season: Season = get_season_from_database(
-            season_str.capitalize(), year, session)
-
-        teams: Sequence[Team] = session.query(
-            Team).filter(Team.season_id == season.id).all()
-
+        teams: Sequence[Team] = get_team_from_season(season_str, year, session)
         with open("lists/team_headcount.txt", "w", encoding="utf-8") as f:
-            f.write(HEADCOUNT_INTRO_TEXT.format(season_str, year))
-            for team in sorted(teams, key=lambda team: team.name):
+            f.write(HEADCOUNT_INTRO_TEXT.format(season_str.capitalize(), year))
+            for team in sorted(teams, key=lambda t: t.name):
                 f.write(f"[b]{team.name}[/b]\n")
             f.write(HEADCOUNT_CONC_TEXT.format(len(teams)))
 
 
-# def team_overview():
-#     """
-#     Creates a formatted forum post for the team overview thread.
-#     """
-#     teams = pickle.load(open("lists/teams.obj"))
-#     team_overview_file = open("lists/team_overview.txt", "w")
-#     # team_overview_file.write("[u]Team List:[/u]\n[spoiler]\n")
-#     team_overview_file.write("Team List - FAL Spring 2016\n\n\n")
-#     for team, titles in sorted(teams.items(), key=lambda x: x[0].lower()):
-#         # team_overview_file.write("[b][u]%s[/u][/b]\n" % team)
-#         team_overview_file.write(
-#             "%s\n---------------------------------\n" % team)
-#         # list all active series
-#         for _, a_title in sorted(titles[:TEAM_LEN], key=lambda x: x[1].lower()):
-#             team_overview_file.write("%s\n" % a_title)
-#         team_overview_file.write("\n")
-#         # list all bench series
-#         for _, a_title in sorted(titles[TEAM_LEN:], key=lambda x: x[1].lower()):
-#             team_overview_file.write("%s\n" % a_title)
-#         team_overview_file.write("\n\n")
-#     team_overview_file.write("[/spoiler]")
-#     team_overview_file.close()
+def team_overview(season_str: str = season_str, year: int = year) -> None:
+    """
+    Creates a formatted forum post for the team overview thread.
+    """
+    with session_scope() as session:
+        teams: Sequence[Team] = get_team_from_season(season_str, year, session)
+        with open("lists/team_overview.txt", "w", encoding="utf-8") as f:
+            f.write(f"Team List - FAL {season_str.capitalize()} {year}\n\n\n")
+            for team in sorted(teams, key=lambda t: t.name):
+                base_query = session.query(TeamWeeklyAnime, Anime). \
+                    filter(TeamWeeklyAnime.team_id == team.id). \
+                    filter(TeamWeeklyAnime.anime_id == Anime.id)
+                active_anime = base_query.filter(
+                    TeamWeeklyAnime.bench.is_(False)).all()
+                bench_anime = base_query.filter(
+                    TeamWeeklyAnime.bench.is_(True)).all()
+                f.write(f"{team.name}\n---------------------------------\n")
+                # list all active series
+                for anime in sorted(active_anime, key=lambda a: a[1].name.lower()):
+                    f.write(f"{anime[1].name}\n")
+                f.write("\n")
+                # list all bench series
+                for anime in sorted(bench_anime, key=lambda a: a[1].name.lower()):
+                    f.write(f"{anime[1].name}\n")
+                f.write("\n\n")
+            f.write("[/spoiler]")
 
 
 # def team_stats(prep=False):
