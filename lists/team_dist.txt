@@ -1,0 +1,15 @@
+[u]Same 7 series and same active team/bench distribution[/u]
+Number of unique teams: 3
+
+Same team chosen by:
+[list][/list]
+[u]Same 7 series but different active team/bench distribution[/u]
+Number of unique teams: 3
+
+Same team chosen by:
+[list][/list]
+[u]Same active team (but can have different benched series)[/u]
+Number of unique active teams: 3
+
+Same team chosen by:
+[list][/list]

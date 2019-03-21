@@ -29,6 +29,7 @@ parser.add_argument("--ptw-counter", action="store_true")
 parser.add_argument("--headcount", action="store_true")
 parser.add_argument("--team-overview", action="store_true")
 parser.add_argument("--team-stats", action="store_true")
+parser.add_argument("--team-dist", action="store_true")
 parser.add_argument("--season", default=season_str)
 parser.add_argument("--year", default=year)
 args = parser.parse_args()
@@ -44,3 +45,5 @@ elif args.team_overview:
     fal.views.teams.team_overview(args.season, args.year)
 elif args.team_stats:
     fal.views.teams.team_stats(args.season, args.year)
+elif args.team_dist:
+    fal.views.teams.team_dist(args.season, args.year)
