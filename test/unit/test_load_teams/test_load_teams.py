@@ -91,8 +91,10 @@ def test_slice_up_team_input_raises_if_length_is_not_expected(config_mock, team_
         load_teams.slice_up_team_input(team_input)
 
 
-def test_add_anime_to_team(session, team_factory):
-    team = team_factory(season_id=2)
+def test_add_anime_to_team(session, season_factory, team_factory, anime_factory):
+    season_factory(id=0)
+    team = team_factory()
+
     active_anime = [
         'Toaru Majutsu no Index III',
         'Zombieland Saga',
@@ -101,6 +103,10 @@ def test_add_anime_to_team(session, team_factory):
         'Kanon (2006)',
         'Fruits Basket (2019)'
     ]
+
+    for anime_name in (active_anime + bench_anime):
+        anime_factory(name=anime_name, eligible=1)
+
     load_teams.add_anime_to_team(team, active_anime, False, session)
     load_teams.add_anime_to_team(team, bench_anime, True, session)
 
@@ -111,10 +117,10 @@ def test_add_anime_to_team(session, team_factory):
 
     assert len(team_active_anime) == 2
     assert len(team_bench_anime) == 2
-    
-    for anime in team_active_anime:
+
+    for anime in [x.anime for x in team_active_anime]:
         assert anime.name in active_anime
-    for anime in team_bench_anime:
+    for anime in [x.anime for x in team_bench_anime]:
         assert anime.name in bench_anime
 
 
