@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from fal.clients.mfalncfm_main import session_scope
-from fal.models import PlanToWatch, Anime
-from fal.collect_series import get_season_from_database
+from fal.models import PlanToWatch, Anime, Season
 
 from jikanpy import Jikan
 
@@ -81,7 +80,7 @@ def ptw_counter() -> None:
 
     # Database workflow
     with session_scope() as session:
-        season = get_season_from_database(season_of_year, year, session)
+        season = Season.get_season_from_database(season_of_year, year, session)
         query = session.query(Anime).filter(Anime.season_id == season.id)
         anime_list = query.all()
         print(f'Length of list of anime: {len(anime_list)}')
