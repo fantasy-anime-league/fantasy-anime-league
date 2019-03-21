@@ -127,7 +127,7 @@ def test_add_anime_to_team(session, season_factory, team_factory, anime_factory)
 @patch('fal.controllers.load_teams.config')
 @patch('fal.controllers.load_teams.session_scope')
 def test_load_teams(session_scope_mock, config_mock, shared_datadir, session_scope, session, anime_factory, season_factory):
-    season = season_factory(id=1)
+    season = season_factory(id=0)
 
     def mock_config_getitem(key):
         assert key == "season info"
@@ -155,7 +155,7 @@ def test_load_teams(session_scope_mock, config_mock, shared_datadir, session_sco
     with (shared_datadir / 'anime.txt').open() as f:
         all_anime = f.readlines()
     for anime_name in all_anime:
-        anime_factory(name=anime_name.strip(), eligible=1, season=season)
+        anime_factory(name=anime_name.strip(), eligible=1)
 
     with (shared_datadir / 'registration.txt').open() as f:
         registration_data = f.readlines()

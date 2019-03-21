@@ -36,12 +36,8 @@ class Season(Base):
         current_season = query.one_or_none()
 
         if not current_season:
-            new_season = Season(season_of_year=season_of_year, year=year)
-            print(f'Adding {new_season} to database')
-            session.add(new_season)
+            current_season = Season(season_of_year=season_of_year, year=year)
+            session.add(current_season)
             session.commit()
-            query = session.query(Season).filter(
-                Season.season_of_year == season_of_year, Season.year == year)
-            current_season = query.one()
 
         return current_season
