@@ -35,11 +35,6 @@ class Team(Base):
             team = Team(name=name, season_id=season.id)
             session.add(team)
             session.commit()
-            query = session.query(Team).filter(
-                Team.name == name,
-                Team.season_id == season.id
-            )
-            team = query.one()
 
         return team
 
