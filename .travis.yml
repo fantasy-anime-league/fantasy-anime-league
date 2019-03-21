@@ -5,7 +5,9 @@ install:
   - pip install pytest-cov codecov
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
   - cp config-secret-stub.ini config-secret.ini
-script: pytest test/unit
+script:
+  - pytest test/unit
+  - mypy run_fal.py fal
 after_success:
   - pytest --cov fal test/
   - codecov

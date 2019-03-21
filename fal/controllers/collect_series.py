@@ -57,38 +57,6 @@ def output_series_titles(titles: ValuesView[str], filename: str) -> None:
         f.writelines(f"{title}\n" for title in sorted(titles))
 
 
-def get_season_from_database(season_of_year: str, year: int, session: Session) -> Season:
-    """Adds the season to the Season table in the database if necessary, then returns Season object
-    """
-    query = session.query(Season).filter(
-        Season.season_of_year == season_of_year, Season.year == year)
-    current_season = query.one_or_none()
-
-    if not current_season:
-        new_season = Season(season_of_year=season_of_year, year=year)
-        print(f'Adding {new_season} to database')
-        session.add(new_season)
-        session.commit()
-        query = session.query(Season).filter(
-            Season.season_of_year == season_of_year, Season.year == year)
-        current_season = query.one()
-
-    return current_season
-
-
-def add_anime_to_database(id: int, name: str, season: Season, session: Session) -> None:
-    """ Adds new anime row to database if it doesn't already exist """
-    query = session.query(Anime).filter(Anime.id == id)
-    anime = query.one_or_none()
-
-    if anime:
-        print(f'{anime} already exists in database')
-    else:
-        anime = Anime(id=id, name=name, season_id=season.id)
-        print(f'Adding {anime} to database')
-        session.add(anime)
-
-
 def collect_series() -> None:
     config = configparser.ConfigParser()
     config.read("config.ini")
@@ -109,6 +77,6 @@ def collect_series() -> None:
     # database workflow
     print("adding anime to database")
     with session_scope() as session:
-        season = get_season_from_database(season_of_year, year, session)
+        season = Season.get_season_from_database(season_of_year, year, session)
         for anime_id, anime_name in series_dict.items():
-            add_anime_to_database(anime_id, anime_name, season, session)
+            Anime.add_anime_to_database(anime_id, anime_name, season, session)

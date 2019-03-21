@@ -1,5 +1,5 @@
 from fal.models import PlanToWatch, Anime
-import fal.ptw_counter as ptw_counter
+import fal.controllers.ptw_counter as ptw_counter
 
 from unittest.mock import patch, MagicMock
 
@@ -13,12 +13,14 @@ def test_localize_number():
     assert ptw_counter.localize_number(1034) == '1,034'
 
 
+@patch('fal.controllers.ptw_counter.time')
 @pytest.mark.parametrize("anime_list", [
     ([Anime(id=34134, name='One Punch Man Season 2', season_id=2),
       Anime(id=38524, name='Shingeki no Kyojin Season 3 Part 2', season_id=2)]),
 ])
 @vcr.use_cassette('test/unit/vcr_cassettes/ptw_counter/get-ptw-info.yaml')
-def test_get_ptw_info(ptw_fixture, anime_list):
+def test_get_ptw_info(time_mock, ptw_fixture, anime_list):
+    time_mock.sleep.return_value = None  # no need to wait in a unit test!
     ptw = ptw_counter.get_ptw_info(anime_list)
     assert ptw == ptw_fixture
 

@@ -1,5 +1,5 @@
 from fal.models import Season, Anime
-import fal.collect_series as collect_series
+import fal.controllers.collect_series as collect_series
 
 from unittest.mock import patch, MagicMock
 import pytest
@@ -34,35 +34,3 @@ def test_output_series_titles(series_titles, shared_datadir):
     with open(path) as test_f:
         assert test_f.read() == expected_sorted_series_list
     os.remove(path)
-
-
-def test_get_season_from_database_adds_season():
-    mock_session = MagicMock()
-    mock_session.query.return_value.filter.return_value.one_or_none.return_value = None
-
-    expected_season = Season(season_of_year="spring", year=2017)
-
-    collect_series.get_season_from_database(
-        expected_season.season_of_year, expected_season.year, mock_session)
-    args, _ = mock_session.add.call_args
-    season_added = args[0]
-    assert isinstance(season_added, Season)
-    assert season_added.year == expected_season.year
-    assert season_added.season_of_year == expected_season.season_of_year
-
-
-def test_add_anime_to_database():
-    mock_session = MagicMock()
-    mock_session.query.return_value.filter.return_value.one_or_none.return_value = None
-
-    expected_anime = Anime(id=1234,
-                           name="The Melancholy of Haruhi Suzumiya", season_id=0)
-
-    collect_series.add_anime_to_database(
-        expected_anime.id, expected_anime.name, Season(id=expected_anime.season_id), mock_session)
-    args, _ = mock_session.add.call_args
-    anime_added = args[0]
-    assert isinstance(anime_added, Anime)
-    assert anime_added.id == expected_anime.id
-    assert anime_added.name == expected_anime.name
-    assert anime_added.season_id == expected_anime.season_id
