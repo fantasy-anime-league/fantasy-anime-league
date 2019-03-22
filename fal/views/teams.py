@@ -62,7 +62,7 @@ def headcount(season_str: str = season_str, year: int = year, filename: str = "l
         with open(filename, "w", encoding="utf-8") as f:
             f.write(HEADCOUNT_INTRO_TEXT.format(season_str.capitalize(), year))
             # Output participant names alphabetically
-            for team in sorted(teams, key=lambda t: t.name):  # type: ignore
+            for team in sorted(teams, key=lambda t: t.name.lower()):  # type: ignore
                 f.write(f"[b]{team.name}[/b]\n")
             f.write(HEADCOUNT_CONC_TEXT.format(len(teams)))  # type: ignore
 
@@ -77,7 +77,7 @@ def team_overview(season_str: str = season_str, year: int = year, filename: str 
             season_str, year, session).teams
         with open(filename, "w", encoding="utf-8") as f:
             f.write(f"Team List - FAL {season_str.capitalize()} {year}\n\n\n")
-            for team in sorted(teams, key=lambda t: t.name):  # type: ignore
+            for team in sorted(teams, key=lambda t: t.name.lower()):  # type: ignore
                 # Query all the anime on the team for this week
                 base_query = session.query(TeamWeeklyAnime). \
                     filter(TeamWeeklyAnime.team_id == team.id). \

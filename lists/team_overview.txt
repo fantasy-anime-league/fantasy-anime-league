@@ -1,11 +1,6 @@
 Team List - FAL Fall 2018
 
 
-Congress
----------------------------------
-
-
-
 abhinavk99
 ---------------------------------
 Jojo no Kimyou na Bouken: Ougon no Kaze
@@ -16,6 +11,11 @@ Tensei shitara Slime Datta Ken
 
 Radiant
 SSSS.Gridman
+
+
+Congress
+---------------------------------
+
 
 
 kei-clone
