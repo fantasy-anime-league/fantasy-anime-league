@@ -14,7 +14,7 @@ season_str: str = config["season info"]["season"]
 year: int = config.getint("season info", "year")
 
 
-# Implicitly combined strings for headcount intro and conclusion
+# Implicitly long combined format strings for outputting forum posts
 HEADCOUNT_INTRO_TEXT = (
     "This is the headcount of the people who have been accepted in Fantasy "
     "Anime League {} {}.\n\n"
@@ -52,21 +52,22 @@ SAME_ACTIVE_TEXT = (
 )
 
 
-def headcount(season_str: str = season_str, year: int = year) -> None:
+def headcount(season_str: str = season_str, year: int = year, filename: str = "lists/team_headcount.txt") -> None:
     """
     Creates a formatted forum post for the headcount thread.
     """
     with session_scope() as session:
         teams = Season.get_season_from_database(
             season_str, year, session).teams
-        with open("lists/team_headcount.txt", "w", encoding="utf-8") as f:
+        with open(filename, "w", encoding="utf-8") as f:
             f.write(HEADCOUNT_INTRO_TEXT.format(season_str.capitalize(), year))
+            # Output participant names alphabetically
             for team in sorted(teams, key=lambda t: t.name):  # type: ignore
                 f.write(f"[b]{team.name}[/b]\n")
             f.write(HEADCOUNT_CONC_TEXT.format(len(teams)))  # type: ignore
 
 
-def team_overview(season_str: str = season_str, year: int = year) -> None:
+def team_overview(season_str: str = season_str, year: int = year, filename: str = "lists/team_overview.txt") -> None:
     """
     Creates a formatted forum post for the team overview thread.
     """
@@ -74,9 +75,10 @@ def team_overview(season_str: str = season_str, year: int = year) -> None:
     with session_scope() as session:
         teams = Season.get_season_from_database(
             season_str, year, session).teams
-        with open("lists/team_overview.txt", "w", encoding="utf-8") as f:
+        with open(filename, "w", encoding="utf-8") as f:
             f.write(f"Team List - FAL {season_str.capitalize()} {year}\n\n\n")
             for team in sorted(teams, key=lambda t: t.name):  # type: ignore
+                # Query all the anime on the team for this week
                 base_query = session.query(TeamWeeklyAnime). \
                     filter(TeamWeeklyAnime.team_id == team.id). \
                     filter(TeamWeeklyAnime.week == week)
@@ -85,18 +87,18 @@ def team_overview(season_str: str = season_str, year: int = year) -> None:
                 bench_anime = base_query.filter(
                     TeamWeeklyAnime.bench.is_(True)).all()
                 f.write(f"{team.name}\n---------------------------------\n")
-                # list all active series
+                # List all active series on the team
                 for anime in sorted(active_anime, key=lambda a: a.anime.name.lower()):
                     f.write(f"{anime.anime.name}\n")
                 f.write("\n")
-                # list all bench series
+                # List all bench series on the team
                 for anime in sorted(bench_anime, key=lambda a: a.anime.name.lower()):
                     f.write(f"{anime.anime.name}\n")
                 f.write("\n\n")
             f.write("[/spoiler]")
 
 
-def team_stats(season_str: str = season_str, year: int = year, prep: bool = True) -> None:
+def team_stats(season_str: str = season_str, year: int = year, prep: bool = True, filename: str = "lists/team_stats.txt") -> None:
     """
     Creates a statistic of the titles distribution for the team overview thread.
     This function can also be used during the game to obtain the distribution
@@ -105,19 +107,21 @@ def team_stats(season_str: str = season_str, year: int = year, prep: bool = True
     """
     week: int = config.getint('weekly info', 'current-week')
     if not prep:
-        filename = f"lists/team_stats_{week}.txt"
+        # Add week to the given filename
+        filename = filename[:-4] + f"_{week}" + filename[-4:]
         raise NotImplementedError("Haven't implemented stats during real game")
-    else:
-        filename = "lists/team_stats.txt"
     with session_scope() as session:
         season: Season = Season.get_season_from_database(
             season_str, year, session)
+        # Query anime name and number of times it is on a team this week
         base_query = session.query(Anime.name, func.count('*')). \
             join(TeamWeeklyAnime.anime). \
             order_by(func.count('*').desc(), Anime.name) .\
             filter(TeamWeeklyAnime.week == week)
+        # Group the counts by the name
         anime_counts: List[Tuple[str, int]] = base_query. \
             group_by(Anime.name).all()
+        # Filter to only get active count and group by name
         active_counts: Dict[str, int] = dict(base_query.
                                              filter(TeamWeeklyAnime.bench.is_(False)).
                                              group_by(Anime.name).all())
@@ -125,12 +129,13 @@ def team_stats(season_str: str = season_str, year: int = year, prep: bool = True
         print(f"Active Counts:\n{active_counts}")
         with open(filename, "w", encoding="utf-8") as f:
             f.write(TEAM_STATS_TEXT)
+            # Output counts for each anime
             for i, (anime, count) in enumerate(anime_counts, 1):
                 active_count = active_counts[anime] if anime in active_counts else 0
                 f.write(f"{i} - {anime}: {count} ({active_count})\n")
 
 
-def team_dist(season_str: str = season_str, year: int = year, prep: bool = True) -> None:
+def team_dist(season_str: str = season_str, year: int = year, prep: bool = True, filename: str = "lists/team_dist.txt") -> None:
     """
     Creates a statistic of the team distribution (how many people and who chose the same team)
     This function can also be used during the game to obtain the team distribution of the current week.
@@ -138,10 +143,9 @@ def team_dist(season_str: str = season_str, year: int = year, prep: bool = True)
     """
     week: int = config.getint('weekly info', 'current-week')
     if not prep:
-        filename = f"lists/team_dist_{week}.txt"
+        # Add week to the given filename
+        filename = filename[:-4] + f"_{week}" + filename[-4:]
         raise NotImplementedError("Haven't implemented dist during real game")
-    else:
-        filename = "lists/team_dist.txt"
     split_teams: Dict[Tuple[TeamWeeklyAnime, ...], List[Team]] = {}
     nonsplit_teams: Dict[Tuple[TeamWeeklyAnime, ...], List[Team]] = {}
     active_teams: Dict[Tuple[TeamWeeklyAnime, ...], List[Team]] = {}
@@ -149,6 +153,7 @@ def team_dist(season_str: str = season_str, year: int = year, prep: bool = True)
         teams = Season.get_season_from_database(
             season_str, year, session).teams
         for team in teams:  # type: ignore
+            # Query all the anime on the team for this week
             base_query = session.query(TeamWeeklyAnime). \
                 filter(TeamWeeklyAnime.team_id == team.id). \
                 filter(TeamWeeklyAnime.week == week)
@@ -157,13 +162,14 @@ def team_dist(season_str: str = season_str, year: int = year, prep: bool = True)
                 TeamWeeklyAnime.bench.is_(False)).all()
             bench: List[TeamWeeklyAnime] = base_query.filter(
                 TeamWeeklyAnime.bench.is_(True)).all()
+            # Split and sort team so the active ones are first
             s_team: Tuple[TeamWeeklyAnime, ...] = tuple(sorted(active, key=lambda a: a.anime_id) +
                                                         sorted(bench, key=lambda a: a.anime_id))
             n_team: Tuple[TeamWeeklyAnime, ...] = tuple(
                 sorted(series, key=lambda a: a.anime_id))
             a_team: Tuple[TeamWeeklyAnime, ...] = tuple(
                 sorted(active, key=lambda a: a.anime_id))
-            # add team name to inverse dictionary (key: sorted list of series)
+            # Add team name to inverse dictionary (key: sorted list of series)
             if s_team not in split_teams:
                 split_teams[s_team] = []
             split_teams[s_team].append(team)
