@@ -3,7 +3,6 @@ import configparser
 
 from fal.clients.mfalncfm_main import session_scope
 from fal.models import Team, Season, TeamWeeklyAnime, Anime
-from fal.collect_series import get_season_from_database
 
 from typing import Dict, Tuple, List, Mapping, Sequence, TextIO, TYPE_CHECKING
 from sqlalchemy.orm import Session
@@ -59,7 +58,7 @@ SAME_ACTIVE_TEXT = (
 
 
 def get_team_from_season(season_str: str, year: int, session: Session) -> List[Team]:
-    season: Season = get_season_from_database(season_str, year, session)
+    season: Season = Season.get_season_from_database(season_str, year, session)
     return session.query(Team).filter(Team.season_id == season.id).all()
 
 
@@ -121,7 +120,8 @@ def team_stats(season_str: str = season_str, year: int = year, prep: bool = True
         filename = "lists/team_stats.txt"
     with session_scope() as session:
         teams: List[Team] = get_team_from_season(season_str, year, session)
-        season: Season = get_season_from_database(season_str, year, session)
+        season: Season = Season.get_season_from_database(
+            season_str, year, session)
         query = session.query(Anime).filter(Anime.season_id == season.id)
         anime_list: List[Anime] = query.all()
         stats: Dict[int, AnimeTeamCount] = {

@@ -3,7 +3,7 @@
 # http://myanimelist.net/clubs.php?cid=379
 # (c) 2012-2015, Luna_ (luna.myanimelist@gmail.com)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Properties File
 
 # This file contains all properties necessary for running FAL.
@@ -13,12 +13,12 @@
 # Lines starting with # are comments and will be ignored.
 # Please make sure not to mess up the structure.
 # Only modify the right side of each equation.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Properties that have to be changed every week
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # current week
 week = 1
@@ -39,9 +39,9 @@ page_end = 99
 delay = 1
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Properties that have to be set at the beginning of FAL
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Thread ID of the swap thread
 a_thread = 2315
@@ -50,12 +50,12 @@ a_thread = 2315
 double_watching = 4
 
 # max number for ace restriction
-ace_cutoff = 50000
+ace_cutoff = 60000
 
 # additional points {week: points}
-week_scores = {3:3000, 7:6000, 10:9000, 14:12000}
-week_dropped = {4:4, 8:6, 11:8, 14:10}
-week_favorites = {5:25, 8:50, 11:75, 14:75}
+week_scores = {3: 3000, 7: 6000, 10: 9000, 14: 12000}
+week_dropped = {4: 4, 8: 6, 11: 8, 14: 10}
+week_favorites = {5: 25, 8: 50, 11: 75, 14: 100}
 
 # starting week of wildcards
 start_wildcards = 9
