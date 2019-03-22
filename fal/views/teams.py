@@ -57,22 +57,18 @@ SAME_ACTIVE_TEXT = (
 )
 
 
-def get_team_from_season(season_str: str, year: int, session: Session) -> List[Team]:
-    season: Season = Season.get_season_from_database(season_str, year, session)
-    return session.query(Team).filter(Team.season_id == season.id).all()
-
-
 def headcount(season_str: str = season_str, year: int = year) -> None:
     """
     Creates a formatted forum post for the headcount thread.
     """
     with session_scope() as session:
-        teams: List[Team] = get_team_from_season(season_str, year, session)
+        teams = Season.get_season_from_database(
+            season_str, year, session).teams
         with open("lists/team_headcount.txt", "w", encoding="utf-8") as f:
             f.write(HEADCOUNT_INTRO_TEXT.format(season_str.capitalize(), year))
-            for team in sorted(teams, key=lambda t: t.name):
+            for team in sorted(teams, key=lambda t: t.name):  # type: ignore
                 f.write(f"[b]{team.name}[/b]\n")
-            f.write(HEADCOUNT_CONC_TEXT.format(len(teams)))
+            f.write(HEADCOUNT_CONC_TEXT.format(len(teams)))  # type: ignore
 
 
 def team_overview(season_str: str = season_str, year: int = year) -> None:
@@ -81,10 +77,11 @@ def team_overview(season_str: str = season_str, year: int = year) -> None:
     """
     week: int = config.getint('weekly info', 'current-week')
     with session_scope() as session:
-        teams: List[Team] = get_team_from_season(season_str, year, session)
+        teams = Season.get_season_from_database(
+            season_str, year, session).teams
         with open("lists/team_overview.txt", "w", encoding="utf-8") as f:
             f.write(f"Team List - FAL {season_str.capitalize()} {year}\n\n\n")
-            for team in sorted(teams, key=lambda t: t.name):
+            for team in sorted(teams, key=lambda t: t.name):  # type: ignore
                 base_query = session.query(TeamWeeklyAnime, Anime). \
                     filter(TeamWeeklyAnime.team_id == team.id). \
                     filter(TeamWeeklyAnime.anime_id == Anime.id). \
@@ -119,14 +116,13 @@ def team_stats(season_str: str = season_str, year: int = year, prep: bool = True
     else:
         filename = "lists/team_stats.txt"
     with session_scope() as session:
-        teams: List[Team] = get_team_from_season(season_str, year, session)
         season: Season = Season.get_season_from_database(
             season_str, year, session)
-        query = session.query(Anime).filter(Anime.season_id == season.id)
-        anime_list: List[Anime] = query.all()
+        teams = season.teams
+        anime_list = season.anime
         stats: Dict[int, AnimeTeamCount] = {
-            a.id: AnimeTeamCount(0, 0) for a in anime_list}
-        for team in teams:
+            a.id: AnimeTeamCount(0, 0) for a in anime_list}  # type: ignore
+        for team in teams:  # type: ignore
             base_query = session.query(TeamWeeklyAnime). \
                 filter(TeamWeeklyAnime.team_id == team.id). \
                 filter(TeamWeeklyAnime.week == week)
@@ -135,8 +131,8 @@ def team_stats(season_str: str = season_str, year: int = year, prep: bool = True
                 stats[anime.anime_id].num_teams += 1
                 if not anime.bench:
                     stats[anime.anime_id].num_active += 1
-        s_all = sorted(
-            anime_list, key=lambda a: stats[a.id].num_teams, reverse=True)
+        s_all = sorted(  # type: ignore
+            anime_list, key=lambda a: stats[a.id].num_teams, reverse=True)  # type: ignore
         with open(filename, "w", encoding="utf-8") as f:
             f.write(TEAM_STATS_TEXT)
             for n, a in enumerate(s_all, 1):
@@ -160,8 +156,9 @@ def team_dist(season_str: str = season_str, year: int = year, prep: bool = True)
     nonsplit_teams: Dict[Tuple[TeamWeeklyAnime, ...], List[Team]] = {}
     active_teams: Dict[Tuple[TeamWeeklyAnime, ...], List[Team]] = {}
     with session_scope() as session:
-        teams: List[Team] = get_team_from_season(season_str, year, session)
-        for team in teams:
+        teams = Season.get_season_from_database(
+            season_str, year, session).teams
+        for team in teams:  # type: ignore
             base_query = session.query(TeamWeeklyAnime). \
                 filter(TeamWeeklyAnime.team_id == team.id). \
                 filter(TeamWeeklyAnime.week == week)
