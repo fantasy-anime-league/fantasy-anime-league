@@ -82,9 +82,8 @@ def team_overview(season_str: str = season_str, year: int = year) -> None:
         with open("lists/team_overview.txt", "w", encoding="utf-8") as f:
             f.write(f"Team List - FAL {season_str.capitalize()} {year}\n\n\n")
             for team in sorted(teams, key=lambda t: t.name):  # type: ignore
-                base_query = session.query(TeamWeeklyAnime, Anime). \
+                base_query = session.query(TeamWeeklyAnime). \
                     filter(TeamWeeklyAnime.team_id == team.id). \
-                    filter(TeamWeeklyAnime.anime_id == Anime.id). \
                     filter(TeamWeeklyAnime.week == week)
                 active_anime = base_query.filter(
                     TeamWeeklyAnime.bench.is_(False)).all()
@@ -92,12 +91,12 @@ def team_overview(season_str: str = season_str, year: int = year) -> None:
                     TeamWeeklyAnime.bench.is_(True)).all()
                 f.write(f"{team.name}\n---------------------------------\n")
                 # list all active series
-                for anime in sorted(active_anime, key=lambda a: a[1].name.lower()):
-                    f.write(f"{anime[1].name}\n")
+                for anime in sorted(active_anime, key=lambda a: a.anime.name.lower()):
+                    f.write(f"{anime.anime.name}\n")
                 f.write("\n")
                 # list all bench series
-                for anime in sorted(bench_anime, key=lambda a: a[1].name.lower()):
-                    f.write(f"{anime[1].name}\n")
+                for anime in sorted(bench_anime, key=lambda a: a.anime.name.lower()):
+                    f.write(f"{anime.anime.name}\n")
                 f.write("\n\n")
             f.write("[/spoiler]")
 
