@@ -5,18 +5,13 @@ from fal.clients.mfalncfm_main import session_scope
 from fal.models import Team, Season, TeamWeeklyAnime, Anime
 
 from typing import Dict, Tuple, List, Mapping, Sequence, TextIO, TYPE_CHECKING
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 config = configparser.ConfigParser()
 config.read("config.ini")
 season_str: str = config["season info"]["season"]
 year: int = config.getint("season info", "year")
-
-
-@dataclass()
-class AnimeTeamCount:
-    num_teams: int
-    num_active: int
 
 
 # Implicitly combined strings for headcount intro and conclusion
@@ -117,26 +112,22 @@ def team_stats(season_str: str = season_str, year: int = year, prep: bool = True
     with session_scope() as session:
         season: Season = Season.get_season_from_database(
             season_str, year, session)
-        teams = season.teams
-        anime_list = season.anime
-        stats: Dict[int, AnimeTeamCount] = {
-            a.id: AnimeTeamCount(0, 0) for a in anime_list}  # type: ignore
-        for team in teams:  # type: ignore
-            base_query = session.query(TeamWeeklyAnime). \
-                filter(TeamWeeklyAnime.team_id == team.id). \
-                filter(TeamWeeklyAnime.week == week)
-            series: List[TeamWeeklyAnime] = base_query.all()
-            for anime in series:
-                stats[anime.anime_id].num_teams += 1
-                if not anime.bench:
-                    stats[anime.anime_id].num_active += 1
-        s_all = sorted(  # type: ignore
-            anime_list, key=lambda a: stats[a.id].num_teams, reverse=True)  # type: ignore
+        base_query = session.query(Anime.name, func.count('*')). \
+            join(TeamWeeklyAnime.anime). \
+            order_by(func.count('*').desc(), Anime.name) .\
+            filter(TeamWeeklyAnime.week == week)
+        anime_counts: List[Tuple[str, int]] = base_query. \
+            group_by(Anime.name).all()
+        active_counts: Dict[str, int] = dict(base_query.
+                                             filter(TeamWeeklyAnime.bench.is_(False)).
+                                             group_by(Anime.name).all())
+        print(f"Anime Counts:\n{anime_counts}")
+        print(f"Active Counts:\n{active_counts}")
         with open(filename, "w", encoding="utf-8") as f:
             f.write(TEAM_STATS_TEXT)
-            for n, a in enumerate(s_all, 1):
-                f.write(
-                    f"{n} - {a.name}: {stats[a.id].num_teams} ({stats[a.id].num_active})\n")
+            for i, (anime, count) in enumerate(anime_counts, 1):
+                active_count = active_counts[anime] if anime in active_counts else 0
+                f.write(f"{i} - {anime}: {count} ({active_count})\n")
 
 
 def team_dist(season_str: str = season_str, year: int = year, prep: bool = True) -> None:
