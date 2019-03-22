@@ -80,13 +80,12 @@ def ptw_counter() -> None:
 
     # Database workflow
     with session_scope() as session:
-        season = Season.get_season_from_database(season_of_year, year, session)
-        query = session.query(Anime).filter(Anime.season_id == season.id)
-        anime_list = query.all()
-        print(f'Length of list of anime: {len(anime_list)}')
+        anime_list = Season.get_season_from_database(
+            season_of_year, year, session).anime
+        print(f'Length of list of anime: {len(anime_list)}')  # type: ignore
 
         # Store PTW of each anime in a list of tuples
-        ptw = get_ptw_info(anime_list)
+        ptw = get_ptw_info(anime_list)  # type: ignore
         pprint(ptw)
         output_ptw_info(season_of_year, year, ptw)
 
