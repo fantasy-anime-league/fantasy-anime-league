@@ -32,5 +32,4 @@ class SeasonFactory(factory.alchemy.SQLAlchemyModelFactory):
 
         if extracted:
             # A list of teams were passed in, use them
-            for team in extracted:
-                self.teams.add(team)  # pylint: disable=no-member
+            self.teams += extracted
