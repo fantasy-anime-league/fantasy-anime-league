@@ -98,7 +98,7 @@ def team_overview(season_str: str = season_str, year: int = year, filename: str 
             f.write("[/spoiler]")
 
 
-def team_stats(season_str: str = season_str, year: int = year, prep: bool = True, filename: str = "lists/team_stats.txt") -> None:
+def team_stats(season_str: str = season_str, year: int = year, filename: str = "lists/team_stats.txt", prep: bool = True) -> None:
     """
     Creates a statistic of the titles distribution for the team overview thread.
     This function can also be used during the game to obtain the distribution
@@ -135,7 +135,7 @@ def team_stats(season_str: str = season_str, year: int = year, prep: bool = True
                 f.write(f"{i} - {anime}: {count} ({active_count})\n")
 
 
-def team_dist(season_str: str = season_str, year: int = year, prep: bool = True, filename: str = "lists/team_dist.txt") -> None:
+def team_dist(season_str: str = season_str, year: int = year, filename: str = "lists/team_dist.txt", prep: bool = True) -> None:
     """
     Creates a statistic of the team distribution (how many people and who chose the same team)
     This function can also be used during the game to obtain the team distribution of the current week.

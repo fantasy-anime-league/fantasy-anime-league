@@ -67,3 +67,45 @@ def test_team_overview(session_scope_mock, config_mock, session, session_scope, 
         # Ignore first line with season and year info
         assert test_f.read().split('\n')[1:] == exp_overview.split('\n')[1:]
     os.remove(path)
+
+
+@patch('fal.views.teams.config')
+@patch('fal.views.teams.session_scope')
+def test_team_stats(session_scope_mock, config_mock, session, session_scope, season_factory,
+                    shared_datadir, team_factory, team_weekly_anime_factory, anime_factory):
+    def mock_config_getweek(section, key):
+        assert section == "weekly info"
+        assert key == "current-week"
+        return 0
+
+    config_mock.getint.side_effect = mock_config_getweek
+
+    session_scope_mock.side_effect = session_scope
+
+    season = season_factory(id=0)
+    anime = [
+        anime_factory(name='Jojo no Kimyou na Bouken: Ougon no Kaze'),
+        anime_factory(name='Kaze ga Tsuyoku Fuiteiru'),
+        anime_factory(
+            name='Seishun Buta Yarou wa Bunny Girl Senpai no Yume wo'),
+    ]
+    team_list = [
+        team_factory(name='kei-clone'),
+        team_factory(name='abhinavk99')
+    ]
+    team_weekly_anime_list = [
+        team_weekly_anime_factory(team_id=team_list[0].id, anime=anime[2]),
+        team_weekly_anime_factory(
+            team_id=team_list[0].id, anime=anime[0], bench=True),
+        team_weekly_anime_factory(team_id=team_list[1].id, anime=anime[0]),
+        team_weekly_anime_factory(
+            team_id=team_list[1].id, anime=anime[1], bench=True),
+    ]
+
+    path = 'team_stats.txt'
+    teams.team_stats(season.season_of_year, season.year, path)
+    exp_team_stats = (shared_datadir / 'exp_team_stats.txt').read_text()
+    with open(path) as test_f:
+        # Ignore first line with season and year info
+        assert test_f.read() == exp_team_stats
+    os.remove(path)
