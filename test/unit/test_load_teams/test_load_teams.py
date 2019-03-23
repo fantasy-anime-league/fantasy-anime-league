@@ -92,7 +92,6 @@ def test_slice_up_team_input_raises_if_length_is_not_expected(config_mock, team_
 
 
 def test_add_anime_to_team(session, season_factory, team_factory, anime_factory):
-    season_factory(id=0)
     team = team_factory()
 
     active_anime = [
