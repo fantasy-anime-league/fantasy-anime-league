@@ -116,7 +116,7 @@ def team_stats(season_str: str = season_str, year: int = year, filename: str = "
         # Query anime name and number of times it is on a team this week
         base_query = session.query(Anime.name, func.count('*')). \
             join(TeamWeeklyAnime.anime). \
-            order_by(func.count('*').desc(), Anime.name) .\
+            order_by(func.count('*').desc(), Anime.name). \
             filter(TeamWeeklyAnime.week == week)
         # Group the counts by the name
         anime_counts: List[Tuple[str, int]] = base_query. \

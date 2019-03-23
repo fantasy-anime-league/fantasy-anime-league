@@ -8,15 +8,15 @@ import os
 
 
 @patch('fal.views.teams.session_scope')
-def test_headcount(session_scope_mock, session, session_scope, season_factory, shared_datadir):
+def test_headcount(session_scope_mock, session, session_scope, team_factory, shared_datadir):
     session_scope_mock.side_effect = session_scope
 
     team_list = [
-        Team(name='kei-clone'),
-        Team(name='abhinavk99'),
-        Team(name='Congress')
+        team_factory(name='kei-clone'),
+        team_factory(name='abhinavk99'),
+        team_factory(name='Congress')
     ]
-    season = season_factory(id=0, teams=team_list)
+    season = team_list[0].season
 
     path = 'team_headcount.txt'
     teams.headcount(season.season_of_year, season.year, path)
@@ -29,7 +29,7 @@ def test_headcount(session_scope_mock, session, session_scope, season_factory, s
 
 @patch('fal.views.teams.config')
 @patch('fal.views.teams.session_scope')
-def test_team_overview(session_scope_mock, config_mock, session, session_scope, season_factory,
+def test_team_overview(session_scope_mock, config_mock, session, session_scope,
                        shared_datadir, team_factory, team_weekly_anime_factory, anime_factory):
     def mock_config_getweek(section, key):
         assert section == "weekly info"
@@ -40,7 +40,6 @@ def test_team_overview(session_scope_mock, config_mock, session, session_scope, 
 
     session_scope_mock.side_effect = session_scope
 
-    season = season_factory(id=0)
     anime = [
         anime_factory(name='Jojo no Kimyou na Bouken: Ougon no Kaze'),
         anime_factory(name='Radiant'),
@@ -59,6 +58,7 @@ def test_team_overview(session_scope_mock, config_mock, session, session_scope, 
         team_weekly_anime_factory(
             team_id=team_list[1].id, anime=anime[1], bench=True),
     ]
+    season = team_list[0].season
 
     path = 'team_overview.txt'
     teams.team_overview(season.season_of_year, season.year, path)
@@ -71,7 +71,7 @@ def test_team_overview(session_scope_mock, config_mock, session, session_scope, 
 
 @patch('fal.views.teams.config')
 @patch('fal.views.teams.session_scope')
-def test_team_stats(session_scope_mock, config_mock, session, session_scope, season_factory,
+def test_team_stats(session_scope_mock, config_mock, session, session_scope,
                     shared_datadir, team_factory, team_weekly_anime_factory, anime_factory):
     def mock_config_getweek(section, key):
         assert section == "weekly info"
@@ -82,7 +82,6 @@ def test_team_stats(session_scope_mock, config_mock, session, session_scope, sea
 
     session_scope_mock.side_effect = session_scope
 
-    season = season_factory(id=0)
     anime = [
         anime_factory(name='Jojo no Kimyou na Bouken: Ougon no Kaze'),
         anime_factory(name='Kaze ga Tsuyoku Fuiteiru'),
@@ -101,6 +100,7 @@ def test_team_stats(session_scope_mock, config_mock, session, session_scope, sea
         team_weekly_anime_factory(
             team_id=team_list[1].id, anime=anime[1], bench=True),
     ]
+    season = team_list[0].season
 
     path = 'team_stats.txt'
     teams.team_stats(season.season_of_year, season.year, path)
@@ -110,14 +110,9 @@ def test_team_stats(session_scope_mock, config_mock, session, session_scope, sea
     os.remove(path)
 
 
-def test_team_stats_no_prep():
-    with pytest.raises(NotImplementedError):
-        teams.team_stats(prep=False)
-
-
 @patch('fal.views.teams.config')
 @patch('fal.views.teams.session_scope')
-def test_team_dist(session_scope_mock, config_mock, session, session_scope, season_factory,
+def test_team_dist(session_scope_mock, config_mock, session, session_scope,
                    shared_datadir, team_factory, team_weekly_anime_factory, anime_factory):
     def mock_config_getweek(section, key):
         assert section == "weekly info"
@@ -128,7 +123,6 @@ def test_team_dist(session_scope_mock, config_mock, session, session_scope, seas
 
     session_scope_mock.side_effect = session_scope
 
-    season = season_factory(id=0)
     anime = [
         anime_factory(name='Jojo no Kimyou na Bouken: Ougon no Kaze'),
         anime_factory(name='Kaze ga Tsuyoku Fuiteiru'),
@@ -151,6 +145,7 @@ def test_team_dist(session_scope_mock, config_mock, session, session_scope, seas
         team_weekly_anime_factory(
             team_id=team_list[2].id, anime=anime[2], bench=True),
     ]
+    season = team_list[0].season
 
     path = 'team_dist.txt'
     teams.team_dist(season.season_of_year, season.year, path)
@@ -199,8 +194,3 @@ def test_get_dist():
         [team_list[0], team_list[1]],
         [team_list[2], team_list[3]]
     ]
-
-
-def test_team_dist_no_prep():
-    with pytest.raises(NotImplementedError):
-        teams.team_dist(prep=False)
