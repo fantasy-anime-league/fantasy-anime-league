@@ -1,7 +1,7 @@
 import factory
 
 from .session import session_factory
-from fal.models import TeamWeeklyAnime, Team
+from fal.models import TeamWeeklyAnime, Team, Anime
 
 
 class TeamWeeklyAnimeFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -9,15 +9,17 @@ class TeamWeeklyAnimeFactory(factory.alchemy.SQLAlchemyModelFactory):
         model = TeamWeeklyAnime
         sqlalchemy_session = session_factory
 
-    team_id = factory.Sequence(lambda x: x)
-    anime_id = factory.Faker('random_int', min=35000, max=40000)
+    @factory.lazy_attribute
+    def team_id(self):
+        return self.team.id
+
+    @factory.lazy_attribute
+    def anime_id(self):
+        return self.anime.id
+
     week = 0
     ace = False
     bench = False
 
-    @factory.lazy_attribute
-    def team(self):
-        return session_factory().query(Team).filter(Team.id == self.team_id).one()
-
-    # fill it out later
+    team = []
     anime = []

@@ -51,12 +51,12 @@ def test_team_overview(session_scope_mock, config_mock, session, session_scope,
         team_factory(name='abhinavk99')
     ]
     team_weekly_anime_list = [
-        team_weekly_anime_factory(team_id=team_list[0].id, anime=anime[2]),
+        team_weekly_anime_factory(team=team_list[0], anime=anime[2]),
         team_weekly_anime_factory(
-            team_id=team_list[0].id, anime=anime[3], bench=True),
-        team_weekly_anime_factory(team_id=team_list[1].id, anime=anime[0]),
+            team=team_list[0], anime=anime[3], bench=True),
+        team_weekly_anime_factory(team=team_list[1], anime=anime[0]),
         team_weekly_anime_factory(
-            team_id=team_list[1].id, anime=anime[1], bench=True),
+            team=team_list[1], anime=anime[1], bench=True),
     ]
     season = team_list[0].season
 
@@ -93,12 +93,12 @@ def test_team_stats(session_scope_mock, config_mock, session, session_scope,
         team_factory(name='abhinavk99')
     ]
     team_weekly_anime_list = [
-        team_weekly_anime_factory(team_id=team_list[0].id, anime=anime[2]),
+        team_weekly_anime_factory(team=team_list[0], anime=anime[2]),
         team_weekly_anime_factory(
-            team_id=team_list[0].id, anime=anime[0], bench=True),
-        team_weekly_anime_factory(team_id=team_list[1].id, anime=anime[0]),
+            team=team_list[0], anime=anime[0], bench=True),
+        team_weekly_anime_factory(team=team_list[1], anime=anime[0]),
         team_weekly_anime_factory(
-            team_id=team_list[1].id, anime=anime[1], bench=True),
+            team=team_list[1], anime=anime[1], bench=True),
     ]
     season = team_list[0].season
 
@@ -132,18 +132,22 @@ def test_team_dist(session_scope_mock, config_mock, session, session_scope,
     team_list = [
         team_factory(name='kei-clone'),
         team_factory(name='abhinavk99'),
-        team_factory(name='Congress')
+        team_factory(name='Congress'),
+        team_factory(name='Naruleach')
     ]
     team_weekly_anime_list = [
         team_weekly_anime_factory(
-            team_id=team_list[0].id, anime=anime[0], bench=True),
-        team_weekly_anime_factory(team_id=team_list[0].id, anime=anime[1]),
-        team_weekly_anime_factory(team_id=team_list[1].id, anime=anime[0]),
+            team=team_list[0], anime=anime[0], bench=True),
+        team_weekly_anime_factory(team=team_list[0], anime=anime[1]),
+        team_weekly_anime_factory(team=team_list[1], anime=anime[0]),
         team_weekly_anime_factory(
-            team_id=team_list[1].id, anime=anime[1], bench=True),
-        team_weekly_anime_factory(team_id=team_list[2].id, anime=anime[0]),
+            team=team_list[1], anime=anime[1], bench=True),
+        team_weekly_anime_factory(team=team_list[2], anime=anime[0]),
         team_weekly_anime_factory(
-            team_id=team_list[2].id, anime=anime[2], bench=True),
+            team=team_list[2], anime=anime[2], bench=True),
+        team_weekly_anime_factory(
+            team=team_list[3], anime=anime[0], bench=True),
+        team_weekly_anime_factory(team=team_list[3], anime=anime[1])
     ]
     season = team_list[0].season
 
@@ -153,6 +157,15 @@ def test_team_dist(session_scope_mock, config_mock, session, session_scope,
     with open(path) as test_f:
         assert test_f.read() == exp_team_dist
     os.remove(path)
+
+
+@pytest.mark.parametrize("week, orig_filename, exp_filename", [
+    (0, 'filename.txt', 'filename.txt'),
+    (1, 'filename.txt', 'filename_1.txt'),
+    (100, 'filename.txt', 'filename_100.txt')
+])
+def test_add_week_to_filename(week, orig_filename, exp_filename):
+    assert teams.add_week_to_filename(orig_filename, week) == exp_filename
 
 
 def test_write_teams_to_file(shared_datadir):

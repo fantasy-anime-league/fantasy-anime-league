@@ -1,17 +1,19 @@
 [u]Same 7 series and same active team/bench distribution[/u]
-Number of unique teams: 3
+Number of unique teams: 2
 
 Same team chosen by:
-[list][/list]
+[list][*]kei-clone, Naruleach
+[/list]
 [u]Same 7 series but different active team/bench distribution[/u]
 Number of unique teams: 1
 
 Same team chosen by:
-[list][*]abhinavk99, kei-clone
+[list][*]abhinavk99, kei-clone, Naruleach
 [/list]
 [u]Same active team (but can have different benched series)[/u]
-Number of unique active teams: 1
+Number of unique active teams: 0
 
 Same team chosen by:
-[list][*]Congress, abhinavk99
+[list][*]kei-clone, Naruleach
+[*]abhinavk99, Congress
 [/list]
