@@ -110,6 +110,11 @@ def test_team_stats(session_scope_mock, config_mock, session, session_scope, sea
     os.remove(path)
 
 
+def test_team_stats_no_prep():
+    with pytest.raises(NotImplementedError):
+        teams.team_stats(prep=False)
+
+
 @patch('fal.views.teams.config')
 @patch('fal.views.teams.session_scope')
 def test_team_dist(session_scope_mock, config_mock, session, session_scope, season_factory,
@@ -194,3 +199,8 @@ def test_get_dist():
         [team_list[0], team_list[1]],
         [team_list[2], team_list[3]]
     ]
+
+
+def test_team_dist_no_prep():
+    with pytest.raises(NotImplementedError):
+        teams.team_dist(prep=False)
