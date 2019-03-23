@@ -146,9 +146,9 @@ def team_dist(season_str: str = season_str, year: int = year, filename: str = "l
         # Add week to the given filename
         filename = filename[:-4] + f"_{week}" + filename[-4:]
         raise NotImplementedError("Haven't implemented dist during real game")
-    split_teams: Dict[Tuple[TeamWeeklyAnime, ...], List[Team]] = {}
-    nonsplit_teams: Dict[Tuple[TeamWeeklyAnime, ...], List[Team]] = {}
-    active_teams: Dict[Tuple[TeamWeeklyAnime, ...], List[Team]] = {}
+    split_teams: Dict[Tuple[int, ...], List[Team]] = {}
+    nonsplit_teams: Dict[Tuple[int, ...], List[Team]] = {}
+    active_teams: Dict[Tuple[int, ...], List[Team]] = {}
     with session_scope() as session:
         teams = Season.get_season_from_database(
             season_str, year, session).teams
@@ -157,18 +157,15 @@ def team_dist(season_str: str = season_str, year: int = year, filename: str = "l
             base_query = session.query(TeamWeeklyAnime). \
                 filter(TeamWeeklyAnime.team_id == team.id). \
                 filter(TeamWeeklyAnime.week == week)
-            series: List[TeamWeeklyAnime] = base_query.all()
-            active: List[TeamWeeklyAnime] = base_query.filter(
-                TeamWeeklyAnime.bench.is_(False)).all()
-            bench: List[TeamWeeklyAnime] = base_query.filter(
-                TeamWeeklyAnime.bench.is_(True)).all()
+            series: List[int] = [a.anime_id for a in base_query.all()]
+            active: List[int] = [a.anime_id for a in base_query.filter(
+                TeamWeeklyAnime.bench.is_(False)).all()]
+            bench: List[int] = [a.anime_id for a in base_query.filter(
+                TeamWeeklyAnime.bench.is_(True)).all()]
             # Split and sort team so the active ones are first
-            s_team: Tuple[TeamWeeklyAnime, ...] = tuple(sorted(active, key=lambda a: a.anime_id) +
-                                                        sorted(bench, key=lambda a: a.anime_id))
-            n_team: Tuple[TeamWeeklyAnime, ...] = tuple(
-                sorted(series, key=lambda a: a.anime_id))
-            a_team: Tuple[TeamWeeklyAnime, ...] = tuple(
-                sorted(active, key=lambda a: a.anime_id))
+            s_team: Tuple[int, ...] = tuple(sorted(active) + sorted(bench))
+            n_team: Tuple[int, ...] = tuple(sorted(series))
+            a_team: Tuple[int, ...] = tuple(sorted(active))
             # Add team name to inverse dictionary (key: sorted list of series)
             if s_team not in split_teams:
                 split_teams[s_team] = []
@@ -184,15 +181,14 @@ def team_dist(season_str: str = season_str, year: int = year, filename: str = "l
         same_series_and_team_dist, n_list_split = get_dist(split_teams)
         teams_with_same_active_team, n_list_act = get_dist(active_teams)
 
-        f: TextIO = open(filename, "w", encoding="utf-8")
-        write_teams_to_file(f, same_series_and_team_dist,
-                            n_list_split, SAME_SPLIT_TEXT)
-        write_teams_to_file(f, same_series_diff_team_dist,
-                            n_list_non, SAME_NONSPLIT_TEXT)
-        write_teams_to_file(f, teams_with_same_active_team,
-                            n_list_act, SAME_ACTIVE_TEXT)
-        f.write("[/list]")
-        f.close()
+        with open(filename, "w", encoding="utf-8") as f:
+            write_teams_to_file(f, same_series_and_team_dist,
+                                n_list_split, SAME_SPLIT_TEXT)
+            write_teams_to_file(f, same_series_diff_team_dist,
+                                n_list_non, SAME_NONSPLIT_TEXT)
+            write_teams_to_file(f, teams_with_same_active_team,
+                                n_list_act, SAME_ACTIVE_TEXT)
+            f.write("[/list]")
 
 
 def write_teams_to_file(f: TextIO, num_unique: int, same_teams: Sequence[Sequence[Team]], output_str: str) -> None:
@@ -202,7 +198,7 @@ def write_teams_to_file(f: TextIO, num_unique: int, same_teams: Sequence[Sequenc
             f"[*]{', '.join([team.name for team in sorted(team_list, key=lambda t: t.name)])}\n")  # type: ignore
 
 
-def get_dist(teams: Mapping[Tuple[TeamWeeklyAnime, ...], Sequence[Team]]) -> Tuple[int, List[Sequence[Team]]]:
+def get_dist(teams: Mapping[Tuple[int, ...], Sequence[Team]]) -> Tuple[int, List[Sequence[Team]]]:
     """Return list of same teams and number of unique teams"""
     same_teams: List[Sequence[Team]] = [
         t for t in teams.values() if len(t) != 1]
