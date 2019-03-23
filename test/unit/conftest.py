@@ -1,7 +1,11 @@
+import contextlib
+
 from pytest_factoryboy import register
 import pytest
 import factories
-import contextlib
+import sqlalchemy
+
+import fal.models
 
 register(factories.SeasonFactory)
 register(factories.AnimeFactory)
@@ -11,6 +15,10 @@ register(factories.TeamWeeklyAnimeFactory)
 
 @pytest.fixture
 def session():
+    engine = sqlalchemy.create_engine('sqlite://')
+    fal.models.Base.metadata.create_all(engine)
+    factories.session_factory.configure(bind=engine)
+
     _session = factories.session_factory()
     yield _session
     _session.rollback()
