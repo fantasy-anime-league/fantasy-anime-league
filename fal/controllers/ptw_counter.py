@@ -35,7 +35,7 @@ def get_ptw_info(anime_list: Iterable[Anime]) -> List[PTWEntry]:
     print("Requesting ptw via Jikan")
     for anime in anime_list:
         print(f"Looking up stats for {anime.name}")
-        anime_stats = jikan.anime(anime.id, extension='stats')  # type: ignore
+        anime_stats = jikan.anime(anime.id, extension='stats')
         anime_ptw_num = localize_number(anime_stats['plan_to_watch'])
         ptw.append(PTWEntry(anime.name, anime.id, anime_ptw_num))
         time.sleep(config.getint('jikanpy', 'request-interval'))

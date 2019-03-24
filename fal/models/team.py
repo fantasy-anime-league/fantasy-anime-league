@@ -38,5 +38,5 @@ class Team(Base):
 
         return team
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{self.id}: {self.name} from season {self.season_id}'

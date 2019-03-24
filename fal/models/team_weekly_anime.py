@@ -19,6 +19,6 @@ class TeamWeeklyAnime(Base):
     ace = Column(Boolean, default=False)
     bench = Column(Boolean, default=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'''In week {self.week}, {self.team.name} has {self.anime.name} on their team.'
                     Bench: {self.bench}, Ace: {self.ace}'''

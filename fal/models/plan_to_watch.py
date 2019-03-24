@@ -18,5 +18,5 @@ class PlanToWatch(Base):
 
     anime = relationship("Anime", back_populates='plan_to_watch')
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Anime id: {self.anime_id} - count: {self.count} on {self.date}'

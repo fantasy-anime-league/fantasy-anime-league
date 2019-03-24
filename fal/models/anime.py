@@ -27,7 +27,7 @@ class Anime(Base):
         "AnimeWeeklyStat", back_populates="anime")
     team_weekly_anime = relationship("TeamWeeklyAnime", back_populates="anime")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.name} - {self.id} from season id {self.season_id}"
 
     @staticmethod
