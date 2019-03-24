@@ -5,6 +5,7 @@ generic.key
 !test/unit/test_ptw_counter/data/ptw_info_fixture.csv
 series.txt
 series_sorted.txt
+src/
 
 # git secret
 .gitsecret/keys/random_seed

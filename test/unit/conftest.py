@@ -10,6 +10,7 @@ import fal.models
 register(factories.SeasonFactory)
 register(factories.AnimeFactory)
 register(factories.TeamFactory)
+register(factories.TeamWeeklyAnimeFactory)
 
 
 @pytest.fixture
