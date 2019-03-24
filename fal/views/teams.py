@@ -4,9 +4,8 @@ import configparser
 from fal.clients.mfalncfm_main import session_scope
 from fal.models import Team, Season, TeamWeeklyAnime, Anime
 
-from typing import Dict, Tuple, List, Mapping, Sequence, TextIO, TYPE_CHECKING
+from typing import Dict, Tuple, List, Mapping, Sequence, TextIO
 from sqlalchemy import func
-from sqlalchemy.orm import Session
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -103,10 +102,9 @@ def team_stats(season_str: str = season_str, year: int = year, filename: str = "
     Creates a statistic of the titles distribution for the team overview thread.
     This function can also be used during the game to obtain the distribution
     of the current week.
-    @param prep during the real game (False) or before the game (True)
     """
     week: int = config.getint('weekly info', 'current-week')
-    add_week_to_filename(filename, week)
+    filename = add_week_to_filename(filename, week)
     with session_scope() as session:
         season: Season = Season.get_season_from_database(
             season_str, year, session)
@@ -135,10 +133,9 @@ def team_dist(season_str: str = season_str, year: int = year, filename: str = "l
     """
     Creates a statistic of the team distribution (how many people and who chose the same team)
     This function can also be used during the game to obtain the team distribution of the current week.
-    @param prep during the real game (False) or before the game (True)
     """
     week: int = config.getint('weekly info', 'current-week')
-    add_week_to_filename(filename, week)
+    filename = add_week_to_filename(filename, week)
     split_teams: Dict[Tuple[int, ...], List[Team]] = {}
     nonsplit_teams: Dict[Tuple[int, ...], List[Team]] = {}
     active_teams: Dict[Tuple[int, ...], List[Team]] = {}
@@ -184,7 +181,7 @@ def team_dist(season_str: str = season_str, year: int = year, filename: str = "l
             f.write("[/list]")
 
 
-def add_week_to_filename(filename: str, week: int):
+def add_week_to_filename(filename: str, week: int) -> str:
     """Add week to filename if it's not preseason"""
     return filename[:-4] + f"_{week}" + filename[-4:] if week > 0 else filename
 
