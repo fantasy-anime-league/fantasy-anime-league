@@ -9,7 +9,7 @@ import configparser
 jikan = jikanpy.Jikan()
 
 
-def check(name):
+def check(name: str) -> None:
     """Check if the profile exists based on the name"""
     print(name)
 
@@ -20,7 +20,7 @@ def check(name):
         print(f"username doesn't exist anymore: {name}")
 
 
-def main():
+def main() -> None:
     config = configparser.ConfigParser()
     config.read('config.ini')
 

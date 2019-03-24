@@ -34,8 +34,6 @@ $ python -m pytest
 
 ### Type Checking
 
-Currently not fully type-checkable until we convert all our legacy code!
-
 ```shell
 $ mypy fal run_fal.py
 ...

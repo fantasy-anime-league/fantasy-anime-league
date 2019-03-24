@@ -21,7 +21,7 @@ class Season(Base):
     anime = relationship("Anime", back_populates='season')
     teams = relationship("Team", back_populates='season')
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.season_of_year} {self.year}"
 
     @staticmethod

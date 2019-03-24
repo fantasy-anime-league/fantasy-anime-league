@@ -22,7 +22,7 @@ class AnimeFactory(factory.alchemy.SQLAlchemyModelFactory):
     def name(n):  # pylint: disable=no-self-argument
         name = ANIME_LIST[n % len(ANIME_LIST)]
         if n // len(ANIME_LIST) > 1:
-            name = f'{name} {n // len(ANIME_LIST) > 1}'
+            name = f'{name} {n // len(ANIME_LIST)}'
         return name
 
     @factory.lazy_attribute_sequence
