@@ -19,3 +19,4 @@ class AnimeWeeklyStat(Base):
     dropped = Column(Integer)
     score = Column(Float)
     favorites = Column(Integer)
+    forum_posts = Column(Integer)
