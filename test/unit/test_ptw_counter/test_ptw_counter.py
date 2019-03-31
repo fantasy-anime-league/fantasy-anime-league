@@ -14,6 +14,8 @@ import fal.controllers.ptw_counter as ptw_counter
 config = configparser.ConfigParser()
 config.read("config.ini")
 
+vcrpath = config['vcr']['path']
+
 
 def test_localize_number():
     assert ptw_counter.localize_number(1034) == '1,034'
@@ -24,7 +26,7 @@ def test_localize_number():
     ([Anime(id=34134, name='One Punch Man Season 2', season_id=2),
       Anime(id=38524, name='Shingeki no Kyojin Season 3 Part 2', season_id=2)]),
 ])
-@vcr.use_cassette(f"{config['vcr']['path']}/ptw_counter/get-ptw-info.yaml")
+@vcr.use_cassette(f"{vcrpath}/ptw_counter/get-ptw-info.yaml")
 def test_get_ptw_info(time_mock, ptw_fixture, anime_list):
     time_mock.sleep.return_value = None  # no need to wait in a unit test!
     ptw = ptw_counter.get_ptw_info(anime_list)

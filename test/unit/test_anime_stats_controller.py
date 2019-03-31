@@ -12,10 +12,12 @@ config = configparser.ConfigParser()
 config.read("config.ini")
 
 
+vcrpath = config.get('vcr', 'path')
+
 @patch('fal.controllers.anime_stats.get_forum_posts')
 @patch('fal.controllers.anime_stats.config')
 @patch('fal.controllers.anime_stats.session_scope')
-@vcr.use_cassette(f"{config.get('vcr','path')}/anime_stats/populate_anime_weekly_stats.yaml")
+@vcr.use_cassette(f"{vcrpath}/anime_stats/populate_anime_weekly_stats.yaml")
 def test_populate_anime_weekly_stats(session_scope_mock, config_mock, get_forum_posts, session_scope, config_functor, season_factory, anime_factory):
     session_scope_mock.side_effect = session_scope
     config_function = config_functor(
