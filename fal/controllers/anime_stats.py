@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import configparser
-from typing import Dict, Union, List, cast
+import functools
+import re
+from typing import Dict, Union, List, Any, cast
 
 import jikanpy
 
@@ -16,8 +18,39 @@ def get_forum_posts(anime: Anime) -> int:
     '''
     Requests forum posts from Jikan, then sums up all the episode discussion
     thread replies
+
+    Currently uses regex to match for Episode Discussion. This is brittle and
+    will stop working once we get over 15 forum threads on an anime.
+
+    ASAP we should fix Jikan's API so that it can filter for episode discussion threads
+    in its search. Alternatively, we could remove the 15 search result limit but that
+    seems harder to do.
     '''
-    raise NotImplementedError()
+    week = config.getint("weekly info", "current-week")
+    jikan = jikanpy.Jikan()
+    forum_threads: List[Dict[str, Any]] = jikan.anime(
+        anime.id, extension='forum')['topics']
+
+    episode_discussions = list(filter(
+        lambda thread: re.fullmatch(
+            anime.name + r' Episode \d{1,2} Discussion',
+            thread['title']
+        ),
+        forum_threads
+    ))
+
+    if len(episode_discussions) < week:
+        print(f"""
+            WARNING: did not find as many episode discussion threads for \
+                {anime.name} as the number of weeks we're in. Double check that \
+                    this is expected and manually update if necessary.
+            """)
+
+    return functools.reduce(
+        lambda accm, episode_discussion: accm + episode_discussion['replies'],
+        episode_discussions,
+        0
+    )
 
 
 def get_anime_stats_from_jikan(anime: Anime) -> Dict[str, Union[int, float]]:
@@ -37,7 +70,7 @@ def get_anime_stats_from_jikan(anime: Anime) -> Dict[str, Union[int, float]]:
         'dropped': jikan_anime_stats['dropped'],
         'score': general_anime_info['score'],
         'favorites': general_anime_info['favorites'],
-        'forum_posts': 0  # will eventually call get_forum_posts(anime)
+        'forum_posts': get_forum_posts(anime)
     }
 
 
