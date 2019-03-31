@@ -31,9 +31,12 @@ def get_forum_posts(anime: Anime) -> int:
     forum_threads: List[Dict[str, Any]] = jikan.anime(
         anime.id, extension='forum')['topics']
 
+    assert anime.name is not None
+    name = anime.name  # https://github.com/python/mypy/issues/4297
+
     episode_discussions = list(filter(
         lambda thread: re.fullmatch(
-            anime.name + r' Episode \d{1,2} Discussion',
+            name + r' Episode \d{1,2} Discussion',
             thread['title']
         ),
         forum_threads
