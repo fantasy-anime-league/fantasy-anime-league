@@ -47,7 +47,7 @@ delay = 1
 a_thread = 2315
 
 # number of maximal players for double points
-double_watching = 4
+double_watching = 36
 
 # max number for ace restriction
 ace_cutoff = 60000
