@@ -1,23 +1,23 @@
 from __future__ import annotations
 
 import configparser
-from typing import TYPE_CHECKING, Dict, Union, List, cast
+from typing import Dict, Union, List, cast
 
 import jikanpy
 
 from fal.clients.mfalncfm_main import session_scope
 from fal.models import AnimeWeeklyStat, Season, Anime
 
-if TYPE_CHECKING:
-    from sqlalchemy.orm import Session
-
 config = configparser.ConfigParser()
 config.read("config.ini")
 
 
 def get_forum_posts(anime: Anime) -> int:
-    '''Not yet implemented'''
-    return 0
+    '''
+    Requests forum posts from Jikan, then sums up all the episode discussion
+    thread replies
+    '''
+    raise NotImplementedError()
 
 
 def get_anime_stats_from_jikan(anime: Anime) -> Dict[str, Union[int, float]]:
@@ -37,7 +37,7 @@ def get_anime_stats_from_jikan(anime: Anime) -> Dict[str, Union[int, float]]:
         'dropped': jikan_anime_stats['dropped'],
         'score': general_anime_info['score'],
         'favorites': general_anime_info['favorites'],
-        'forum_posts': get_forum_posts(anime)
+        'forum_posts': 0  # will eventually call get_forum_posts(anime)
     }
 
 
@@ -63,15 +63,8 @@ def populate_anime_weekly_stats() -> None:
                 'anime_id': anime.id
             })
 
-            query = session.query(AnimeWeeklyStat). \
-                filter(AnimeWeeklyStat.week == week,
-                       AnimeWeeklyStat.anime_id == anime.id)
-            anime_weekly_stat = query.one_or_none()
-
-            if not anime_weekly_stat:
-                anime_weekly_stat = AnimeWeeklyStat()
-
+            anime_weekly_stat = AnimeWeeklyStat()
             for key, value in stat_data.items():
                 setattr(anime_weekly_stat, key, value)
 
-            session.add(anime_weekly_stat)
+            session.merge(anime_weekly_stat)

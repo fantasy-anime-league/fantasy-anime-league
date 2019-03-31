@@ -54,9 +54,8 @@ class Config(object):
 
     def __call__(self, section, key):
         assert section in self.sections
-        for k, v in self.kv.items():
-            if key == k:
-                return v
+        if key in self.kv:
+            return self.kv[key]
         raise KeyError(f'Unexpected key {key} passed into config')
 
 
