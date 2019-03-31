@@ -1,0 +1,49 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.21.0]
+    method: GET
+    uri: https://api.jikan.moe/v3/anime/30276/forum
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA82ZXW/bNhSG/wrhi+1idkxSoiwJKIouybphzQcSY8HaFAZt0REXSfQoapkb5L+P
+        oltHSSzToIV0gBFYkV7i8H10yHPo+55kf1esVJOUlmkv/nYZ04LnLJ7PkySMsJfAeYD8KBpNg2CG
+        GJxOQ0ZmHvRxkkwTzHr99TgzOktZ0ovnNCvZs39P2L8LLpe92PcwhP2eEgs+K3vxp/vV1wnXQuT7
+        BI/Cfq+SmQ4oVWpRxtfD62G+NEFlvFQHBVPXw7mQVX49fGu0PHnzVamDUVxlTIvPCgbOq2KWghNa
+        gOMFL0XCAAFHvJxVZclFoR9OqGKThShVHXYPQ0QGCA0gGkMYm89P5q9+klYqFXJS0Lwe/FJReTtq
+        3rBGvJBizjN2PWxoJVtknGkXfOz1exnVZtXB9OJ7Zwd+uBFKvKmHMiM9D/y0kjfVtJKVS+RN8Qvn
+        ogH0Bh4aIz+GQUzwV+ceHvpPCI8Igb4T4ZWylfDZH8cXF+/Gx0dgU3ThAOEBDGxcp6yoH6Yu7jS0
+        a67I3xvratoWrOOUqgv6Rcj31dIl9md6V7i+Nxr50Cl9jdKavtievlBnsA3zWOpL/0ONyMWspvox
+        heuJ75vCxgUL6/OMLmdCZC6hN7SbGWNSMybRo3cvGGPiIeTE2CitjJGVMYx2SOWul+hRF3yNA9+V
+        rz9GJPZH7Xw9EoWhUw6vlK18W1h6Azh6bZbh/svyarIWlB9/O32P3MJ+lLaAxGOMY7gFpE+iALot
+        xkbZAHmXcg1RqJRJUKoq4aIEM400pUWSMSA054XhnNPibcu6rLff0Mb5KuWK/ZLpC+bi2VP5Y+aS
+        /RPXOGKh/WdJk8lHfse+aF9c4n8+wGbyentDUYxQO/lRQEKPONVYRtkgP5acJYCCS8ZvOLhM+e2t
+        qMBfopIFW/YBLUGih8iZPAC/igUDS30347cM5EtzB8zEP/pmy2TwDrk/OMyo5MqprGlo12/D/qv4
+        yiTLy9BR2K2uIS/GZEvyBzDCbru0UTZegU/jlAm5/AwuKVc0pz+WYCHu9ErAS/1iaFNbEx5hG9xD
+        /UJxF4u+CddYo/2X9NXMLVyP9G6SU6WYNMO5xP5yiE2U0QB5Y11so221mC4oiBtlo7TWYv4u9bau
+        GV95//Zg0EG7XDvw3dpl05DWHVUYo2BbHnsERW55XCvt1fYOLRUeYPjqJVrUwYmIscCC+IJKds4W
+        bq1gU7wZMQpqxHArYqS3FDfEtdKO2N5R1YF6r37oFXSBuLbAlsVUVZKVV7paZZJJp1x+MUQ7bi9G
+        W3bmEQmQW1m+UrbiXm3T7ZHZ+VZVTqVwwruWdllnmfla2HYSdKtjusr28LYWywsdqyyjtKZuuMtx
+        NbaWWZ3vv3XRsXdLVTtgoZuLnBXq5Ox0/POHd6eHLvG/HKLlcFjX1DAm2xpqPyS+20JtlFbawU4/
+        Tli76M5pd/LjRO3A/4o2RHoH2rZO+8ixiTbKBu2rdAlUykA5E5LptljoTjkBolJACRAeEH/jmckq
+        TvtZ9tnJ8e8odDrIXkvXrHEXy3Y9fQvqW9383NA858WNS+RP5S3W+fUJGYJNxJ8f/gO09Ype9hwA
+        AA==
+    headers:
+      Access-Control-Allow-Methods: ['*']
+      Access-Control-Allow-Origin: ['*']
+      Cache-Control: ['private, must-revalidate']
+      Connection: [keep-alive]
+      Content-Encoding: [gzip]
+      Content-Length: ['1198']
+      Content-Type: [application/json; charset=utf-8]
+      Date: ['Sun, 31 Mar 2019 17:06:52 GMT']
+      ETag: ['"4d7cdf9c7fb54fd81efbf0dbba0986cc"']
+      Server: [nginx/1.15.5 (Ubuntu)]
+      Vary: [Accept-Encoding]
+    status: {code: 200, message: OK}
+version: 1

@@ -87,6 +87,7 @@ def team_overview(season_str: str = season_str, year: int = year, filename: str 
                     TeamWeeklyAnime.bench.is_(False)).all()
                 bench_anime = base_query.filter(
                     TeamWeeklyAnime.bench.is_(True)).all()
+                print(f"writing {team.name} to overview")
                 f.write(f"{team.name}\n---------------------------------\n")
                 # List all active series on the team
                 for anime in sorted(active_anime, key=lambda a: a.anime.name.lower()):
