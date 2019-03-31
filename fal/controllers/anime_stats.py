@@ -33,13 +33,10 @@ def get_forum_posts(anime: Anime) -> int:
     assert anime.name is not None
     name = anime.name  # https://github.com/python/mypy/issues/4297
 
-    episode_discussions = list(filter(
-        lambda thread: re.fullmatch(
-            name + r' Episode \d{1,2} Discussion',
-            thread['title']
-        ),
-        forum_threads
-    ))
+    episode_discussions = [thread for thread in forum_threads if re.fullmatch(
+        name + r' Episode \d{1,2} Discussion',
+        thread['title']
+    )]
 
     if len(episode_discussions) < week:
         print(f"""
