@@ -65,7 +65,7 @@ def add_anime_to_team(team: Team, anime_lines: Sequence[str], bench: bool, sessi
             week=0,
             bench=bench
         )
-        session.add(team_weekly_anime)
+        session.merge(team_weekly_anime)
 
 
 def load_teams(registration_data: Sequence[str]) -> None:
