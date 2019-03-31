@@ -22,7 +22,7 @@ class Season(Base):
     teams = relationship("Team", back_populates='season')
 
     def __repr__(self) -> str:
-        return f"{self.season_of_year} {self.year}"
+        return f"id:{self.id} - {self.season_of_year} {self.year}"
 
     @staticmethod
     def get_season_from_database(season_of_year: str, year: int, session: Session) -> Season:

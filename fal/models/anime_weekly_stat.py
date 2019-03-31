@@ -20,3 +20,14 @@ class AnimeWeeklyStat(Base):
     score = Column(Float)
     favorites = Column(Integer)
     forum_posts = Column(Integer)
+
+    def __repr__(self) -> str:
+        return f"""
+            {self.anime.name}:
+                Watching - {self.watching}
+                Completed - {self.completed}
+                Dropped - {self.dropped}
+                Score - {self.score}
+                Favorites - {self.favorites}
+                Forum Posts - {self.forum_posts}
+            """
