@@ -97,7 +97,7 @@ def load_teams(registration_data: Sequence[str]) -> None:
             config['season info']['season'], config.getint('season info', 'year'), session)
 
         for team_lines in team_lines_list:
-            print(f"Adding {team} to database")
+            print(f"Adding {team_lines.teamname} to database")
             team = Team.get_team_from_database(
                 team_lines.teamname, current_season, session)
             add_anime_to_team(

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import configparser
-import functools
 import re
 from typing import Dict, Union, List, Any, cast
 
@@ -49,11 +48,7 @@ def get_forum_posts(anime: Anime) -> int:
                     this is expected and manually update if necessary.
             """)
 
-    return functools.reduce(
-        lambda accm, episode_discussion: accm + episode_discussion['replies'],
-        episode_discussions,
-        0
-    )
+    return sum([disc['replies'] for disc in episode_discussions])
 
 
 def get_anime_stats_from_jikan(anime: Anime) -> Dict[str, Union[int, float]]:
