@@ -11,11 +11,13 @@ from fal.models import Season, Anime
 config = configparser.ConfigParser()
 config.read("config.ini")
 
+vcrpath = config['vcr']['path']
+
 
 @pytest.mark.parametrize("season,year", [
     ('spring', 2019),
 ])
-@vcr.use_cassette(f"{config.get('vcr','path')}/collect_series/get-series.yaml")
+@vcr.use_cassette(f"{vcrpath}/collect_series/get-series.yaml")
 def test_get_series(series_dict_fixture, season, year):
     series_dict = collect_series.get_series(
         year=int(year), season=season.lower())
