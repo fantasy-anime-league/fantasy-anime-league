@@ -45,7 +45,7 @@ if args.collect_series:
 elif args.ptw_counter:
     ptw_counter()
 elif args.load_teams:
-    with open(args.registration_file) as f:
+    with open(args.registration_file, encoding='utf-8-sig') as f:
         registration_data = f.readlines()
     load_teams(registration_data)
 elif args.headcount:

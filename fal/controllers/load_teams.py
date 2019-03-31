@@ -37,7 +37,7 @@ def slice_up_team_input(team_input: Sequence[str]) -> TeamLines:
 
     # teamname + main team + bench
     assert len(team_input) == active_len + bench_len + 1
-    assert team_input[0][:6] == "Team: "
+    assert team_input[0][:6].strip() == "Team:", f"Team line: {team_input[0]}"
 
     return TeamLines(team_input[0][6:].strip(), team_input[1:1+active_len], team_input[-1 * bench_len:])
 
@@ -62,7 +62,7 @@ def add_anime_to_team(team: Team, anime_lines: Sequence[str], bench: bool, sessi
         team_weekly_anime = TeamWeeklyAnime(
             team_id=team.id,
             anime_id=anime.id,
-            week=1,
+            week=0,
             bench=bench
         )
         session.add(team_weekly_anime)
@@ -97,6 +97,7 @@ def load_teams(registration_data: Sequence[str]) -> None:
             config['season info']['season'], config.getint('season info', 'year'), session)
 
         for team_lines in team_lines_list:
+            print(f"Adding {team} to database")
             team = Team.get_team_from_database(
                 team_lines.teamname, current_season, session)
             add_anime_to_team(
