@@ -1,16 +1,21 @@
-from fal.models import Season, Anime
-import fal.controllers.collect_series as collect_series
-
+import configparser
 from unittest.mock import patch, MagicMock
+
 import pytest
 import vcr
 import os
+
+import fal.controllers.collect_series as collect_series
+from fal.models import Season, Anime
+
+config = configparser.ConfigParser()
+config.read("config.ini")
 
 
 @pytest.mark.parametrize("season,year", [
     ('spring', 2019),
 ])
-@vcr.use_cassette('test/unit/vcr_cassettes/collect_series/get-series.yaml')
+@vcr.use_cassette(f"{config.get('vcr','path')}/collect_series/get-series.yaml")
 def test_get_series(series_dict_fixture, season, year):
     series_dict = collect_series.get_series(
         year=int(year), season=season.lower())

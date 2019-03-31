@@ -91,7 +91,7 @@ def test_slice_up_team_input_raises_if_length_is_not_expected(config_mock, team_
         load_teams.slice_up_team_input(team_input)
 
 
-def test_add_anime_to_team(session, season_factory, team_factory, anime_factory):
+def test_add_anime_to_team(session, team_factory, anime_factory):
     team = team_factory()
 
     active_anime = [
@@ -125,7 +125,7 @@ def test_add_anime_to_team(session, season_factory, team_factory, anime_factory)
 
 @patch('fal.controllers.load_teams.config')
 @patch('fal.controllers.load_teams.session_scope')
-def test_load_teams(session_scope_mock, config_mock, shared_datadir, session_scope, session, anime_factory, season_factory):
+def test_load_teams(session_scope_mock, config_mock, config_functor, shared_datadir, session_scope, session, anime_factory, season_factory):
     season = season_factory(id=0)
 
     def mock_config_getitem(key):
@@ -134,20 +134,18 @@ def test_load_teams(session_scope_mock, config_mock, shared_datadir, session_sco
             'season': season.season_of_year
         }
 
-    def mock_config_getint(section, key):
-        assert section == "season info" or section == "weekly info"
-        if key == "num-active-on-team":
-            return 5
-        if key == "num-on-bench":
-            return 2
-        if key == 'year':
-            return season.year
-        if key == "current-week":
-            return 0
-        raise KeyError(f'Unexpected key {key} passed into config.getint()')
+    config_function = config_functor(
+        sections=['season info', 'weekly info'],
+        kv={
+            'num-active-on-team': 5,
+            'num-on-bench': 2,
+            'year': season.year,
+            'current-week': 0
+        }
+    )
 
     config_mock.__getitem__.side_effect = mock_config_getitem
-    config_mock.getint.side_effect = mock_config_getint
+    config_mock.getint.side_effect = config_function
 
     session_scope_mock.side_effect = session_scope
 
