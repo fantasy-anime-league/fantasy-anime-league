@@ -6,7 +6,8 @@ generic.key
 series.txt
 series_sorted.txt
 src/
-lists/
+lists/*
+!lists/README.md
 
 # git secret
 .gitsecret/keys/random_seed

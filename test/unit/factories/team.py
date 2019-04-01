@@ -15,6 +15,7 @@ class TeamFactory(factory.alchemy.SQLAlchemyModelFactory):
     id = factory.Sequence(lambda x: x)
     season_id = 0
     name = factory.Faker("user_name")
+    mal_join_date = factory.Faker("date_time_this_decade", after_now=False)
 
     @factory.lazy_attribute_sequence
     def season(self, n):

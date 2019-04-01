@@ -1,8 +1,12 @@
 from __future__ import annotations
 
-from typing import Sequence, List, TYPE_CHECKING
 import configparser
 import dataclasses
+import time
+from dateutil.parser import parse
+from typing import Sequence, List, TYPE_CHECKING, cast, Iterable
+
+import jikanpy
 
 from fal.clients.mfalncfm_main import session_scope
 from fal.models import Team, Anime, Season, TeamWeeklyAnime
@@ -104,3 +108,26 @@ def load_teams(registration_data: Sequence[str]) -> None:
                 team, team_lines.active, False, session)
             add_anime_to_team(
                 team, team_lines.bench, True, session)
+
+
+def team_ages() -> None:
+    """
+    Potentially can help spot alt accounts
+    """
+    jikan = jikanpy.Jikan()
+    season_of_year = config.get('season info', 'season')
+    year = config.getint('season info', 'year')
+
+    with session_scope() as session:
+        teams = Season.get_season_from_database(
+            season_of_year, year, session).teams
+        for team in cast(Iterable[Team], teams):
+            if not team.mal_join_date:
+                print(f"Getting join date for {team.name}")
+                assert team.name
+                try:
+                    team.mal_join_date = parse(jikan.user(team.name)['joined'])
+                    session.commit()
+                    #time.sleep(config.get('jikanpy', 'request-interval'))
+                except:
+                    continue
