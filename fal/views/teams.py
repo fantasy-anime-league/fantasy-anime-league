@@ -146,7 +146,7 @@ def team_dist(season_str: str = season_str, year: int = year, filename: str = "l
     with session_scope() as session:
         teams = Season.get_season_from_database(
             season_str, year, session).teams
-        for team in teams:  # type: ignore
+        for i, team in enumerate(teams, 1):  # type: ignore
             # Query all the anime on the team for this week
             base_query = session.query(TeamWeeklyAnime.anime_id). \
                 filter(TeamWeeklyAnime.team_id == team.id). \
@@ -170,6 +170,7 @@ def team_dist(season_str: str = season_str, year: int = year, filename: str = "l
             if a_team not in active_teams:
                 active_teams[a_team] = []
             active_teams[a_team].append(team)
+            print(f'Processed team {i} - {team}')
 
         same_series_diff_team_dist, n_list_non = get_dist(nonsplit_teams)
         same_series_and_team_dist, n_list_split = get_dist(split_teams)
