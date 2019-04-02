@@ -32,8 +32,6 @@ jobs:
             . venv/bin/activate
             pip install -r requirements-dev.txt
             pip install pytest-cov codecov
-            export PYTHONPATH=$PYTHONPATH:$(pwd)
-            cp config-secret-stub.ini config-secret.ini
 
       - save_cache:
           paths:
@@ -48,6 +46,8 @@ jobs:
       - run:
           name: run tests
           command: |
+            export PYTHONPATH=$PYTHONPATH:$(pwd)
+            cp config-secret-stub.ini config-secret.ini
             . venv/bin/activate
             pytest test/unit
             mypy run_fal.py fal
