@@ -51,7 +51,7 @@ jobs:
             . venv/bin/activate
             pytest test/unit
             mypy run_fal.py fal
-            pytest --cov fal test/
+            pytest --cov fal test/unit
             codecov
 
       - store_artifacts:
