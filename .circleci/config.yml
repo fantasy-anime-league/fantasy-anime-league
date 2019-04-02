@@ -4,14 +4,7 @@ orbs:
 jobs:
   build:
     docker:
-      # specify the version you desire here
-      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
       - image: circleci/python:3.7
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
 
     working_directory: ~/repo
 
@@ -26,7 +19,7 @@ jobs:
             - v1-dependencies-
 
       - run:
-          name: install dependencies
+          name: Install dependencies
           command: |
             python3 -m venv venv
             . venv/bin/activate
@@ -38,19 +31,20 @@ jobs:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements-dev.txt" }}
 
-      # run tests!
-      # this example uses Django's built-in test-runner
-      # other common Python testing frameworks include pytest and nose
-      # https://pytest.org
-      # https://nose.readthedocs.io
       - run:
-          name: run tests
+          name: Run tests and mypy
           command: |
             export PYTHONPATH=$PYTHONPATH:$(pwd)
             cp config-secret-stub.ini config-secret.ini
             . venv/bin/activate
             pytest test/unit
             mypy run_fal.py fal
+
+      - run:
+          name: Run codecov
+          command: |
+            export PYTHONPATH=$PYTHONPATH:$(pwd)
+            . venv/bin/activate
             pytest --cov fal test/unit
             codecov
 
