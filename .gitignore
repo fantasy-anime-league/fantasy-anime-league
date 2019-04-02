@@ -7,7 +7,6 @@ series.txt
 series_sorted.txt
 src/
 lists/
-registration*.txt
 
 # git secret
 .gitsecret/keys/random_seed
