@@ -129,5 +129,7 @@ def team_ages() -> None:
                     team.mal_join_date = parse(jikan.user(team.name)['joined'])
                     session.commit()
                     #time.sleep(config.get('jikanpy', 'request-interval'))
-                except:
+                except Exception as e:
+                    print(
+                        f'Ran into issues figuring out join date with {team.name}: {str(e)}')
                     continue

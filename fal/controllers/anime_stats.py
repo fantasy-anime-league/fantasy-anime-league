@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import configparser
 import re
+import time
 from typing import Dict, Union, List, Any, cast
 
 import jikanpy
@@ -85,6 +86,7 @@ def populate_anime_weekly_stats() -> None:
 
         # casting until update in sqlalchemy-stubs
         for anime in cast(List[Anime], anime_list):
+            print(f"Getting stats for {anime.name}")
             stat_data = get_anime_stats_from_jikan(anime)
             stat_data.update({
                 'week': week,
@@ -96,3 +98,5 @@ def populate_anime_weekly_stats() -> None:
                 setattr(anime_weekly_stat, key, value)
 
             session.merge(anime_weekly_stat)
+            session.commit()
+            time.sleep(config.getint("jikanpy", "request-interval"))
