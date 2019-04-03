@@ -37,15 +37,16 @@ jobs:
             export PYTHONPATH=$PYTHONPATH:$(pwd)
             cp config-secret-stub.ini config-secret.ini
             . venv/bin/activate
-            pytest test/unit
-            mypy run_fal.py fal
+            pytest test/unit/
+            mypy run_fal.py fal/
 
       - run:
           name: Run codecov
           command: |
+            set +e
             export PYTHONPATH=$PYTHONPATH:$(pwd)
             . venv/bin/activate
-            pytest --cov fal test/unit
+            pytest --cov fal test/
             codecov
 
       - store_artifacts:
