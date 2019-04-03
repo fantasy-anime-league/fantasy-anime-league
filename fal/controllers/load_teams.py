@@ -46,7 +46,7 @@ def slice_up_team_input(team_input: Sequence[str]) -> TeamLines:
     return TeamLines(team_input[0][6:].strip(), team_input[1:1+active_len], team_input[-1 * bench_len:])
 
 
-def add_anime_to_team(team: Team, anime_lines: Sequence[str], bench: bool, session: Session) -> None:
+def add_anime_to_team(team: Team, anime_lines: Sequence[str], bench: int, session: Session) -> None:
     """Add anime by name to the team in the database.
        Raises an exception if anime cannot be found in database
        """
@@ -105,9 +105,9 @@ def load_teams(registration_data: Sequence[str]) -> None:
             team = Team.get_team_from_database(
                 team_lines.teamname, current_season, session)
             add_anime_to_team(
-                team, team_lines.active, False, session)
+                team, team_lines.active, 0, session)
             add_anime_to_team(
-                team, team_lines.bench, True, session)
+                team, team_lines.bench, 1, session)
 
 
 def team_ages() -> None:

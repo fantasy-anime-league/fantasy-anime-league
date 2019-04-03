@@ -16,8 +16,8 @@ class TeamWeeklyAnime(Base):
     anime_id = Column(Integer, ForeignKey("anime.id"), primary_key=True)
     anime = relationship("Anime")
     week = Column(Integer, primary_key=True)
-    ace = Column(Boolean, default=False)
-    bench = Column(Boolean, default=False)
+    ace = Column(Integer, default=0)
+    bench = Column(Integer, default=0)
 
     def __repr__(self) -> str:
         return f'''In week {self.week}, {self.team.name} has {self.anime.name} on their team.'

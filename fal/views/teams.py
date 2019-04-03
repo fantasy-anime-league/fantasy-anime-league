@@ -84,9 +84,9 @@ def team_overview(season_str: str = season_str, year: int = year, filename: str 
                     filter(TeamWeeklyAnime.team_id == team.id). \
                     filter(TeamWeeklyAnime.week == week)
                 active_anime = base_query.filter(
-                    TeamWeeklyAnime.bench.is_(False)).all()
+                    TeamWeeklyAnime.bench == 0).all()
                 bench_anime = base_query.filter(
-                    TeamWeeklyAnime.bench.is_(True)).all()
+                    TeamWeeklyAnime.bench == 1).all()
                 print(f"writing {team.name} to overview")
                 f.write(f"{team.name}\n---------------------------------\n")
                 # List all active series on the team
@@ -122,7 +122,7 @@ def team_stats(season_str: str = season_str, year: int = year, filename: str = "
         anime_counts: List[Tuple[str, int]] = base_query.all()
         # Filter to only get active count and group by name
         active_counts: Dict[str, int] = dict(
-            base_query.filter(TeamWeeklyAnime.bench.is_(False)).all())
+            base_query.filter(TeamWeeklyAnime.bench == 0).all())
         print(f"Anime Counts:\n{anime_counts}")
         print(f"Active Counts:\n{active_counts}")
         with open(filename, "w", encoding="utf-8") as f:
@@ -153,9 +153,9 @@ def team_dist(season_str: str = season_str, year: int = year, filename: str = "l
                 filter(TeamWeeklyAnime.week == week)
             series: List[int] = base_query.all()
             active: List[int] = base_query.filter(
-                TeamWeeklyAnime.bench.is_(False)).all()
+                TeamWeeklyAnime.bench == 0).all()
             bench: List[int] = base_query.filter(
-                TeamWeeklyAnime.bench.is_(True)).all()
+                TeamWeeklyAnime.bench == 1).all()
             # Split and sort team so the active ones are first
             s_team: Tuple[int, ...] = tuple(sorted(active) + sorted(bench))
             n_team: Tuple[int, ...] = tuple(sorted(series))
