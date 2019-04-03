@@ -53,10 +53,10 @@ def test_team_overview(session_scope_mock, config_mock, session, session_scope,
     team_weekly_anime_list = [
         team_weekly_anime_factory(team=team_list[0], anime=anime[2]),
         team_weekly_anime_factory(
-            team=team_list[0], anime=anime[3], bench=True),
+            team=team_list[0], anime=anime[3], bench=1),
         team_weekly_anime_factory(team=team_list[1], anime=anime[0]),
         team_weekly_anime_factory(
-            team=team_list[1], anime=anime[1], bench=True),
+            team=team_list[1], anime=anime[1], bench=1),
     ]
     season = team_list[0].season
 
@@ -95,10 +95,10 @@ def test_team_stats(session_scope_mock, config_mock, session, session_scope,
     team_weekly_anime_list = [
         team_weekly_anime_factory(team=team_list[0], anime=anime[2]),
         team_weekly_anime_factory(
-            team=team_list[0], anime=anime[0], bench=True),
+            team=team_list[0], anime=anime[0], bench=1),
         team_weekly_anime_factory(team=team_list[1], anime=anime[0]),
         team_weekly_anime_factory(
-            team=team_list[1], anime=anime[1], bench=True),
+            team=team_list[1], anime=anime[1], bench=1),
     ]
     season = team_list[0].season
 
@@ -137,16 +137,16 @@ def test_team_dist(session_scope_mock, config_mock, session, session_scope,
     ]
     team_weekly_anime_list = [
         team_weekly_anime_factory(
-            team=team_list[0], anime=anime[0], bench=True),
+            team=team_list[0], anime=anime[0], bench=1),
         team_weekly_anime_factory(team=team_list[0], anime=anime[1]),
         team_weekly_anime_factory(team=team_list[1], anime=anime[0]),
         team_weekly_anime_factory(
-            team=team_list[1], anime=anime[1], bench=True),
+            team=team_list[1], anime=anime[1], bench=1),
         team_weekly_anime_factory(team=team_list[2], anime=anime[0]),
         team_weekly_anime_factory(
-            team=team_list[2], anime=anime[2], bench=True),
+            team=team_list[2], anime=anime[2], bench=1),
         team_weekly_anime_factory(
-            team=team_list[3], anime=anime[0], bench=True),
+            team=team_list[3], anime=anime[0], bench=1),
         team_weekly_anime_factory(team=team_list[3], anime=anime[1])
     ]
     season = team_list[0].season
