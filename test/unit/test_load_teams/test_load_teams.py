@@ -110,9 +110,9 @@ def test_add_anime_to_team(session, team_factory, anime_factory):
     load_teams.add_anime_to_team(team, bench_anime, True, session)
 
     team_active_anime = session.query(TeamWeeklyAnime).filter(
-        TeamWeeklyAnime.team_id == team.id, TeamWeeklyAnime.bench == False).all()
+        TeamWeeklyAnime.team_id == team.id, TeamWeeklyAnime.bench == 0).all()
     team_bench_anime = session.query(TeamWeeklyAnime).filter(
-        TeamWeeklyAnime.team_id == team.id, TeamWeeklyAnime.bench == True).all()
+        TeamWeeklyAnime.team_id == team.id, TeamWeeklyAnime.bench == 1).all()
 
     assert len(team_active_anime) == 2
     assert len(team_bench_anime) == 2
@@ -164,9 +164,9 @@ def test_load_teams(session_scope_mock, config_mock, config_functor, shared_data
 
     for team in teams:
         team_active_anime = session.query(TeamWeeklyAnime).filter(
-            TeamWeeklyAnime.team_id == team.id, TeamWeeklyAnime.bench == False).all()
+            TeamWeeklyAnime.team_id == team.id, TeamWeeklyAnime.bench == 0).all()
         team_bench_anime = session.query(TeamWeeklyAnime).filter(
-            TeamWeeklyAnime.team_id == team.id, TeamWeeklyAnime.bench == True).all()
+            TeamWeeklyAnime.team_id == team.id, TeamWeeklyAnime.bench == 1).all()
 
         assert len(team_active_anime) == 5
         assert len(team_bench_anime) == 2

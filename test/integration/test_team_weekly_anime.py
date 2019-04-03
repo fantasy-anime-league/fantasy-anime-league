@@ -16,6 +16,7 @@ def test_query_team_weekly_anime(team_id, anime_ids, name, bench_indices):
             all()
         for i, anime in enumerate(anime_list):
             if i in bench_indices:
-                assert anime.bench
+                # anime.bench == b'\x01', so we use ord() to convert it to int
+                assert ord(anime.bench) == 1
             assert anime.team.name == name
             assert anime.anime_id == anime_ids[i]

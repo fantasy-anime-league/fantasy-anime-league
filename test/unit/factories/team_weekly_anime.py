@@ -18,8 +18,8 @@ class TeamWeeklyAnimeFactory(factory.alchemy.SQLAlchemyModelFactory):
         return self.anime.id
 
     week = 0
-    ace = False
-    bench = False
+    ace = 0
+    bench = 0
 
     team = []
     anime = []
