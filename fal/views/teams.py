@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import configparser
 
 from fal.clients.mfalncfm_main import session_scope

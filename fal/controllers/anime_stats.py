@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import configparser
 import re
-from typing import Dict, Union, List, Any, cast
+import time
+import dataclasses
+from typing import Dict, Union, List, Any, cast, Optional
 
 import jikanpy
 
@@ -12,6 +14,17 @@ from fal.models import AnimeWeeklyStat, Season, Anime
 config = configparser.ConfigParser()
 config.read("config.ini")
 
+@dataclasses.dataclass()
+class AnimeStats:
+    watching: int
+    completed: int
+    dropped: int
+    score: Optional[float]
+    favorites: int
+    forum_posts: int
+    total_points: int = dataclasses.field(init=False)
+    week: int = dataclasses.field(init=False)
+    anime_id: int = dataclasses.field(init=False)
 
 def get_forum_posts(anime: Anime) -> int:
     '''
@@ -40,15 +53,18 @@ def get_forum_posts(anime: Anime) -> int:
 
     if len(episode_discussions) < week:
         print(f"""
-            WARNING: did not find as many episode discussion threads for \
-                {anime.name} as the number of weeks we're in. Double check that \
+            WARNING: did not find as many episode discussion threads for 
+                {anime.name} as the number of weeks we're in. Double check that
                     this is expected and manually update if necessary.
             """)
+
+        if not episode_discussions:
+            return 0
 
     return sum([disc['replies'] for disc in episode_discussions])
 
 
-def get_anime_stats_from_jikan(anime: Anime) -> Dict[str, Union[int, float]]:
+def get_anime_stats_from_jikan(anime: Anime) -> AnimeStats:
     '''
     Makes requests to Jikan given an anime id
     and returns a Dict containing all the information needed to
@@ -59,14 +75,30 @@ def get_anime_stats_from_jikan(anime: Anime) -> Dict[str, Union[int, float]]:
     general_anime_info = jikan.anime(anime.id)
     jikan_anime_stats = jikan.anime(anime.id, extension='stats')
 
-    return {
-        'watching': jikan_anime_stats['watching'],
-        'completed': jikan_anime_stats['completed'],
-        'dropped': jikan_anime_stats['dropped'],
-        'score': general_anime_info['score'],
-        'favorites': general_anime_info['favorites'],
-        'forum_posts': get_forum_posts(anime)
-    }
+    return AnimeStats(
+        watching = jikan_anime_stats['watching'],
+        completed = jikan_anime_stats['completed'],
+        dropped = jikan_anime_stats['dropped'],
+        score = general_anime_info['score'],
+        favorites = general_anime_info['favorites'],
+        forum_posts = get_forum_posts(anime)
+    )
+
+def calculate_anime_weekly_points(stat_data: AnimeStats) -> int:
+    '''
+    Calculate the points for the week for the anime based on the stats
+    '''
+    points = 0
+    points += (stat_data.watching
+             + stat_data.completed
+             + config.getint('scoring.dropped', str(stat_data.week), fallback=0) * stat_data.dropped
+             + int(config.getint('scoring.anime_score', str(stat_data.week), fallback=0) * stat_data.score)             + config.getint('scoring.favorite', str(stat_data.week), fallback=0) * stat_data.favorites
+             + config.getint('scoring info', 'forum-post-multiplier') * stat_data.forum_posts
+    )
+    # TODO: add scoring for simulcasts and licensing
+
+    return points
+
 
 
 def populate_anime_weekly_stats() -> None:
@@ -85,14 +117,20 @@ def populate_anime_weekly_stats() -> None:
 
         # casting until update in sqlalchemy-stubs
         for anime in cast(List[Anime], anime_list):
+            print(f"Populating stats for {anime}")
             stat_data = get_anime_stats_from_jikan(anime)
-            stat_data.update({
-                'week': week,
-                'anime_id': anime.id
-            })
+            stat_data.week = week
+            stat_data.anime_id = anime.id
+
+            if stat_data.score is None:
+                # did not start airing yet
+                stat_data.total_points = 0
+            else:
+                stat_data.total_points = calculate_anime_weekly_points(stat_data)
 
             anime_weekly_stat = AnimeWeeklyStat()
-            for key, value in stat_data.items():
+            for key, value in dataclasses.asdict(stat_data).items():
                 setattr(anime_weekly_stat, key, value)
 
-            session.merge(anime_weekly_stat)
+            session.add(anime_weekly_stat)
+            time.sleep(config.getint("jikanpy", "request-interval"))

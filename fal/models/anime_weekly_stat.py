@@ -20,6 +20,7 @@ class AnimeWeeklyStat(Base):
     score = Column(Float)
     favorites = Column(Integer)
     forum_posts = Column(Integer)
+    total_points = Column(Integer, default=0)
 
     def __repr__(self) -> str:
         return f"""
@@ -30,4 +31,5 @@ class AnimeWeeklyStat(Base):
                 Score - {self.score}
                 Favorites - {self.favorites}
                 Forum Posts - {self.forum_posts}
+                Total Points - {self.total_points}
             """

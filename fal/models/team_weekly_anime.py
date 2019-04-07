@@ -1,6 +1,6 @@
 from fal.models import Base
 
-from sqlalchemy import Column, Integer, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
 from typing import TYPE_CHECKING
