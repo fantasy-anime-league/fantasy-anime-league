@@ -30,7 +30,7 @@ def session(transaction):
 
     yield _session
 
-    _session.close()
+    _session.rollback()
     transaction.rollback()
 
 

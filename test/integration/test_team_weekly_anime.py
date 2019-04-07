@@ -9,7 +9,7 @@ import pytest
     (2, (35847, 36000, 37202, 37430, 37450, 37965, 37991), 'abhinavk99', (0, 2))
 ])
 def test_query_team_weekly_anime(team_id, anime_ids, name, bench_indices):
-    with session_scope() as session:
+    with session_scope(True) as session:
         anime_list = session.query(TeamWeeklyAnime). \
             order_by(TeamWeeklyAnime.anime_id). \
             filter(TeamWeeklyAnime.team_id == team_id). \
