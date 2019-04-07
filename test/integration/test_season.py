@@ -3,7 +3,7 @@ from fal.clients.mfalncfm_main import session_scope
 
 
 def test_retrieve_teams():
-    with session_scope(True) as session:
+    with session_scope() as session:
         query = session.query(Season).filter(Season.id == 1)
         season = query.one()
         assert len(season.teams) == 3

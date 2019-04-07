@@ -1,10 +1,11 @@
 import contextlib
 from typing import Iterable, Mapping
 
-from pytest_factoryboy import register
+
 import pytest
 import factories
 import sqlalchemy
+from pytest_factoryboy import register
 
 import fal.models
 
@@ -14,33 +15,32 @@ register(factories.TeamFactory)
 register(factories.TeamWeeklyAnimeFactory)
 
 
-@pytest.fixture()
-def session_factory():
+@pytest.fixture(scope="session")
+def transaction():
     engine = sqlalchemy.create_engine('sqlite://', echo=True)
     fal.models.Base.metadata.create_all(engine)
-    factories.session_factory.configure(bind=engine)
-    return factories.session_factory
-
+    connection = engine.connect()
+    transaction = connection.begin()
+    factories.session_factory.configure(bind=connection)
+    return transaction
 
 @pytest.fixture
-def session(session_factory):
-    _session = session_factory()
+def session(transaction):    
+    _session = factories.session_factory()
+
     yield _session
-    _session.rollback()
-    session_factory.remove()
+
+    _session.close()
+    transaction.rollback()
 
 
 @pytest.fixture
-def session_scope(session_factory):
-    _session = session_factory()
-
+def session_scope(session):
     @contextlib.contextmanager
     def _session_scope():
-        yield _session
+        yield session
 
     yield _session_scope
-    _session.rollback()
-    session_factory.remove()
 
 
 class Config(object):
