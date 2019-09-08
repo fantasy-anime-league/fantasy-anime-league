@@ -15,7 +15,7 @@ class Team(Base):
     __tablename__ = 'team'
 
     id = Column(Integer, primary_key=True)
-    season_id = Column(String, ForeignKey('season.id'))
+    season_id = Column(Integer, ForeignKey('season.id'))
     name = Column(String)
     mal_join_date = Column(DateTime, nullable=True)
 

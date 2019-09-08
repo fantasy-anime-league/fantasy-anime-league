@@ -3,7 +3,7 @@ from sqlalchemy.sql.expression import ColumnElement
 import sqlalchemy.orm
 
 from contextlib import contextmanager
-from typing import Generator, cast
+from typing import Generator
 import sys
 import configparser
 import urllib
@@ -38,7 +38,7 @@ def session_scope(echo: bool = False) -> Generator[sqlalchemy.orm.Session, None,
     # neither pool_pre_ping nor the legacy recipe on sqlalchemy's website to test connection seems to work so
     # here we do a crude ping on the connection to see if we're successful
     try:
-        session.scalar(select(cast(ColumnElement, [1])))
+        session.scalar(select([1]))
     except exc.OperationalError as identifier:
         print('Error connecting to MySQL. Did you forget to set up port forwarding? \n'
               'https: // www.namecheap.com/support/knowledgebase/article.aspx/1249/89/how-to-remotely-connect-to-a-mysql-database-located-on-our-shared-server\n'
