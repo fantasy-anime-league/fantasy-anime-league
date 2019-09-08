@@ -98,5 +98,5 @@ def populate_anime_weekly_stats() -> None:
                 setattr(anime_weekly_stat, key, value)
 
             session.merge(anime_weekly_stat)
-            session.commit()
+            #session.commit()
             time.sleep(config.getint("jikanpy", "request-interval"))
