@@ -62,7 +62,7 @@ def test_populate_anime_weekly_stats(session_scope_mock, config_mock, get_forum_
 
 @patch('fal.controllers.anime_stats.config')
 @vcr.use_cassette(f"{config.get('vcr','path')}/anime_stats/get_forum_posts.yaml")
-def test_get_forum_posts(config_mock, anime_factory, config_functor):
+def test_get_forum_posts(config_mock, anime_factory, config_functor, session):
     config_mock.getint.side_effect = config_functor(
         sections=['weekly info'],
         kv={
