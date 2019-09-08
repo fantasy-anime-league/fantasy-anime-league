@@ -17,7 +17,7 @@ class AnimeWeeklyStat(Base):
     watching = Column(Integer)
     completed = Column(Integer)
     dropped = Column(Integer)
-    score = Column(Float)
+    score = Column(Float, nullable=True)
     favorites = Column(Integer)
     forum_posts = Column(Integer)
     total_points = Column(Integer, default=0)

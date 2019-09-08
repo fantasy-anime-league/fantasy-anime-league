@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import configparser
+from typing import Dict, Tuple, List, Mapping, Sequence, TextIO
+from dataclasses import dataclass
+
+from sqlalchemy import func
 
 from fal.clients.mfalncfm_main import session_scope
 from fal.models import Team, Season, TeamWeeklyAnime, Anime
-
-from typing import Dict, Tuple, List, Mapping, Sequence, TextIO
-from sqlalchemy import func
 
 config = configparser.ConfigParser()
 config.read("config.ini")

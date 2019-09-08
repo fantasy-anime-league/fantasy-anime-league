@@ -14,6 +14,7 @@ config.read("config.ini")
 
 vcrpath = config.get('vcr', 'path')
 
+
 @patch('fal.controllers.anime_stats.get_forum_posts')
 @patch('fal.controllers.anime_stats.config')
 @patch('fal.controllers.anime_stats.session_scope')
@@ -21,11 +22,12 @@ vcrpath = config.get('vcr', 'path')
 def test_populate_anime_weekly_stats(session_scope_mock, config_mock, get_forum_posts, session_scope, config_functor, season_factory, anime_factory):
     session_scope_mock.side_effect = session_scope
     config_function = config_functor(
-        sections=['season info', 'weekly info'],
+        sections=['season info', 'weekly info', 'jikanpy'],
         kv={
             'season': 'spring',
             'year': 2018,
-            'current-week': 0
+            'current-week': 0,
+            'request-interval': 0
         }
     )
     config_mock.getint.side_effect = config_function
@@ -60,7 +62,7 @@ def test_populate_anime_weekly_stats(session_scope_mock, config_mock, get_forum_
 
 @patch('fal.controllers.anime_stats.config')
 @vcr.use_cassette(f"{config.get('vcr','path')}/anime_stats/get_forum_posts.yaml")
-def test_get_forum_posts(config_mock, anime_factory, config_functor):
+def test_get_forum_posts(config_mock, anime_factory, config_functor, session):
     config_mock.getint.side_effect = config_functor(
         sections=['weekly info'],
         kv={

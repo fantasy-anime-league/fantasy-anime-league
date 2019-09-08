@@ -3,8 +3,12 @@ from __future__ import annotations
 import configparser
 import re
 import time
+<<<<<<< HEAD
 import dataclasses
 from typing import Dict, Union, List, Any, cast, Optional
+=======
+from typing import Dict, Union, List, Any, cast
+>>>>>>> master
 
 import jikanpy
 
@@ -132,5 +136,6 @@ def populate_anime_weekly_stats() -> None:
             for key, value in dataclasses.asdict(stat_data).items():
                 setattr(anime_weekly_stat, key, value)
 
-            session.add(anime_weekly_stat)
+            session.merge(anime_weekly_stat)
+            #session.commit()
             time.sleep(config.getint("jikanpy", "request-interval"))
