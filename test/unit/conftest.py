@@ -14,9 +14,9 @@ register(factories.TeamFactory)
 register(factories.TeamWeeklyAnimeFactory)
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture()
 def session_factory():
-    engine = sqlalchemy.create_engine('sqlite://')
+    engine = sqlalchemy.create_engine('sqlite://', echo=False)
     fal.models.Base.metadata.create_all(engine)
     factories.session_factory.configure(bind=engine)
     return factories.session_factory

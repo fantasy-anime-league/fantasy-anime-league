@@ -106,8 +106,8 @@ def test_add_anime_to_team(session, team_factory, anime_factory):
     for anime_name in (active_anime + bench_anime):
         anime_factory(name=anime_name, eligible=1)
 
-    load_teams.add_anime_to_team(team, active_anime, False, session)
-    load_teams.add_anime_to_team(team, bench_anime, True, session)
+    load_teams.add_anime_to_team(team, active_anime, 0, session)
+    load_teams.add_anime_to_team(team, bench_anime, 1, session)
 
     team_active_anime = session.query(TeamWeeklyAnime).filter(
         TeamWeeklyAnime.team_id == team.id, TeamWeeklyAnime.bench == 0).all()

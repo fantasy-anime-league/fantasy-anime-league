@@ -12,7 +12,7 @@ it is able to replicate all functionality
 
 from fal.controllers.collect_series import collect_series
 from fal.controllers.ptw_counter import ptw_counter
-from fal.controllers.load_teams import load_teams
+from fal.controllers.load_teams import load_teams, team_ages
 from fal.controllers.anime_stats import populate_anime_weekly_stats
 from fal.views.teams import headcount, team_overview, team_stats, team_dist
 
@@ -48,6 +48,7 @@ elif args.load_teams:
     with open(args.registration_file, encoding='utf-8-sig') as f:
         registration_data = f.readlines()
     load_teams(registration_data)
+    team_ages()
 elif args.headcount:
     headcount(args.season, args.year)
 elif args.team_overview:
