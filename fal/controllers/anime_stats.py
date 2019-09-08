@@ -3,12 +3,8 @@ from __future__ import annotations
 import configparser
 import re
 import time
-<<<<<<< HEAD
 import dataclasses
 from typing import Dict, Union, List, Any, cast, Optional
-=======
-from typing import Dict, Union, List, Any, cast
->>>>>>> master
 
 import jikanpy
 
@@ -57,7 +53,7 @@ def get_forum_posts(anime: Anime) -> int:
 
     if len(episode_discussions) < week:
         print(f"""
-            WARNING: did not find as many episode discussion threads for 
+            WARNING: did not find as many episode discussion threads for
                 {anime.name} as the number of weeks we're in. Double check that
                     this is expected and manually update if necessary.
             """)
