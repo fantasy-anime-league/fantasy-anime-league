@@ -19,7 +19,7 @@ class AnimeStats:
     watching: int
     completed: int
     dropped: int
-    score: Optional[float]
+    score: float
     favorites: int
     forum_posts: int
     total_points: int = dataclasses.field(init=False)
@@ -29,7 +29,13 @@ class AnimeStats:
 def get_forum_posts(anime: Anime) -> int:
     '''
     Requests forum posts from Jikan, then sums up all the episode discussion
-    thread replies
+    thread replies.
+
+    Where N is the weekly interval forum posts are scored:
+        if this week is not a multiple of N, return 0
+        Otherwise:
+            Gathers all the posts in the forum discussion threads of the past N weeks,
+
 
     Currently uses regex to match for Episode Discussion. This is brittle and
     will stop working once we get over 15 forum threads on an anime.
@@ -37,8 +43,17 @@ def get_forum_posts(anime: Anime) -> int:
     ASAP we should fix Jikan's API so that it can filter for episode discussion threads
     in its search. Alternatively, we could remove the 15 search result limit but that
     seems harder to do.
+
+    Also TODO: add functionality to subtract a certain number of forum posts,
+    i.e. posts made before season started
     '''
+
     week = config.getint("weekly info", "current-week")
+    n_week = config.getint("scoring info", "forum-posts-every-n-weeks")
+
+    if week % n_week != 0:
+        return 0
+
     jikan = jikanpy.Jikan()
     forum_threads: List[Dict[str, Any]] = jikan.anime(
         anime.id, extension='forum')['topics']
@@ -46,20 +61,29 @@ def get_forum_posts(anime: Anime) -> int:
     assert anime.name is not None
     name = anime.name  # https://github.com/python/mypy/issues/4297
 
-    episode_discussions = [thread for thread in forum_threads if re.fullmatch(
-        name + r' Episode \d{1,2} Discussion',
-        thread['title']
-    )]
+    or_alias = ""
+    if anime.alias:
+        or_alias = f"|{anime.alias}"
 
-    if len(episode_discussions) < week:
+    episode_nums_str = "|".join(
+        [str(num) for num in
+            range(max(1, week - n_week + 1), week + 1)
+        ]
+    )
+
+    episode_discussions = [thread for thread in forum_threads
+        if re.fullmatch(
+            f'({name}{or_alias}) Episode ({episode_nums_str}) Discussion',
+            thread['title']
+        )]
+
+    if not episode_discussions:
         print(f"""
-            WARNING: did not find as many episode discussion threads for
-                {anime.name} as the number of weeks we're in. Double check that
-                    this is expected and manually update if necessary.
+            WARNING: did not find as many episode discussion threads for {anime.name}.
+            Double check that this is expected and manually update if necessary.
+            (Found {len(episode_discussions)} discussions in the {n_week} weeks
+            before week {week})
             """)
-
-        if not episode_discussions:
-            return 0
 
     return sum([disc['replies'] for disc in episode_discussions])
 
@@ -79,7 +103,7 @@ def get_anime_stats_from_jikan(anime: Anime) -> AnimeStats:
         watching = jikan_anime_stats['watching'],
         completed = jikan_anime_stats['completed'],
         dropped = jikan_anime_stats['dropped'],
-        score = general_anime_info['score'],
+        score = general_anime_info.get('score', 0),
         favorites = general_anime_info['favorites'],
         forum_posts = get_forum_posts(anime)
     )
@@ -92,7 +116,8 @@ def calculate_anime_weekly_points(stat_data: AnimeStats) -> int:
     points += (stat_data.watching
              + stat_data.completed
              + config.getint('scoring.dropped', str(stat_data.week), fallback=0) * stat_data.dropped
-             + int(config.getint('scoring.anime_score', str(stat_data.week), fallback=0) * stat_data.score)             + config.getint('scoring.favorite', str(stat_data.week), fallback=0) * stat_data.favorites
+             + int(config.getint('scoring.anime_score', str(stat_data.week), fallback=0) * stat_data.score)
+             + config.getint('scoring.favorite', str(stat_data.week), fallback=0) * stat_data.favorites
              + config.getint('scoring info', 'forum-post-multiplier') * stat_data.forum_posts
     )
     # TODO: add scoring for simulcasts and licensing
@@ -118,7 +143,12 @@ def populate_anime_weekly_stats() -> None:
         # casting until update in sqlalchemy-stubs
         for anime in cast(List[Anime], anime_list):
             print(f"Populating stats for {anime}")
-            stat_data = get_anime_stats_from_jikan(anime)
+            try:
+                stat_data = get_anime_stats_from_jikan(anime)
+            except jikanpy.exceptions.APIException as e:
+                print(f"Jikan servers did not handle our request very well, skipping: {e}")
+                continue
+
             stat_data.week = week
             stat_data.anime_id = anime.id
 
