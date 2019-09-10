@@ -51,6 +51,7 @@ def get_forum_posts(anime: Anime) -> int:
     week = config.getint("weekly info", "current-week")
     n_week = config.getint("scoring info", "forum-posts-every-n-weeks")
 
+    # don't score forum posts if this isn't the right week
     if week % n_week != 0:
         return 0
 
@@ -65,6 +66,8 @@ def get_forum_posts(anime: Anime) -> int:
     if anime.alias:
         or_alias = f"|{anime.alias}"
 
+    # here we build the regex OR statement based on all the week numbers
+    # since the last time we checked forum posts
     episode_nums_str = "|".join(
         [str(num) for num in
             range(max(1, week - n_week + 1), week + 1)
@@ -80,7 +83,12 @@ def get_forum_posts(anime: Anime) -> int:
     if not episode_discussions:
         print(f"""
             WARNING: did not find as many episode discussion threads for {anime.name}.
-            Double check that this is expected and manually update if necessary.
+            Double check that this is expected and m
+
+
+
+
+            anually update if necessary.
             (Found {len(episode_discussions)} discussions in the {n_week} weeks
             before week {week})
             """)
