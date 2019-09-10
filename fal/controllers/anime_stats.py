@@ -83,12 +83,7 @@ def get_forum_posts(anime: Anime) -> int:
     if not episode_discussions:
         print(f"""
             WARNING: did not find as many episode discussion threads for {anime.name}.
-            Double check that this is expected and m
-
-
-
-
-            anually update if necessary.
+            Double check that this is expected and manually update if necessary.
             (Found {len(episode_discussions)} discussions in the {n_week} weeks
             before week {week})
             """)
