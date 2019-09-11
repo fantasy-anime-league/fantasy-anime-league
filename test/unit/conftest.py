@@ -52,10 +52,17 @@ class Config(object):
         self.sections = sections
         self.kv = kv
 
-    def __call__(self, section, key):
-        assert section in self.sections
+    def __call__(self, section, key, fallback=None):
+        if not section in self.sections:
+            if fallback is not None:
+                return fallback
+            else:
+                raise ValueError(f'''
+                    {section} section not mocked out in config mock,
+                    nor is fallback set''')
         if key in self.kv:
             return self.kv[key]
+        print(self.kv)
         raise KeyError(f'Unexpected key {key} passed into config')
 
 
