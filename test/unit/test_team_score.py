@@ -72,7 +72,6 @@ def test_add_team_anime_scores_to_weekly_points(
     this_week_points = team_weekly_points_factory()
     anime_weekly_stats = anime_weekly_stat_factory.create_batch(7)
     bench_anime_stats = anime_weekly_stats[-2:]
-    print(bench_anime_stats)
     active_anime_scores = [500, 1000, 1500, 2000, 5000]
 
     for anime_weekly_stat, anime_score in zip(anime_weekly_stats, active_anime_scores):
