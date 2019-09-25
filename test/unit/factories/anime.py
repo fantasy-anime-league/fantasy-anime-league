@@ -14,7 +14,7 @@ class AnimeFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     id = factory.Sequence(lambda x: x)
     season_id = 0
-    derivative = factory.Faker('random_int', min=0, max=1)
+    restricted = factory.Faker('random_int', min=0, max=1)
     eligible = factory.Faker('random_int', min=0, max=1)
     alias = None
 
