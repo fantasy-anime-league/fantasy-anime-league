@@ -52,7 +52,7 @@ def test_get_team_scores_counts_this_week_returns_score_groups_descending_order_
     assert score_counts[3][0] == 4
     assert score_counts[3][1] in [teams[5].id, teams[6].id, teams[7].id, teams[8].id]
 
-    # 1500 score group
+    # 500 score group
     assert score_counts[4] == (1, teams[0].id)
 
 def test_calculate_team_total_score(team_weekly_points_factory, team_factory, session):
