@@ -63,8 +63,6 @@ def test_calculate_team_total_score(team_weekly_points_factory, team_factory, se
 
     assert team_score.calculate_team_total_score(team, session) == sum(team_points_per_week)
 
-from fal.models import AnimeWeeklyStat
-
 def test_add_team_anime_scores_to_weekly_points(
     team_weekly_points_factory,
     team_weekly_anime_factory,
