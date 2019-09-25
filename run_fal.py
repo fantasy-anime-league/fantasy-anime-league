@@ -14,7 +14,7 @@ from fal.controllers.collect_series import collect_series
 from fal.controllers.ptw_counter import ptw_counter
 from fal.controllers.load_teams import load_teams, team_ages
 from fal.controllers.anime_stats import populate_anime_weekly_stats
-from fal.controllers.team_score import calculate_team_score
+from fal.controllers.team_score import calculate_team_scores
 from fal.views.teams import headcount, team_overview, team_stats, team_dist
 
 import argparse
@@ -62,4 +62,4 @@ if args.team_dist:
 if args.anime_weekly_stats:
     populate_anime_weekly_stats()
 if args.team_score:
-    calculate_team_score()
+    calculate_team_scores()
