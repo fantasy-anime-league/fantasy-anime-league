@@ -58,7 +58,7 @@ def add_team_anime_scores_to_weekly_points(this_week_points: TeamWeeklyPoints, s
     ).all()
 
     this_week_points.weekly_points = \
-        sum([stat.AnimeWeeklyStat.total_points for stat in active_anime_stats])
+        sum(stat.AnimeWeeklyStat.total_points for stat in active_anime_stats)
     # TODO: deal with aces
 
 def calculate_team_scores() -> None:

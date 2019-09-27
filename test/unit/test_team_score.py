@@ -1,5 +1,4 @@
 from unittest.mock import patch
-import pytest
 
 from fal.controllers import team_score
 from fal.models import TeamWeeklyPoints
@@ -26,15 +25,8 @@ def test_get_team_scores_counts_this_week_returns_score_groups_descending_order_
 ):
     week = 1
     teams = team_factory.create_batch(9)
-    team_weekly_points_factory(week=week, weekly_points=500, team=teams[0])
-    team_weekly_points_factory(week=week, weekly_points=2000, team=teams[1])
-    team_weekly_points_factory(week=week, weekly_points=2000, team=teams[2])
-    team_weekly_points_factory(week=week, weekly_points=1500, team=teams[3])
-    team_weekly_points_factory(week=week, weekly_points=3000, team=teams[4])
-    team_weekly_points_factory(week=week, weekly_points=1000, team=teams[5])
-    team_weekly_points_factory(week=week, weekly_points=1000, team=teams[6])
-    team_weekly_points_factory(week=week, weekly_points=1000, team=teams[7])
-    team_weekly_points_factory(week=week, weekly_points=1000, team=teams[8])
+    for team, points in zip(teams, (500, 2000, 2000, 1500, 3000, 1000, 1000, 1000, 1000)):
+        team_weekly_points_factory(week=week, weekly_points=points, team=team)
 
     score_counts = team_score.get_team_scores_counts_this_week(week, session)
 
