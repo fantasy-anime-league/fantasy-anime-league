@@ -1,6 +1,5 @@
-import configparser
 from unittest.mock import patch
-
+import configparser
 import pytest
 import vcr
 import factory

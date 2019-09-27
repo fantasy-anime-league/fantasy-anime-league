@@ -14,6 +14,7 @@ from fal.controllers.collect_series import collect_series
 from fal.controllers.ptw_counter import ptw_counter
 from fal.controllers.load_teams import load_teams, team_ages
 from fal.controllers.anime_stats import populate_anime_weekly_stats
+from fal.controllers.team_score import calculate_team_scores
 from fal.views.teams import headcount, team_overview, team_stats, team_dist
 
 import argparse
@@ -35,6 +36,7 @@ parser.add_argument("--team-overview", action="store_true")
 parser.add_argument("--team-stats", action="store_true")
 parser.add_argument("--team-dist", action="store_true")
 parser.add_argument("--anime-weekly-stats", action="store_true")
+parser.add_argument("--team-score", action="store_true")
 parser.add_argument("--season", default=season_str)
 parser.add_argument("--year", default=year)
 args = parser.parse_args()
@@ -42,20 +44,22 @@ args = parser.parse_args()
 
 if args.collect_series:
     collect_series()
-elif args.ptw_counter:
+if args.ptw_counter:
     ptw_counter()
-elif args.load_teams:
+if args.load_teams:
     with open(args.registration_file, encoding='utf-8-sig') as f:
         registration_data = f.readlines()
     load_teams(registration_data)
     team_ages()
-elif args.headcount:
+if args.headcount:
     headcount(args.season, args.year)
-elif args.team_overview:
+if args.team_overview:
     team_overview(args.season, args.year)
-elif args.team_stats:
+if args.team_stats:
     team_stats(args.season, args.year)
-elif args.team_dist:
+if args.team_dist:
     team_dist(args.season, args.year)
-elif args.anime_weekly_stats:
+if args.anime_weekly_stats:
     populate_anime_weekly_stats()
+if args.team_score:
+    calculate_team_scores()
