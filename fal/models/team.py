@@ -26,7 +26,7 @@ class Team(Base):
     team_weekly_points = relationship("TeamWeeklyPoints", back_populates="team")
 
     @staticmethod
-    @functools.lru_cache
+    @functools.lru_cache(maxsize=2048)
     def get_team_from_database(name: str, season: Season, session: Session) -> Team:
         """ Adds new team row to database if necessary, then return the team object"""
         query = session.query(Team).filter(

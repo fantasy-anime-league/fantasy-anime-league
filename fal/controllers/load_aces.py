@@ -40,6 +40,7 @@ def load_aces(input_lines: Iterable[str]) -> None:
             teamname, animename = line.split(" ", 1)
             team = Team.get_team_from_database(teamname, season, session)
             anime = Anime.get_anime_from_database_by_name(animename, session)
+            assert anime
             if not team_anime_aced_already(team, anime, session):
                 this_week_team_anime = session.query(TeamWeeklyAnime).filter(
                     TeamWeeklyAnime.anime_id == anime.id,
