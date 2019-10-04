@@ -27,7 +27,7 @@ def team_anime_aced_already(team: Team, anime: Anime, session: Session) -> bool:
 def load_aces(input_lines: Iterable[str]) -> None:
     '''Takes in an iterable of "<teamname> <anime to ace>" inputs.
     Parses these inputs and sets the anime for the team to ace for the week
-    if the anime has not been previously aced on that team.
+    if the anime has not been previously aced on that team and the score for that anime hasn't hit the cutoff.
     '''
 
     season_of_year = config.get("season info", "season").lower()
@@ -47,4 +47,5 @@ def load_aces(input_lines: Iterable[str]) -> None:
                     TeamWeeklyAnime.team_id == team.id,
                     TeamWeeklyAnime.week == week
                 ).one()
-                this_week_team_anime.ace = 1
+                if this_week_team_anime.bench == 0:
+                    this_week_team_anime.ace = 1
