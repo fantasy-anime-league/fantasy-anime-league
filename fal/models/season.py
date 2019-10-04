@@ -5,6 +5,7 @@ from fal.models import Base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
+import functools
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from fal.models import Anime, Team
@@ -25,6 +26,7 @@ class Season(Base):
         return f"id:{self.id} - {self.season_of_year} {self.year}"
 
     @staticmethod
+    @functools.lru_cache
     def get_season_from_database(season_of_year: str, year: int, session: Session) -> Season:
         """Adds the season to the Season table in the database if necessary, then returns Season object
         """
