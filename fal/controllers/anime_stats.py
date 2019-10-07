@@ -119,10 +119,13 @@ def calculate_anime_weekly_points(stat_data: AnimeStats) -> int:
     points += (stat_data.watching
              + stat_data.completed
              + config.getint('scoring.dropped', str(stat_data.week), fallback=0) * stat_data.dropped
-             + int(config.getint('scoring.anime_score', str(stat_data.week), fallback=0) * stat_data.score)
              + config.getint('scoring.favorite', str(stat_data.week), fallback=0) * stat_data.favorites
              + config.getint('scoring info', 'forum-post-multiplier') * stat_data.forum_posts
     )
+
+    if stat_data.score:
+        points += int(config.getint('scoring.anime_score', str(stat_data.week), fallback=0) * stat_data.score)
+
     # TODO: add scoring for simulcasts and licensing
 
     return points
@@ -140,8 +143,23 @@ def populate_anime_weekly_stats() -> None:
     week = config.getint("weekly info", "current-week")
 
     with session_scope() as session:
-        anime_list = Season.get_season_from_database(
+        season_anime = Season.get_season_from_database(
             season_of_year, year, session).anime
+
+        anime_ids_collected = (row[0] for row in session.query(AnimeWeeklyStat.anime_id).filter(
+            AnimeWeeklyStat.week == week
+        ).all())
+
+        if anime_ids_collected:
+            action = input("At least some anime stats have been collected for this week"\
+                " already. How should we proceed (overwrite/collect-missing/abort)?")
+            if action == 'collect-missing':
+                anime_list = (anime for anime in season_anime if anime.id in anime_ids_collected)
+            elif action == 'overwrite':
+                anime_list = season_anime
+            else:
+                return
+
 
         # casting until update in sqlalchemy-stubs
         for anime in cast(List[Anime], anime_list):
@@ -154,12 +172,7 @@ def populate_anime_weekly_stats() -> None:
 
             stat_data.week = week
             stat_data.anime_id = anime.id
-
-            if stat_data.score is None:
-                # did not start airing yet
-                stat_data.total_points = 0
-            else:
-                stat_data.total_points = calculate_anime_weekly_points(stat_data)
+            stat_data.total_points = calculate_anime_weekly_points(stat_data)
 
             anime_weekly_stat = AnimeWeeklyStat()
             for key, value in dataclasses.asdict(stat_data).items():

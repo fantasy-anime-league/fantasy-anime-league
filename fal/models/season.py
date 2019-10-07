@@ -26,7 +26,7 @@ class Season(Base):
         return f"id:{self.id} - {self.season_of_year} {self.year}"
 
     @staticmethod
-    @functools.lru_cache(maxsize=8)
+    @functools.lru_cache(maxsize=2)
     def get_season_from_database(season_of_year: str, year: int, session: Session) -> Season:
         """Adds the season to the Season table in the database if necessary, then returns Season object
         """

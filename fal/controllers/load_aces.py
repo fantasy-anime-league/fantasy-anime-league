@@ -13,7 +13,7 @@ config.read("config.ini")
 
 def team_anime_aced_already(team: Team, anime: Anime, session: Session) -> bool:
     '''Checks if anime has been aced already.
-    Raises if an anime has been aced more than once on this team
+    Raises exception if an anime has been aced more than once on this team
     '''
 
     aced = session.query(TeamWeeklyAnime).filter(
@@ -49,3 +49,7 @@ def load_aces(input_lines: Iterable[str]) -> None:
                 ).one()
                 if this_week_team_anime.bench == 0:
                     this_week_team_anime.ace = 1
+                else:
+                    print(f"{team.name} tried to ace {anime.name}, but it was benched")
+            else:
+                print(f"{team.name} tried to ace {anime.name}, but it has already been aced")
