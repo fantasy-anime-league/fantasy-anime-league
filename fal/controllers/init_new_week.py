@@ -24,13 +24,14 @@ def init_new_team_weekly_anime() -> None:
 
         last_week_team_weekly_anime = session.query(TeamWeeklyAnime, Team).filter(
             TeamWeeklyAnime.week == week - 1,
-            Team.season_id == season.id
-        )
+            Team.season_id == season.id,
+            Team.id == TeamWeeklyAnime.team_id
+        ).all()
 
-        for team_weekly_anime in last_week_team_weekly_anime:
+        for team_weekly_anime, team in last_week_team_weekly_anime:
             new_team_weekly_anime = TeamWeeklyAnime(
-                team_id=team_weekly_anime.id,
-                anime_id=team_weekly_anime.id,
+                team_id=team.id,
+                anime_id=team_weekly_anime.anime_id,
                 week=week,
                 bench=team_weekly_anime.bench
             )
