@@ -4,7 +4,7 @@ import configparser
 import re
 import time
 import dataclasses
-from typing import Dict, Union, List, Any, cast, Optional
+from typing import Dict, Union, List, Any, cast, Optional, Iterable
 
 import jikanpy
 
@@ -143,8 +143,9 @@ def populate_anime_weekly_stats() -> None:
     week = config.getint("weekly info", "current-week")
 
     with session_scope() as session:
-        anime_list = Season.get_season_from_database(
-            season_of_year, year, session).anime
+        anime_list = cast(Iterable[Anime], Season.get_season_from_database(
+            season_of_year, year, session).anime)
+
 
         anime_ids_collected = [row[0] for row in session.query(AnimeWeeklyStat.anime_id).filter(
             AnimeWeeklyStat.week == week
