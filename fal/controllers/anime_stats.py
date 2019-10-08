@@ -143,20 +143,21 @@ def populate_anime_weekly_stats() -> None:
     week = config.getint("weekly info", "current-week")
 
     with session_scope() as session:
-        season_anime = Season.get_season_from_database(
+        anime_list = Season.get_season_from_database(
             season_of_year, year, session).anime
 
-        anime_ids_collected = (row[0] for row in session.query(AnimeWeeklyStat.anime_id).filter(
+        anime_ids_collected = [row[0] for row in session.query(AnimeWeeklyStat.anime_id).filter(
             AnimeWeeklyStat.week == week
-        ).all())
+        ).all()]
+
 
         if anime_ids_collected:
             action = input("At least some anime stats have been collected for this week"\
                 " already. How should we proceed (overwrite/collect-missing/abort)?")
             if action == 'collect-missing':
-                anime_list = (anime for anime in season_anime if anime.id in anime_ids_collected)
+                anime_list = (anime for anime in anime_list if anime.id not in anime_ids_collected)
             elif action == 'overwrite':
-                anime_list = season_anime
+                pass
             else:
                 return
 
