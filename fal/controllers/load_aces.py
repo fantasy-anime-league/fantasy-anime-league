@@ -11,8 +11,22 @@ from fal.models import TeamWeeklyAnime, Team, Season, Anime
 config = configparser.ConfigParser()
 config.read("config.ini")
 
+def ace_already_loaded_this_week(team: Team, week: int, session: Session) -> bool:
+    '''Checks if a team has already aced an anime this week.
+    Raises exception if multiple anime has been aced on this team.
+    '''
+    this_week_team_aced_anime = session.query(TeamWeeklyAnime).filter(
+                    TeamWeeklyAnime.team_id == team.id,
+                    TeamWeeklyAnime.week == week,
+                    TeamWeeklyAnime.ace == 1
+    ).all()
+
+    assert len(this_week_team_aced_anime) < 2, \
+        f"somehow two anime ({this_week_team_aced_anime}) got aced on this team this week: {team}"
+    return len(this_week_team_aced_anime) == 1
+
 def team_anime_aced_already(team: Team, anime: Anime, session: Session) -> bool:
-    '''Checks if anime has been aced already.
+    '''Checks if an anime has been aced already in previous weeks.
     Raises exception if an anime has been aced more than once on this team
     '''
 
@@ -47,9 +61,12 @@ def load_aces(input_lines: Iterable[str]) -> None:
                     TeamWeeklyAnime.team_id == team.id,
                     TeamWeeklyAnime.week == week
                 ).one()
-                if this_week_team_anime.bench == 0:
-                    this_week_team_anime.ace = 1
-                else:
+                if ace_already_loaded_this_week(team, week, session):
+                    print(f"{team.name} tried to ace {anime.name}, but already has an anime aced this week")
+                elif this_week_team_anime.bench == 1:
                     print(f"{team.name} tried to ace {anime.name}, but it was benched")
+                else:
+                    this_week_team_anime.ace = 1
+
             else:
                 print(f"{team.name} tried to ace {anime.name}, but it has already been aced")

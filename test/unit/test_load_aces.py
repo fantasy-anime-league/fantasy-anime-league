@@ -3,6 +3,25 @@ from unittest.mock import patch
 from fal.controllers import load_aces
 from fal.models import TeamWeeklyAnime
 
+def test_ace_already_loaded_this_week(team_weekly_anime_factory, team_factory, anime_factory, session):
+    team = team_factory()
+    anime = anime_factory.create_batch(3)
+    team_weekly_anime_factory(team=team, anime=anime[0], week=2)
+    team_weekly_anime_factory(team=team, anime=anime[1], week=2, ace=1)
+    team_weekly_anime_factory(team=team, anime=anime[2], week=2)
+
+    assert load_aces.ace_already_loaded_this_week(team, 2, session)
+
+
+def test_ace_not_already_loaded_this_week(team_weekly_anime_factory, team_factory, anime_factory, session):
+    team = team_factory()
+    anime = anime_factory.create_batch(3)
+    team_weekly_anime_factory(team=team, anime=anime[0], week=2)
+    team_weekly_anime_factory(team=team, anime=anime[1], week=1, ace=1)
+    team_weekly_anime_factory(team=team, anime=anime[2], week=2)
+
+    assert not load_aces.ace_already_loaded_this_week(team, 2, session)
+
 def test_team_anime_aced_already(team_weekly_anime_factory, team_factory, anime_factory, session):
     team = team_factory()
     anime = anime_factory()
@@ -92,6 +111,8 @@ def test_load_aces(
 
     assert should_not_be_aced_again.ace == 0
 
+    import pprint
+    pprint.pprint(teams[1].team_weekly_anime)
     should_be_aced = session.query(TeamWeeklyAnime).filter(
         TeamWeeklyAnime.week == 2,
         TeamWeeklyAnime.team == teams[1],
