@@ -111,8 +111,6 @@ def test_load_aces(
 
     assert should_not_be_aced_again.ace == 0
 
-    import pprint
-    pprint.pprint(teams[1].team_weekly_anime)
     should_be_aced = session.query(TeamWeeklyAnime).filter(
         TeamWeeklyAnime.week == 2,
         TeamWeeklyAnime.team == teams[1],
