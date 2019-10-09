@@ -7,7 +7,7 @@ from sqlalchemy.sql import func, desc
 from fal.clients.mfalncfm_main import session_scope
 from fal.models import TeamWeeklyPoints, Season, TeamWeeklyAnime, AnimeWeeklyStat
 
-from typing import TYPE_CHECKING, List, Tuple, Optional
+from typing import TYPE_CHECKING, List, Tuple, Optional, Any, Iterable
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
     from fal.models import Team
@@ -66,6 +66,8 @@ def add_team_anime_scores_and_ace_to_weekly_points(this_week_points: TeamWeeklyP
 
     this_week_points.weekly_points = \
         sum(stat.AnimeWeeklyStat.total_points for stat in active_anime_stats)
+
+    assert this_week_points.weekly_points is not None
 
     top_scoring_anime_on_team = True
     for team_weekly_anime, anime_weekly_stat in active_anime_stats:
