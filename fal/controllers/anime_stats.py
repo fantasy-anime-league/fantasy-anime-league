@@ -4,7 +4,7 @@ import configparser
 import re
 import time
 import dataclasses
-from typing import Dict, Union, List, Any, cast, Optional
+from typing import Dict, Union, List, Any, cast, Optional, Iterable
 
 import jikanpy
 
@@ -59,9 +59,6 @@ def get_forum_posts(anime: Anime) -> int:
     forum_threads: List[Dict[str, Any]] = jikan.anime(
         anime.id, extension='forum')['topics']
 
-    assert anime.name is not None
-    name = anime.name  # https://github.com/python/mypy/issues/4297
-
     or_alias = ""
     if anime.alias:
         or_alias = f"|{anime.alias}"
@@ -76,7 +73,7 @@ def get_forum_posts(anime: Anime) -> int:
 
     episode_discussions = [thread for thread in forum_threads
         if re.fullmatch(
-            f'({name}{or_alias}) Episode ({episode_nums_str}) Discussion',
+            f'({anime.name}{or_alias}) Episode ({episode_nums_str}) Discussion',
             thread['title']
         )]
 
@@ -119,10 +116,15 @@ def calculate_anime_weekly_points(stat_data: AnimeStats) -> int:
     points += (stat_data.watching
              + stat_data.completed
              + config.getint('scoring.dropped', str(stat_data.week), fallback=0) * stat_data.dropped
-             + int(config.getint('scoring.anime_score', str(stat_data.week), fallback=0) * stat_data.score)
              + config.getint('scoring.favorite', str(stat_data.week), fallback=0) * stat_data.favorites
              + config.getint('scoring info', 'forum-post-multiplier') * stat_data.forum_posts
     )
+
+    # multiplying by None type produces weird results
+    # so we do these calculations only if stat_data.score exists
+    if stat_data.score:
+        points += int(config.getint('scoring.anime_score', str(stat_data.week), fallback=0) * stat_data.score)
+
     # TODO: add scoring for simulcasts and licensing
 
     return points
@@ -140,8 +142,25 @@ def populate_anime_weekly_stats() -> None:
     week = config.getint("weekly info", "current-week")
 
     with session_scope() as session:
-        anime_list = Season.get_season_from_database(
-            season_of_year, year, session).anime
+        anime_list = cast(Iterable[Anime], Season.get_season_from_database(
+            season_of_year, year, session).anime)
+
+
+        anime_ids_collected = [row[0] for row in session.query(AnimeWeeklyStat.anime_id).filter(
+            AnimeWeeklyStat.week == week
+        ).all()]
+
+
+        if anime_ids_collected:
+            action = input("At least some anime stats have been collected for this week"\
+                " already. How should we proceed (overwrite/collect-missing/abort)?")
+            if action == 'collect-missing':
+                anime_list = (anime for anime in anime_list if anime.id not in anime_ids_collected)
+            elif action == 'overwrite':
+                pass
+            else:
+                return
+
 
         # casting until update in sqlalchemy-stubs
         for anime in cast(List[Anime], anime_list):
@@ -154,17 +173,11 @@ def populate_anime_weekly_stats() -> None:
 
             stat_data.week = week
             stat_data.anime_id = anime.id
-
-            if stat_data.score is None:
-                # did not start airing yet
-                stat_data.total_points = 0
-            else:
-                stat_data.total_points = calculate_anime_weekly_points(stat_data)
+            stat_data.total_points = calculate_anime_weekly_points(stat_data)
 
             anime_weekly_stat = AnimeWeeklyStat()
             for key, value in dataclasses.asdict(stat_data).items():
                 setattr(anime_weekly_stat, key, value)
 
             session.merge(anime_weekly_stat)
-            #session.commit()
             time.sleep(config.getint("jikanpy", "request-interval"))

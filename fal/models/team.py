@@ -5,6 +5,7 @@ from fal.models import Base, Season
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 
+import functools
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from fal.models import Season, WildcardUsage, TeamWeeklyAnime, TeamWeeklyPoints
@@ -25,6 +26,7 @@ class Team(Base):
     team_weekly_points = relationship("TeamWeeklyPoints", back_populates="team")
 
     @staticmethod
+    @functools.lru_cache(maxsize=2048)
     def get_team_from_database(name: str, season: Season, session: Session) -> Team:
         """ Adds new team row to database if necessary, then return the team object"""
         query = session.query(Team).filter(
