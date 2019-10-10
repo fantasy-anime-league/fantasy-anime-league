@@ -66,6 +66,8 @@ if args.team_stats:
 if args.team_dist:
     team_dist(args.season, args.year)
 
+if args.init_week:
+    init_new_team_weekly_anime()
 if args.load_aces:
     with open(args.ace_file, encoding='utf-8-sig') as f:
         ace_data = f.readlines()
@@ -74,6 +76,3 @@ if args.anime_weekly_stats:
     populate_anime_weekly_stats()
 if args.team_score:
     calculate_team_scores()
-
-if args.init_week:
-    init_new_team_weekly_anime()
