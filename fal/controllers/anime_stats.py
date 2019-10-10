@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 import configparser
+import dataclasses
+import math
 import re
 import time
-import dataclasses
-from typing import Dict, Union, List, Any, cast, Optional, Iterable
+from typing import Dict, Union, List, Any, cast, Optional, Iterable, Sequence
 
 import jikanpy
+from sqlalchemy import func
 
 from fal.clients.mfalncfm_main import session_scope
-from fal.models import AnimeWeeklyStat, Season, Anime
+from fal.models import AnimeWeeklyStat, Season, Anime, TeamWeeklyAnime, Team
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -108,16 +110,19 @@ def get_anime_stats_from_jikan(anime: Anime) -> AnimeStats:
         forum_posts = get_forum_posts(anime)
     )
 
-def calculate_anime_weekly_points(stat_data: AnimeStats) -> int:
+
+def calculate_anime_weekly_points(
+    stat_data: AnimeStats, num_teams_owned_active: int, double_score_max_num_teams: int
+) -> int:
     '''
     Calculate the points for the week for the anime based on the stats
     '''
-    points = 0
-    points += (stat_data.watching
-             + stat_data.completed
-             + config.getint('scoring.dropped', str(stat_data.week), fallback=0) * stat_data.dropped
-             + config.getint('scoring.favorite', str(stat_data.week), fallback=0) * stat_data.favorites
-             + config.getint('scoring info', 'forum-post-multiplier') * stat_data.forum_posts
+    score_multiplier = 2 if num_teams_owned_active <= double_score_max_num_teams else 1
+    points = (
+        (stat_data.watching + stat_data.completed) * score_multiplier
+        + config.getint('scoring.dropped', str(stat_data.week), fallback=0) * stat_data.dropped
+        + config.getint('scoring.favorite', str(stat_data.week), fallback=0) * stat_data.favorites
+        + config.getint('scoring info', 'forum-post-multiplier') * stat_data.forum_posts
     )
 
     # multiplying by None type produces weird results
@@ -142,9 +147,8 @@ def populate_anime_weekly_stats() -> None:
     week = config.getint("weekly info", "current-week")
 
     with session_scope() as session:
-        anime_list = cast(Iterable[Anime], Season.get_season_from_database(
-            season_of_year, year, session).anime)
-
+        season = Season.get_season_from_database(season_of_year, year, session)
+        anime_list = cast(Iterable[Anime], season.anime)
 
         anime_ids_collected = [row[0] for row in session.query(AnimeWeeklyStat.anime_id).filter(
             AnimeWeeklyStat.week == week
@@ -161,6 +165,21 @@ def populate_anime_weekly_stats() -> None:
             else:
                 return
 
+        # for each anime, get the number of teams that have it on active
+        anime_active_counts = dict(
+            session.query(Anime.id, func.count("*"))
+            .join(TeamWeeklyAnime.anime)
+            .filter(TeamWeeklyAnime.week == week)
+            .filter(Anime.season_id == season.id)
+            .filter(TeamWeeklyAnime.bench == 0)
+            .group_by(Anime.id)
+            .all()
+        )
+        double_score_max_num_teams = math.floor(
+            config.getint("scoring info", "percent-ownership-for-double-score")
+            / 100
+            * len(cast(Sequence[Team], season.teams))
+        )
 
         # casting until update in sqlalchemy-stubs
         for anime in cast(List[Anime], anime_list):
@@ -173,7 +192,9 @@ def populate_anime_weekly_stats() -> None:
 
             stat_data.week = week
             stat_data.anime_id = anime.id
-            stat_data.total_points = calculate_anime_weekly_points(stat_data)
+            stat_data.total_points = calculate_anime_weekly_points(
+                stat_data, anime_active_counts[anime.id], double_score_max_num_teams
+            )
 
             anime_weekly_stat = AnimeWeeklyStat()
             for key, value in dataclasses.asdict(stat_data).items():

@@ -18,7 +18,17 @@ vcrpath = config.get('vcr', 'path')
 @patch('fal.controllers.anime_stats.config')
 @patch('fal.controllers.anime_stats.session_scope')
 @vcr.use_cassette(f"{vcrpath}/anime_stats/populate_anime_weekly_stats.yaml")
-def test_populate_anime_weekly_stats(session_scope_mock, config_mock, get_forum_posts, session_scope, config_functor, season_factory, anime_factory):
+def test_populate_anime_weekly_stats(
+    session_scope_mock,
+    config_mock,
+    get_forum_posts,
+    session_scope,
+    config_functor,
+    season_factory,
+    anime_factory,
+    team_factory,
+    team_weekly_anime_factory,
+):
     '''Currently only testing for week 4 to test dropped scores.
         Feel free to parametrize this test to do other weeks as well
         if we need to test for other scoring configs'''
@@ -39,6 +49,7 @@ def test_populate_anime_weekly_stats(session_scope_mock, config_mock, get_forum_
             'forum-posts-every-n-weeks': 2,
             'forum-post-multiplier': 25,
             'request-interval': 0,
+            'percent-ownership-for-double-score': 3,
             '4': -4  # for 'scoring.dropped' only. others are not valid this week 4
         }
     )
@@ -47,10 +58,18 @@ def test_populate_anime_weekly_stats(session_scope_mock, config_mock, get_forum_
 
     get_forum_posts.return_value = 0
 
-    season_factory(id=0, season_of_year='spring', year=2018)
-    anime_factory(id=1, name="Cowboy Bebop")
-    anime_factory(id=849, name="Suzumiya Haruhi no Yuuutsu")
-    anime_factory(id=30276, name="One Punch Man")
+    season = season_factory(id=0, season_of_year='spring', year=2018)
+    cowboy_bebop = anime_factory(id=1, name="Cowboy Bebop", season=season)
+    haruhi = anime_factory(id=849, name="Suzumiya Haruhi no Yuuutsu", season=season)
+    opm = anime_factory(id=30276, name="One Punch Man", season=season)
+
+    # Only 1 out of 34 teams owns Haruhi, which is <= 3%
+    teams = team_factory.create_batch(34, season=season)
+    team_weekly_anime_factory(team=teams[0], anime=cowboy_bebop, week=4)
+    team_weekly_anime_factory(team=teams[0], anime=haruhi, week=4)
+    for team in teams[1:]:
+        team_weekly_anime_factory(team=team, anime=cowboy_bebop, week=4)
+        team_weekly_anime_factory(team=team, anime=opm, week=4)
 
     anime_stats.populate_anime_weekly_stats()
     with session_scope() as session:
@@ -62,14 +81,24 @@ def test_populate_anime_weekly_stats(session_scope_mock, config_mock, get_forum_
     print(stats)
     assert stats[0].watching == 71944
     assert stats[0].completed == 526969
+    assert stats[0].total_points == (
+        stats[0].watching + stats[0].completed - 4 * stats[0].dropped
+    )
     assert stats[0].anime_id == 1
 
+    # Haruhi is owned by <= 3% of teams, so watching and completed score is doubled
     assert stats[1].score == 7.96
     assert stats[1].favorites == 14683
+    assert stats[1].total_points == (
+        2 * (stats[1].watching + stats[1].completed) - 4 * stats[1].dropped
+    )
     assert stats[1].anime_id == 849
 
     assert stats[2].dropped == 17066
     assert stats[2].forum_posts == 0
+    assert stats[2].total_points == (
+        stats[2].watching + stats[2].completed - 4 * stats[2].dropped
+    )
     assert stats[2].anime_id == 30276
 
 

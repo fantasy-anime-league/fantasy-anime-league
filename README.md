@@ -21,7 +21,35 @@ $ pip install -r requirements.txt
 
 * After tunnelling with PuTTY, you will be asked for login credentials. Adding your public key for SSH access will make your login process slightly easier.
 * You may wish to use a desktop client such as [HeidiSQL](https://www.heidisql.com/) for convenience.
-  * Contact the owners Fantasy Anime League for an individual db user account to be created for you.
+  * Contact the owners of Fantasy Anime League for an individual db user account to be created for you.
+
+## Order to run scripts
+
+### Preseason (before registration)
+```shell
+$ python run_fal.py --collect-series
+$ python run_fal.py --ptw-counter
+```
+
+### Preseason (after registration)
+```shell
+$ python run_fal.py --load-teams
+$ python run_fal.py --headcount
+$ python run_fal.py --team-overview
+$ python run_fal.py --team-stats
+$ python run_fal.py --team-dist
+```
+
+### Midseason
+```shell
+$ python run_fal.py --init-week
+$ python run_fal.py --load-aces
+$ python run_fal.py --anime-weekly-stats
+$ python run_fal.py --team-score
+
+# If you are confident
+$ python run_fal.py --init-week --load-aces --anime-weekly-stats --team-score
+```
 
 ## Tests
 
