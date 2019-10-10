@@ -21,6 +21,7 @@ from fal.views.teams import headcount, team_overview, team_stats, team_dist
 
 import argparse
 import configparser
+from typing import List, Optional
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -40,6 +41,8 @@ parser.add_argument("--team-stats", action="store_true")
 parser.add_argument("--team-dist", action="store_true")
 parser.add_argument("--team-score", action="store_true")
 parser.add_argument("--anime-weekly-stats", action="store_true")
+parser.add_argument("--fansubs-file", default="fansubs05.txt")
+parser.add_argument("--licenses-file", default="licenses.txt")
 parser.add_argument("--init-week", action="store_true")
 parser.add_argument("--season", default=season_str)
 parser.add_argument("--year", default=year)
@@ -72,6 +75,16 @@ if args.load_aces:
         ace_data = f.readlines()
     load_aces(ace_data)
 if args.anime_weekly_stats:
-    populate_anime_weekly_stats()
+    try:
+        with open(args.fansubs_file, encoding="utf-8-sig") as f:
+            fansubs_lines: Optional[List[str]] = f.readlines()
+    except IOError:
+        fansubs_lines = None
+    try:
+        with open(args.licenses_file, encoding="utf-8-sig") as f:
+            licenses_lines: Optional[List[str]] = f.readlines()
+    except IOError:
+        licenses_lines = None
+    populate_anime_weekly_stats(fansubs_lines, licenses_lines)
 if args.team_score:
     calculate_team_scores()
