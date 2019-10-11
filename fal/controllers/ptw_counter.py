@@ -16,7 +16,7 @@ from typing import List, Iterable, TYPE_CHECKING
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
-PTWEntry = namedtuple('PTWEntry', 'title id ptw_count')
+PTWEntry = namedtuple("PTWEntry", "title id ptw_count")
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -24,7 +24,7 @@ config.read("config.ini")
 
 def localize_number(num: int) -> str:
     """Add commas to integer at every thousands place"""
-    return '{:,}'.format(num)
+    return "{:,}".format(num)
 
 
 def get_ptw_info(anime_list: Iterable[Anime]) -> List[PTWEntry]:
@@ -35,10 +35,10 @@ def get_ptw_info(anime_list: Iterable[Anime]) -> List[PTWEntry]:
     print("Requesting ptw via Jikan")
     for anime in anime_list:
         print(f"Looking up stats for {anime.name}")
-        anime_stats = jikan.anime(anime.id, extension='stats')
-        anime_ptw_num = localize_number(anime_stats['plan_to_watch'])
+        anime_stats = jikan.anime(anime.id, extension="stats")
+        anime_ptw_num = localize_number(anime_stats["plan_to_watch"])
         ptw.append(PTWEntry(anime.name, anime.id, anime_ptw_num))
-        time.sleep(config.getint('jikanpy', 'request-interval'))
+        time.sleep(config.getint("jikanpy", "request-interval"))
     return ptw
 
 
@@ -47,27 +47,30 @@ def output_ptw_info(season_of_year: str, year: int, ptw: Iterable[PTWEntry]) -> 
     season_of_year = season_of_year.capitalize()
     year_str = str(year)
     today = str(date.today())
-    filename = f'{season_of_year}-{year_str}-{today}.csv'
+    filename = f"{season_of_year}-{year_str}-{today}.csv"
     # Open file as UTF-8 encoded with BOM
-    with open(filename, 'w', encoding='utf-8-sig', newline='') as csv_file:
+    with open(filename, "w", encoding="utf-8-sig", newline="") as csv_file:
         writer = csv.writer(csv_file)
         writer.writerows(sorted(ptw))
-    print(f'Outputted PTW info to {filename}')
+    print(f"Outputted PTW info to {filename}")
 
 
-def add_ptw_to_database(anime_id: int, date: date, ptw_count: int, session: Session) -> None:
+def add_ptw_to_database(
+    anime_id: int, date: date, ptw_count: int, session: Session
+) -> None:
     """Adds or updates Plan To Watch entry to database"""
-    query = session.query(PlanToWatch). \
-        filter(PlanToWatch.anime_id == anime_id, PlanToWatch.date == date)
+    query = session.query(PlanToWatch).filter(
+        PlanToWatch.anime_id == anime_id, PlanToWatch.date == date
+    )
     ptw_entry = query.one_or_none()
 
     if ptw_entry:
         ptw_entry.count = ptw_count
-        print(f'Updating {ptw_entry} in database')
+        print(f"Updating {ptw_entry} in database")
         session.commit()
     else:
         ptw_entry = PlanToWatch(anime_id=anime_id, date=date, count=ptw_count)
-        print(f'Adding {ptw_entry} to database')
+        print(f"Adding {ptw_entry} to database")
         session.add(ptw_entry)
 
 
@@ -81,15 +84,16 @@ def ptw_counter() -> None:
     # Database workflow
     with session_scope() as session:
         anime_list = Season.get_season_from_database(
-            season_of_year, year, session).anime
-        print(f'Length of list of anime: {len(anime_list)}')  # type: ignore
+            season_of_year, year, session
+        ).anime
+        print(f"Length of list of anime: {len(anime_list)}")  # type: ignore
 
         # Store PTW of each anime in a list of tuples
         ptw = get_ptw_info(anime_list)  # type: ignore
         pprint(ptw)
         output_ptw_info(season_of_year, year, ptw)
 
-        print('Adding PTW entries to PTW table')
+        print("Adding PTW entries to PTW table")
         for entry in ptw:
-            ptw_count = int(entry.ptw_count.replace(',', ''))
+            ptw_count = int(entry.ptw_count.replace(",", ""))
             add_ptw_to_database(entry.id, today, ptw_count, session)

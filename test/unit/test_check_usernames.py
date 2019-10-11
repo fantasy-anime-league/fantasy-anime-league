@@ -8,7 +8,7 @@ from fal.controllers.check_usernames import check
 config = configparser.ConfigParser()
 config.read("config.ini")
 
-vcrpath = config['vcr']['path']
+vcrpath = config["vcr"]["path"]
 
 
 @vcr.use_cassette(f"{vcrpath}/check_usernames/check-username-success.yaml")

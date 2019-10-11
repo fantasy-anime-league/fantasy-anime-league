@@ -6,13 +6,16 @@ import pytest
 from datetime import date
 
 
-@pytest.mark.parametrize('date,ptw_counts', [
-    (date(2019, 3, 6), {34134: 311499, 38524: 98614})
-])
+@pytest.mark.parametrize(
+    "date,ptw_counts", [(date(2019, 3, 6), {34134: 311499, 38524: 98614})]
+)
 def test_query_ptw(date, ptw_counts):
     with session_scope(True) as session:
-        query = session.query(PlanToWatch).filter(PlanToWatch.date == date). \
-            filter(PlanToWatch.anime_id.in_(ptw_counts.keys()))
+        query = (
+            session.query(PlanToWatch)
+            .filter(PlanToWatch.date == date)
+            .filter(PlanToWatch.anime_id.in_(ptw_counts.keys()))
+        )
         ptw_entries = query.all()
         assert len(ptw_entries) == 2
         for ptw_entry in ptw_entries:

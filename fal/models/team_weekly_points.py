@@ -4,6 +4,7 @@ from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from fal.models import Team
 
@@ -19,5 +20,7 @@ class TeamWeeklyPoints(Base):
     is_highest = Column(Integer, default=0)
 
     def __repr__(self) -> str:
-        return f'In week {self.week}, {self.team.name} got {self.weekly_points}, ' \
-               f'for a total of {self.total_points} for the season'
+        return (
+            f"In week {self.week}, {self.team.name} got {self.weekly_points}, "
+            f"for a total of {self.total_points} for the season"
+        )

@@ -10,8 +10,8 @@ class SeasonFactory(factory.alchemy.SQLAlchemyModelFactory):
         sqlalchemy_session = session_factory
 
     id = factory.Sequence(lambda x: x)
-    season_of_year = factory.Faker('word', ext_word_list=['spring', 'fall'])
-    year = factory.Faker('year')
+    season_of_year = factory.Faker("word", ext_word_list=["spring", "fall"])
+    year = factory.Faker("year")
 
     @factory.post_generation
     def anime(self, create, extracted, **kwargs):

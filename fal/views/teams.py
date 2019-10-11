@@ -53,13 +53,16 @@ SAME_ACTIVE_TEXT = (
 )
 
 
-def headcount(season_str: str = season_str, year: int = year, filename: str = "lists/team_headcount.txt") -> None:
+def headcount(
+    season_str: str = season_str,
+    year: int = year,
+    filename: str = "lists/team_headcount.txt",
+) -> None:
     """
     Creates a formatted forum post for the headcount thread.
     """
     with session_scope() as session:
-        teams = Season.get_season_from_database(
-            season_str, year, session).teams
+        teams = Season.get_season_from_database(season_str, year, session).teams
         with open(filename, "w", encoding="utf-8") as f:
             f.write(HEADCOUNT_INTRO_TEXT.format(season_str.capitalize(), year))
             # Output participant names alphabetically
@@ -68,25 +71,28 @@ def headcount(season_str: str = season_str, year: int = year, filename: str = "l
             f.write(HEADCOUNT_CONC_TEXT.format(len(teams)))  # type: ignore
 
 
-def team_overview(season_str: str = season_str, year: int = year, filename: str = "lists/team_overview.txt") -> None:
+def team_overview(
+    season_str: str = season_str,
+    year: int = year,
+    filename: str = "lists/team_overview.txt",
+) -> None:
     """
     Creates a formatted forum post for the team overview thread.
     """
-    week: int = config.getint('weekly info', 'current-week')
+    week: int = config.getint("weekly info", "current-week")
     with session_scope() as session:
-        teams = Season.get_season_from_database(
-            season_str, year, session).teams
+        teams = Season.get_season_from_database(season_str, year, session).teams
         with open(filename, "w", encoding="utf-8") as f:
             f.write(f"Team List - FAL {season_str.capitalize()} {year}\n\n\n")
             for team in sorted(teams, key=lambda t: t.name.lower()):  # type: ignore
                 # Query all the anime on the team for this week
-                base_query = session.query(TeamWeeklyAnime). \
-                    filter(TeamWeeklyAnime.team_id == team.id). \
-                    filter(TeamWeeklyAnime.week == week)
-                active_anime = base_query.filter(
-                    TeamWeeklyAnime.bench == 0).all()
-                bench_anime = base_query.filter(
-                    TeamWeeklyAnime.bench == 1).all()
+                base_query = (
+                    session.query(TeamWeeklyAnime)
+                    .filter(TeamWeeklyAnime.team_id == team.id)
+                    .filter(TeamWeeklyAnime.week == week)
+                )
+                active_anime = base_query.filter(TeamWeeklyAnime.bench == 0).all()
+                bench_anime = base_query.filter(TeamWeeklyAnime.bench == 1).all()
                 print(f"writing {team.name} to overview")
                 f.write(f"{team.name}\n---------------------------------\n")
                 # List all active series on the team
@@ -100,29 +106,35 @@ def team_overview(season_str: str = season_str, year: int = year, filename: str 
             f.write("[/spoiler]")
 
 
-def team_stats(season_str: str = season_str, year: int = year, filename: str = "lists/team_stats.txt") -> None:
+def team_stats(
+    season_str: str = season_str,
+    year: int = year,
+    filename: str = "lists/team_stats.txt",
+) -> None:
     """
     Creates a statistic of the titles distribution for the team overview thread.
     This function can also be used during the game to obtain the distribution
     of the current week.
     """
-    week: int = config.getint('weekly info', 'current-week')
+    week: int = config.getint("weekly info", "current-week")
     filename = add_week_to_filename(filename, week)
     with session_scope() as session:
-        season: Season = Season.get_season_from_database(
-            season_str, year, session)
+        season: Season = Season.get_season_from_database(season_str, year, session)
         # Query anime name and number of times it is on a team this week
-        base_query = session.query(Anime.name, func.count('*')). \
-            join(TeamWeeklyAnime.anime). \
-            order_by(func.count('*').desc(), Anime.name). \
-            filter(TeamWeeklyAnime.week == week). \
-            filter(Anime.season_id == season.id). \
-            group_by(Anime.name)
+        base_query = (
+            session.query(Anime.name, func.count("*"))
+            .join(TeamWeeklyAnime.anime)
+            .order_by(func.count("*").desc(), Anime.name)
+            .filter(TeamWeeklyAnime.week == week)
+            .filter(Anime.season_id == season.id)
+            .group_by(Anime.name)
+        )
         # Group the counts by the name
         anime_counts: List[Tuple[str, int]] = base_query.all()
         # Filter to only get active count and group by name
         active_counts: Dict[str, int] = dict(
-            base_query.filter(TeamWeeklyAnime.bench == 0).all())
+            base_query.filter(TeamWeeklyAnime.bench == 0).all()
+        )
         print(f"Anime Counts:\n{anime_counts}")
         print(f"Active Counts:\n{active_counts}")
         with open(filename, "w", encoding="utf-8") as f:
@@ -133,29 +145,32 @@ def team_stats(season_str: str = season_str, year: int = year, filename: str = "
                 f.write(f"{i} - {anime}: {count} ({active_count})\n")
 
 
-def team_dist(season_str: str = season_str, year: int = year, filename: str = "lists/team_dist.txt") -> None:
+def team_dist(
+    season_str: str = season_str,
+    year: int = year,
+    filename: str = "lists/team_dist.txt",
+) -> None:
     """
     Creates a statistic of the team distribution (how many people and who chose the same team)
     This function can also be used during the game to obtain the team distribution of the current week.
     """
-    week: int = config.getint('weekly info', 'current-week')
+    week: int = config.getint("weekly info", "current-week")
     filename = add_week_to_filename(filename, week)
     split_teams: Dict[Tuple[int, ...], List[Team]] = {}
     nonsplit_teams: Dict[Tuple[int, ...], List[Team]] = {}
     active_teams: Dict[Tuple[int, ...], List[Team]] = {}
     with session_scope() as session:
-        teams = Season.get_season_from_database(
-            season_str, year, session).teams
+        teams = Season.get_season_from_database(season_str, year, session).teams
         for i, team in enumerate(teams, 1):  # type: ignore
             # Query all the anime on the team for this week
-            base_query = session.query(TeamWeeklyAnime.anime_id). \
-                filter(TeamWeeklyAnime.team_id == team.id). \
-                filter(TeamWeeklyAnime.week == week)
+            base_query = (
+                session.query(TeamWeeklyAnime.anime_id)
+                .filter(TeamWeeklyAnime.team_id == team.id)
+                .filter(TeamWeeklyAnime.week == week)
+            )
             series: List[int] = base_query.all()
-            active: List[int] = base_query.filter(
-                TeamWeeklyAnime.bench == 0).all()
-            bench: List[int] = base_query.filter(
-                TeamWeeklyAnime.bench == 1).all()
+            active: List[int] = base_query.filter(TeamWeeklyAnime.bench == 0).all()
+            bench: List[int] = base_query.filter(TeamWeeklyAnime.bench == 1).all()
             # Split and sort team so the active ones are first
             s_team: Tuple[int, ...] = tuple(sorted(active) + sorted(bench))
             n_team: Tuple[int, ...] = tuple(sorted(series))
@@ -170,19 +185,22 @@ def team_dist(season_str: str = season_str, year: int = year, filename: str = "l
             if a_team not in active_teams:
                 active_teams[a_team] = []
             active_teams[a_team].append(team)
-            print(f'Processed team {i} - {team}')
+            print(f"Processed team {i} - {team}")
 
         same_series_diff_team_dist, n_list_non = get_dist(nonsplit_teams)
         same_series_and_team_dist, n_list_split = get_dist(split_teams)
         teams_with_same_active_team, n_list_act = get_dist(active_teams)
 
         with open(filename, "w", encoding="utf-8") as f:
-            write_teams_to_file(f, same_series_and_team_dist,
-                                n_list_split, SAME_SPLIT_TEXT)
-            write_teams_to_file(f, same_series_diff_team_dist,
-                                n_list_non, SAME_NONSPLIT_TEXT)
-            write_teams_to_file(f, teams_with_same_active_team,
-                                n_list_act, SAME_ACTIVE_TEXT)
+            write_teams_to_file(
+                f, same_series_and_team_dist, n_list_split, SAME_SPLIT_TEXT
+            )
+            write_teams_to_file(
+                f, same_series_diff_team_dist, n_list_non, SAME_NONSPLIT_TEXT
+            )
+            write_teams_to_file(
+                f, teams_with_same_active_team, n_list_act, SAME_ACTIVE_TEXT
+            )
             f.write("[/list]")
 
 
@@ -191,16 +209,20 @@ def add_week_to_filename(filename: str, week: int) -> str:
     return filename[:-4] + f"_{week}" + filename[-4:] if week > 0 else filename
 
 
-def write_teams_to_file(f: TextIO, num_unique: int, same_teams: Sequence[Sequence[Team]], output_str: str) -> None:
+def write_teams_to_file(
+    f: TextIO, num_unique: int, same_teams: Sequence[Sequence[Team]], output_str: str
+) -> None:
     f.write(output_str.format(num_unique))
     for team_list in sorted(same_teams, key=lambda t: len(t), reverse=True):
         f.write(
-            f"[*]{', '.join([team.name for team in sorted(team_list, key=lambda t: t.name.lower())])}\n")  # type: ignore
+            f"[*]{', '.join([team.name for team in sorted(team_list, key=lambda t: t.name.lower())])}\n"  # type: ignore
+        )
 
 
-def get_dist(teams: Mapping[Tuple[int, ...], Sequence[Team]]) -> Tuple[int, List[Sequence[Team]]]:
+def get_dist(
+    teams: Mapping[Tuple[int, ...], Sequence[Team]]
+) -> Tuple[int, List[Sequence[Team]]]:
     """Return list of same teams and number of unique teams"""
-    same_teams: List[Sequence[Team]] = [
-        t for t in teams.values() if len(t) != 1]
+    same_teams: List[Sequence[Team]] = [t for t in teams.values() if len(t) != 1]
     num_unique: int = len(teams) - len(same_teams)
     return num_unique, same_teams

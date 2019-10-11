@@ -23,5 +23,5 @@ class TeamWeeklyAnimeFactory(factory.alchemy.SQLAlchemyModelFactory):
     ace = 0
     bench = 0
 
-    team =  factory.SubFactory(TeamFactory)
+    team = factory.SubFactory(TeamFactory)
     anime = factory.SubFactory(AnimeFactory)

@@ -10,6 +10,6 @@ def test_retrieve_teams():
 
         sorted_teams = sorted(season.teams, key=lambda team: team.id)
 
-        assert sorted_teams[0].name == 'kei-clone'
-        assert sorted_teams[1].name == 'abhinavk99'
-        assert sorted_teams[2].name == 'Congress'
+        assert sorted_teams[0].name == "kei-clone"
+        assert sorted_teams[1].name == "abhinavk99"
+        assert sorted_teams[2].name == "Congress"
