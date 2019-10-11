@@ -97,16 +97,16 @@ def test_populate_anime_weekly_stats(
         team_weekly_anime_factory(team=team, anime=cowboy_bebop, week=week)
         team_weekly_anime_factory(team=team, anime=opm, week=week)
 
-    fansubs_lines = [
+    simulcast_lines = [
         "Cowboy Bebop = simul simul simul simul",
         "Suzumiya Haruhi no Yuuutsu = simul randomstring simul",
         "One Punch Man = simul simul randomstring simul",
     ]
-    anime_fansubs_region_counts = {1: 4, 849: 2, 30276: 3}
+    anime_simulcast_region_counts = {1: 4, 849: 2, 30276: 3}
     licenses_lines = ["Suzumiya Haruhi no Yuuutsu", "One Punch Man"]
     licensed_anime = {849, 30276}
 
-    anime_stats.populate_anime_weekly_stats(fansubs_lines, licenses_lines)
+    anime_stats.populate_anime_weekly_stats(simulcast_lines, licenses_lines)
     with session_scope() as session:
         stats = session.query(AnimeWeeklyStat).order_by(AnimeWeeklyStat.anime_id).all()
 
@@ -119,7 +119,7 @@ def test_populate_anime_weekly_stats(
     assert stats[0].total_points == total_points_function(
         stats,
         i=0,
-        num_regions=anime_fansubs_region_counts[stats[0].anime_id],
+        num_regions=anime_simulcast_region_counts[stats[0].anime_id],
         is_licensed=stats[0].anime_id in licensed_anime,
         multiplier=1,
     )
@@ -131,7 +131,7 @@ def test_populate_anime_weekly_stats(
     assert stats[1].total_points == total_points_function(
         stats,
         i=1,
-        num_regions=anime_fansubs_region_counts[stats[1].anime_id],
+        num_regions=anime_simulcast_region_counts[stats[1].anime_id],
         is_licensed=stats[1].anime_id in licensed_anime,
         multiplier=2,
     )
@@ -142,7 +142,7 @@ def test_populate_anime_weekly_stats(
     assert stats[2].total_points == total_points_function(
         stats,
         i=2,
-        num_regions=anime_fansubs_region_counts[stats[2].anime_id],
+        num_regions=anime_simulcast_region_counts[stats[2].anime_id],
         is_licensed=stats[2].anime_id in licensed_anime,
         multiplier=1,
     )
@@ -177,7 +177,7 @@ def test_is_week_to_calculate(config_mock, config_functor, week, is_valid, secti
 
 
 @patch("fal.controllers.anime_stats.session_scope")
-def test_get_anime_fansubs_region_counts(
+def test_get_anime_simulcast_region_counts(
     session_scope_mock, session_scope, season_factory, anime_factory
 ):
     session_scope_mock.side_effect = session_scope
@@ -187,7 +187,7 @@ def test_get_anime_fansubs_region_counts(
     haruhi = anime_factory(id=849, name="Suzumiya Haruhi no Yuuutsu", season=season)
     opm = anime_factory(id=30276, name="One Punch Man", season=season)
 
-    assert anime_stats.get_anime_fansubs_region_counts(
+    assert anime_stats.get_anime_simulcast_region_counts(
         [
             "Cowboy Bebop = simul simul simul simul",
             "Suzumiya Haruhi no Yuuutsu = simul randomstring simul",

@@ -41,7 +41,7 @@ parser.add_argument("--team-stats", action="store_true")
 parser.add_argument("--team-dist", action="store_true")
 parser.add_argument("--team-score", action="store_true")
 parser.add_argument("--anime-weekly-stats", action="store_true")
-parser.add_argument("--fansubs-file", default="fansubs05.txt")
+parser.add_argument("--simulcast-file", default="simulcast.txt")
 parser.add_argument("--licenses-file", default="licenses.txt")
 parser.add_argument("--init-week", action="store_true")
 parser.add_argument("--season", default=season_str)
@@ -76,15 +76,16 @@ if args.load_aces:
     load_aces(ace_data)
 if args.anime_weekly_stats:
     try:
-        with open(args.fansubs_file, encoding="utf-8-sig") as f:
-            fansubs_lines: Optional[List[str]] = f.readlines()
+        with open(args.simulcast_file, encoding="utf-8-sig") as f:
+            simulcast_lines: Optional[List[str]] = f.readlines()
     except IOError:
-        fansubs_lines = None
+        simulcast_lines = None
     try:
         with open(args.licenses_file, encoding="utf-8-sig") as f:
             licenses_lines: Optional[List[str]] = f.readlines()
     except IOError:
         licenses_lines = None
-    populate_anime_weekly_stats(fansubs_lines, licenses_lines)
+    populate_anime_weekly_stats(simulcast_lines, licenses_lines)
 if args.team_score:
     calculate_team_scores()
+simulcast_lines

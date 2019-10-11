@@ -145,7 +145,7 @@ def calculate_anime_weekly_points(
             * stat_data.score
         )
 
-    # simulcast/fansubs
+    # simulcast
     points += (
         config.getint("scoring.simulcast", str(stat_data.week), fallback=0)
         * num_regions
@@ -166,14 +166,14 @@ def is_week_to_calculate(config_key: str, week: int) -> bool:
     return config.get(config_key, str(week), fallback="No points") is not "No points"
 
 
-def get_anime_fansubs_region_counts(
-    fansubs_lines: Optional[Iterable[str]]
+def get_anime_simulcast_region_counts(
+    simulcast_lines: Optional[Iterable[str]]
 ) -> Dict[int, int]:
-    print("Getting region counts of each anime in fansubs file")
-    anime_fansubs_region_counts = {}
-    if fansubs_lines is not None:
+    print("Getting region counts of each anime in simulcast file")
+    anime_simulcast_region_counts = {}
+    if simulcast_lines is not None:
         with session_scope() as session:
-            for line in fansubs_lines:
+            for line in simulcast_lines:
                 title, subs = line.split("=")
                 title = title.strip()
                 anime = Anime.get_anime_from_database_by_name(title, session)
@@ -183,8 +183,8 @@ def get_anime_fansubs_region_counts(
                     num_regions = len(
                         [entry for entry in subs.split() if entry == "simul"]
                     )
-                    anime_fansubs_region_counts[anime.id] = num_regions
-    return anime_fansubs_region_counts
+                    anime_simulcast_region_counts[anime.id] = num_regions
+    return anime_simulcast_region_counts
 
 
 def get_licensed_anime(licenses_lines: Optional[Iterable[str]]) -> Set[int]:
@@ -202,7 +202,7 @@ def get_licensed_anime(licenses_lines: Optional[Iterable[str]]) -> Set[int]:
 
 
 def populate_anime_weekly_stats(
-    fansubs_lines: Optional[Iterable[str]] = None,
+    simulcast_lines: Optional[Iterable[str]] = None,
     licenses_lines: Optional[Iterable[str]] = None,
 ) -> None:
     """
@@ -214,12 +214,12 @@ def populate_anime_weekly_stats(
     year = config.getint("season info", "year")
     week = config.getint("weekly info", "current-week")
 
-    if is_week_to_calculate("scoring.simulcast", week) and fansubs_lines is None:
-        raise ValueError(f"fansubs file is required for week {week}")
+    if is_week_to_calculate("scoring.simulcast", week) and simulcast_lines is None:
+        raise ValueError(f"simulcast file is required for week {week}")
     if is_week_to_calculate("scoring.license", week) and licenses_lines is None:
         raise ValueError(f"licenses file is required for week {week}")
 
-    anime_fansubs_region_counts = get_anime_fansubs_region_counts(fansubs_lines)
+    anime_simulcast_region_counts = get_anime_simulcast_region_counts(simulcast_lines)
     licensed_anime = get_licensed_anime(licenses_lines)
 
     with session_scope() as session:
@@ -276,9 +276,11 @@ def populate_anime_weekly_stats(
 
             if (
                 is_week_to_calculate("scoring.simulcast", week)
-                and anime.id not in anime_fansubs_region_counts
+                and anime.id not in anime_simulcast_region_counts
             ):
-                print(f"{anime.id}-{anime.name} doesn't have an entry in fansubs file")
+                print(
+                    f"{anime.id}-{anime.name} doesn't have an entry in simulcast file"
+                )
 
             stat_data.week = week
             stat_data.anime_id = anime.id
@@ -286,7 +288,7 @@ def populate_anime_weekly_stats(
                 stat_data,
                 anime_active_counts[anime.id],
                 double_score_max_num_teams,
-                anime_fansubs_region_counts.get(anime.id, 0),
+                anime_simulcast_region_counts.get(anime.id, 0),
                 anime.id in licensed_anime,
             )
 
