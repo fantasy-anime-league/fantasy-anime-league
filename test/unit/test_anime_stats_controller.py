@@ -11,12 +11,12 @@ config = configparser.ConfigParser()
 config.read("config.ini")
 
 
-vcrpath = config.get('vcr', 'path')
+vcrpath = config.get("vcr", "path")
 
 
-@patch('fal.controllers.anime_stats.get_forum_posts')
-@patch('fal.controllers.anime_stats.config')
-@patch('fal.controllers.anime_stats.session_scope')
+@patch("fal.controllers.anime_stats.get_forum_posts")
+@patch("fal.controllers.anime_stats.config")
+@patch("fal.controllers.anime_stats.session_scope")
 @vcr.use_cassette(f"{vcrpath}/anime_stats/populate_anime_weekly_stats.yaml")
 def test_populate_anime_weekly_stats(
     session_scope_mock,
@@ -29,36 +29,36 @@ def test_populate_anime_weekly_stats(
     team_factory,
     team_weekly_anime_factory,
 ):
-    '''Currently only testing for week 4 to test dropped scores.
+    """Currently only testing for week 4 to test dropped scores.
         Feel free to parametrize this test to do other weeks as well
-        if we need to test for other scoring configs'''
+        if we need to test for other scoring configs"""
 
     session_scope_mock.side_effect = session_scope
     config_function = config_functor(
         sections=[
-            'season info',
-            'weekly info',
-            'jikanpy',
-            'scoring info',
-            'scoring.dropped',
+            "season info",
+            "weekly info",
+            "jikanpy",
+            "scoring info",
+            "scoring.dropped",
         ],
         kv={
-            'season': 'spring',
-            'year': 2018,
-            'current-week': 4,
-            'forum-posts-every-n-weeks': 2,
-            'forum-post-multiplier': 25,
-            'request-interval': 0,
-            'percent-ownership-for-double-score': 3,
-            '4': -4  # for 'scoring.dropped' only. others are not valid this week 4
-        }
+            "season": "spring",
+            "year": 2018,
+            "current-week": 4,
+            "forum-posts-every-n-weeks": 2,
+            "forum-post-multiplier": 25,
+            "request-interval": 0,
+            "percent-ownership-for-double-score": 3,
+            "4": -4,  # for 'scoring.dropped' only. others are not valid this week 4
+        },
     )
     config_mock.getint.side_effect = config_function
     config_mock.get.side_effect = config_function
 
     get_forum_posts.return_value = 0
 
-    season = season_factory(id=0, season_of_year='spring', year=2018)
+    season = season_factory(id=0, season_of_year="spring", year=2018)
     cowboy_bebop = anime_factory(id=1, name="Cowboy Bebop", season=season)
     haruhi = anime_factory(id=849, name="Suzumiya Haruhi no Yuuutsu", season=season)
     opm = anime_factory(id=30276, name="One Punch Man", season=season)
@@ -73,8 +73,7 @@ def test_populate_anime_weekly_stats(
 
     anime_stats.populate_anime_weekly_stats()
     with session_scope() as session:
-        stats = session.query(AnimeWeeklyStat) \
-            .order_by(AnimeWeeklyStat.anime_id).all()
+        stats = session.query(AnimeWeeklyStat).order_by(AnimeWeeklyStat.anime_id).all()
 
     assert len(stats) == 3
 
@@ -102,15 +101,12 @@ def test_populate_anime_weekly_stats(
     assert stats[2].anime_id == 30276
 
 
-@patch('fal.controllers.anime_stats.config')
+@patch("fal.controllers.anime_stats.config")
 @vcr.use_cassette(f"{vcrpath}/anime_stats/get_forum_posts.yaml")
 def test_get_forum_posts(config_mock, anime_factory, config_functor, session):
     config_mock.getint.side_effect = config_functor(
-        sections=['weekly info', 'scoring info'],
-        kv={
-            'current-week': 6,
-            'forum-posts-every-n-weeks': 2,
-        }
+        sections=["weekly info", "scoring info"],
+        kv={"current-week": 6, "forum-posts-every-n-weeks": 2},
     )
     one_punch_man = anime_factory(id=30276, name="One Punch Man")
     assert anime_stats.get_forum_posts(one_punch_man) == 327 + 426

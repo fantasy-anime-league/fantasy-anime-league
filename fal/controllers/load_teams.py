@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @dataclasses.dataclass(frozen=True)
-class TeamLines():
+class TeamLines:
     teamname: str
     active: Sequence[str]
     bench: Sequence[str]
@@ -36,17 +36,23 @@ def slice_up_team_input(team_input: Sequence[str]) -> TeamLines:
     Return these sections in a TeamLines object
     """
 
-    active_len = config.getint('season info', 'num-active-on-team')
-    bench_len = config.getint('season info', 'num-on-bench')
+    active_len = config.getint("season info", "num-active-on-team")
+    bench_len = config.getint("season info", "num-on-bench")
 
     # teamname + main team + bench
     assert len(team_input) == active_len + bench_len + 1
     assert team_input[0][:6].strip() == "Team:", f"Team line: {team_input[0]}"
 
-    return TeamLines(team_input[0][6:].strip(), team_input[1:1+active_len], team_input[-1 * bench_len:])
+    return TeamLines(
+        team_input[0][6:].strip(),
+        team_input[1 : 1 + active_len],
+        team_input[-1 * bench_len :],
+    )
 
 
-def add_anime_to_team(team: Team, anime_lines: Sequence[str], bench: int, session: Session) -> None:
+def add_anime_to_team(
+    team: Team, anime_lines: Sequence[str], bench: int, session: Session
+) -> None:
     """Add anime by name to the team in the database.
        Raises an exception if anime cannot be found in database
        """
@@ -55,19 +61,20 @@ def add_anime_to_team(team: Team, anime_lines: Sequence[str], bench: int, sessio
         anime_name = anime_name.strip()
         anime = Anime.get_anime_from_database_by_name(anime_name, session)
         if not anime:
-            print(f'{team.name} has {anime_name} on their team,'
-                  ' which is not in the database')
+            print(
+                f"{team.name} has {anime_name} on their team,"
+                " which is not in the database"
+            )
             return
 
         if not anime.eligible:
-            print(f'{team.name} has {anime_name} on their team,'
-                  ' which is not eligible for this season')
+            print(
+                f"{team.name} has {anime_name} on their team,"
+                " which is not eligible for this season"
+            )
 
         team_weekly_anime = TeamWeeklyAnime(
-            team_id=team.id,
-            anime_id=anime.id,
-            week=0,
-            bench=bench
+            team_id=team.id, anime_id=anime.id, week=0, bench=bench
         )
         session.merge(team_weekly_anime)
 
@@ -75,8 +82,9 @@ def add_anime_to_team(team: Team, anime_lines: Sequence[str], bench: int, sessio
 def load_teams(registration_data: Sequence[str]) -> None:
     """Takes the contents of registration.txt (read into a list already) and marshalls them into the database"""
 
-    assert config.getint('weekly info', 'current-week') <= 1, \
-        "Cannot add teams after week 1"
+    assert (
+        config.getint("weekly info", "current-week") <= 1
+    ), "Cannot add teams after week 1"
 
     # group the contents of the input registration file into separate teams,
     # loaded into TeamLines objects
@@ -84,9 +92,10 @@ def load_teams(registration_data: Sequence[str]) -> None:
     team_lines_list: List[TeamLines] = []
     for line_num, line in enumerate(registration_data, 1):
         if line.strip() == "":
-            assert accumulated_team_input, f"Hit a line of whitespace at line {line_num} but no team was assembled"
-            team_lines_list.append(
-                slice_up_team_input(accumulated_team_input))
+            assert (
+                accumulated_team_input
+            ), f"Hit a line of whitespace at line {line_num} but no team was assembled"
+            team_lines_list.append(slice_up_team_input(accumulated_team_input))
             accumulated_team_input = []
         else:
             accumulated_team_input.append(line)
@@ -98,16 +107,18 @@ def load_teams(registration_data: Sequence[str]) -> None:
     # take the TeamLines objects and load them into the database
     with session_scope() as session:
         current_season = Season.get_season_from_database(
-            config['season info']['season'], config.getint('season info', 'year'), session)
+            config["season info"]["season"],
+            config.getint("season info", "year"),
+            session,
+        )
 
         for team_lines in team_lines_list:
             print(f"Adding {team_lines.teamname} to database")
             team = Team.get_team_from_database(
-                team_lines.teamname, current_season, session)
-            add_anime_to_team(
-                team, team_lines.active, 0, session)
-            add_anime_to_team(
-                team, team_lines.bench, 1, session)
+                team_lines.teamname, current_season, session
+            )
+            add_anime_to_team(team, team_lines.active, 0, session)
+            add_anime_to_team(team, team_lines.bench, 1, session)
 
 
 def team_ages() -> None:
@@ -115,21 +126,21 @@ def team_ages() -> None:
     Potentially can help spot alt accounts
     """
     jikan = jikanpy.Jikan()
-    season_of_year = config.get('season info', 'season')
-    year = config.getint('season info', 'year')
+    season_of_year = config.get("season info", "season")
+    year = config.getint("season info", "year")
 
     with session_scope() as session:
-        teams = Season.get_season_from_database(
-            season_of_year, year, session).teams
+        teams = Season.get_season_from_database(season_of_year, year, session).teams
         for team in cast(Iterable[Team], teams):
             if not team.mal_join_date:
                 print(f"Getting join date for {team.name}")
                 assert team.name
                 try:
-                    team.mal_join_date = parse(jikan.user(team.name)['joined'])
+                    team.mal_join_date = parse(jikan.user(team.name)["joined"])
                     session.commit()
-                    #time.sleep(config.get('jikanpy', 'request-interval'))
+                    # time.sleep(config.get('jikanpy', 'request-interval'))
                 except Exception as e:
                     print(
-                        f'Ran into issues figuring out join date with {team.name}: {str(e)}')
+                        f"Ran into issues figuring out join date with {team.name}: {str(e)}"
+                    )
                     continue

@@ -3,12 +3,13 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from fal.models import WildcardUsage
 
 
 class Wildcard(Base):
-    __tablename__ = 'wildcard'
+    __tablename__ = "wildcard"
 
     id = Column(Integer, primary_key=True)
     type = Column(String)

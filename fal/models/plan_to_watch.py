@@ -10,13 +10,13 @@ if TYPE_CHECKING:
 
 
 class PlanToWatch(Base):
-    __tablename__ = 'plan_to_watch'
+    __tablename__ = "plan_to_watch"
 
-    anime_id = Column(Integer, ForeignKey('anime.id'), primary_key=True)
+    anime_id = Column(Integer, ForeignKey("anime.id"), primary_key=True)
     date = Column(Date, primary_key=True)
     count = Column(Integer)
 
-    anime = relationship("Anime", back_populates='plan_to_watch')
+    anime = relationship("Anime", back_populates="plan_to_watch")
 
     def __repr__(self) -> str:
-        return f'Anime id: {self.anime_id} - count: {self.count} on {self.date}'
+        return f"Anime id: {self.anime_id} - count: {self.count} on {self.date}"

@@ -4,6 +4,7 @@ from sqlalchemy import Column, Integer, ForeignKey, Float
 from sqlalchemy.orm import relationship
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from fal.models import Anime
 

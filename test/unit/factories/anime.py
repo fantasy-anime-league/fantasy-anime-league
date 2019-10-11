@@ -14,28 +14,29 @@ class AnimeFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     id = factory.Sequence(lambda x: x)
     season_id = 0
-    restricted = factory.Faker('random_int', min=0, max=1)
-    eligible = factory.Faker('random_int', min=0, max=1)
+    restricted = factory.Faker("random_int", min=0, max=1)
+    eligible = factory.Faker("random_int", min=0, max=1)
     alias = None
 
     @factory.sequence
     def name(n):  # pylint: disable=no-self-argument
         name = ANIME_LIST[n % len(ANIME_LIST)]
         if n // len(ANIME_LIST) > 1:
-            name = f'{name} {n // len(ANIME_LIST)}'
+            name = f"{name} {n // len(ANIME_LIST)}"
         return name
 
     @factory.lazy_attribute_sequence
     def season(self, n):
         session = session_factory()
-        _season = session.query(Season).filter(
-            Season.id == self.season_id).one_or_none()
+        _season = (
+            session.query(Season).filter(Season.id == self.season_id).one_or_none()
+        )
 
         if not _season:
             _season = Season(
                 id=self.season_id,
-                season_of_year=random.choice(['spring', 'fall']),
-                year=2018 + n
+                season_of_year=random.choice(["spring", "fall"]),
+                year=2018 + n,
             )
             session.add(_season)
         return _season
@@ -108,5 +109,5 @@ ANIME_LIST = [
     "Youkai Watch (2019)",
     "Beyblade Burst Gachi",
     "Araiya-san!: Ore to Aitsu ga Onnayu de!?",
-    "Shounen Ashibe: Go! Go! Goma-chan 4"
+    "Shounen Ashibe: Go! Go! Goma-chan 4",
 ]

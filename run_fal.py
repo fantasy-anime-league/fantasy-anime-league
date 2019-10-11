@@ -27,8 +27,7 @@ config.read("config.ini")
 season_str: str = config["season info"]["season"]
 year: int = config.getint("season info", "year")
 
-parser = argparse.ArgumentParser(
-    description="Run the Fantasy Anime League Engine")
+parser = argparse.ArgumentParser(description="Run the Fantasy Anime League Engine")
 parser.add_argument("--collect-series", action="store_true")
 parser.add_argument("--ptw-counter", action="store_true")
 parser.add_argument("--load-aces", action="store_true")
@@ -53,7 +52,7 @@ if args.ptw_counter:
     ptw_counter()
 
 if args.load_teams:
-    with open(args.registration_file, encoding='utf-8-sig') as f:
+    with open(args.registration_file, encoding="utf-8-sig") as f:
         registration_data = f.readlines()
     load_teams(registration_data)
     team_ages()
@@ -69,7 +68,7 @@ if args.team_dist:
 if args.init_week:
     init_new_team_weekly_anime()
 if args.load_aces:
-    with open(args.ace_file, encoding='utf-8-sig') as f:
+    with open(args.ace_file, encoding="utf-8-sig") as f:
         ace_data = f.readlines()
     load_aces(ace_data)
 if args.anime_weekly_stats:

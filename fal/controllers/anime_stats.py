@@ -16,6 +16,7 @@ from fal.models import AnimeWeeklyStat, Season, Anime, TeamWeeklyAnime, Team
 config = configparser.ConfigParser()
 config.read("config.ini")
 
+
 @dataclasses.dataclass()
 class AnimeStats:
     watching: int
@@ -28,8 +29,9 @@ class AnimeStats:
     week: int = dataclasses.field(init=False)
     anime_id: int = dataclasses.field(init=False)
 
+
 def get_forum_posts(anime: Anime) -> int:
-    '''
+    """
     Requests forum posts from Jikan, then sums up all the episode discussion
     thread replies.
 
@@ -48,7 +50,7 @@ def get_forum_posts(anime: Anime) -> int:
 
     Also TODO: add functionality to subtract a certain number of forum posts,
     i.e. posts made before season started
-    '''
+    """
 
     week = config.getint("weekly info", "current-week")
     n_week = config.getint("scoring info", "forum-posts-every-n-weeks")
@@ -58,8 +60,9 @@ def get_forum_posts(anime: Anime) -> int:
         return 0
 
     jikan = jikanpy.Jikan()
-    forum_threads: List[Dict[str, Any]] = jikan.anime(
-        anime.id, extension='forum')['topics']
+    forum_threads: List[Dict[str, Any]] = jikan.anime(anime.id, extension="forum")[
+        "topics"
+    ]
 
     or_alias = ""
     if anime.alias:
@@ -68,79 +71,86 @@ def get_forum_posts(anime: Anime) -> int:
     # here we build the regex OR statement based on all the week numbers
     # since the last time we checked forum posts
     episode_nums_str = "|".join(
-        [str(num) for num in
-            range(max(1, week - n_week + 1), week + 1)
-        ]
+        [str(num) for num in range(max(1, week - n_week + 1), week + 1)]
     )
 
-    episode_discussions = [thread for thread in forum_threads
+    episode_discussions = [
+        thread
+        for thread in forum_threads
         if re.fullmatch(
-            f'({anime.name}{or_alias}) Episode ({episode_nums_str}) Discussion',
-            thread['title']
-        )]
+            f"({anime.name}{or_alias}) Episode ({episode_nums_str}) Discussion",
+            thread["title"],
+        )
+    ]
 
     if not episode_discussions:
-        print(f"""
+        print(
+            f"""
             WARNING: did not find as many episode discussion threads for {anime.name}.
             Double check that this is expected and manually update if necessary.
             (Found {len(episode_discussions)} discussions in the {n_week} weeks
             before week {week})
-            """)
+            """
+        )
 
-    return sum([disc['replies'] for disc in episode_discussions])
+    return sum([disc["replies"] for disc in episode_discussions])
 
 
 def get_anime_stats_from_jikan(anime: Anime) -> AnimeStats:
-    '''
+    """
     Makes requests to Jikan given an anime id
     and returns a Dict containing all the information needed to
     populate an AnimeWeeklyStat object
-    '''
+    """
 
     jikan = jikanpy.Jikan()
     general_anime_info = jikan.anime(anime.id)
-    jikan_anime_stats = jikan.anime(anime.id, extension='stats')
+    jikan_anime_stats = jikan.anime(anime.id, extension="stats")
 
     return AnimeStats(
-        watching = jikan_anime_stats['watching'],
-        completed = jikan_anime_stats['completed'],
-        dropped = jikan_anime_stats['dropped'],
-        score = general_anime_info.get('score', 0),
-        favorites = general_anime_info['favorites'],
-        forum_posts = get_forum_posts(anime)
+        watching=jikan_anime_stats["watching"],
+        completed=jikan_anime_stats["completed"],
+        dropped=jikan_anime_stats["dropped"],
+        score=general_anime_info.get("score", 0),
+        favorites=general_anime_info["favorites"],
+        forum_posts=get_forum_posts(anime),
     )
 
 
 def calculate_anime_weekly_points(
     stat_data: AnimeStats, num_teams_owned_active: int, double_score_max_num_teams: int
 ) -> int:
-    '''
+    """
     Calculate the points for the week for the anime based on the stats
-    '''
+    """
     score_multiplier = 2 if num_teams_owned_active <= double_score_max_num_teams else 1
     points = (
         (stat_data.watching + stat_data.completed) * score_multiplier
-        + config.getint('scoring.dropped', str(stat_data.week), fallback=0) * stat_data.dropped
-        + config.getint('scoring.favorite', str(stat_data.week), fallback=0) * stat_data.favorites
-        + config.getint('scoring info', 'forum-post-multiplier') * stat_data.forum_posts
+        + config.getint("scoring.dropped", str(stat_data.week), fallback=0)
+        * stat_data.dropped
+        + config.getint("scoring.favorite", str(stat_data.week), fallback=0)
+        * stat_data.favorites
+        + config.getint("scoring info", "forum-post-multiplier") * stat_data.forum_posts
     )
 
     # multiplying by None type produces weird results
     # so we do these calculations only if stat_data.score exists
     if stat_data.score:
-        points += int(config.getint('scoring.anime_score', str(stat_data.week), fallback=0) * stat_data.score)
+        points += int(
+            config.getint("scoring.anime_score", str(stat_data.week), fallback=0)
+            * stat_data.score
+        )
 
     # TODO: add scoring for simulcasts and licensing
 
     return points
 
 
-
 def populate_anime_weekly_stats() -> None:
-    '''
+    """
     Populates the AnimeWeeklyStat table with a row for each anime
     using data from Jikan.
-    '''
+    """
 
     season_of_year = config.get("season info", "season").lower()
     year = config.getint("season info", "year")
@@ -150,17 +160,23 @@ def populate_anime_weekly_stats() -> None:
         season = Season.get_season_from_database(season_of_year, year, session)
         anime_list = cast(Iterable[Anime], season.anime)
 
-        anime_ids_collected = [row[0] for row in session.query(AnimeWeeklyStat.anime_id).filter(
-            AnimeWeeklyStat.week == week
-        ).all()]
-
+        anime_ids_collected = [
+            row[0]
+            for row in session.query(AnimeWeeklyStat.anime_id)
+            .filter(AnimeWeeklyStat.week == week)
+            .all()
+        ]
 
         if anime_ids_collected:
-            action = input("At least some anime stats have been collected for this week"\
-                " already. How should we proceed (overwrite/collect-missing/abort)?")
-            if action == 'collect-missing':
-                anime_list = (anime for anime in anime_list if anime.id not in anime_ids_collected)
-            elif action == 'overwrite':
+            action = input(
+                "At least some anime stats have been collected for this week"
+                " already. How should we proceed (overwrite/collect-missing/abort)?"
+            )
+            if action == "collect-missing":
+                anime_list = (
+                    anime for anime in anime_list if anime.id not in anime_ids_collected
+                )
+            elif action == "overwrite":
                 pass
             else:
                 return
@@ -187,7 +203,9 @@ def populate_anime_weekly_stats() -> None:
             try:
                 stat_data = get_anime_stats_from_jikan(anime)
             except jikanpy.exceptions.APIException as e:
-                print(f"Jikan servers did not handle our request very well, skipping: {e}")
+                print(
+                    f"Jikan servers did not handle our request very well, skipping: {e}"
+                )
                 continue
 
             stat_data.week = week

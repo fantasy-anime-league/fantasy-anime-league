@@ -18,7 +18,7 @@ register(factories.AnimeWeeklyStatFactory)
 
 @pytest.fixture()
 def session_factory():
-    engine = sqlalchemy.create_engine('sqlite://', echo=False)
+    engine = sqlalchemy.create_engine("sqlite://", echo=False)
     fal.models.Base.metadata.create_all(engine)
     factories.session_factory.configure(bind=engine)
     return factories.session_factory
@@ -46,11 +46,7 @@ def session_scope(session_factory):
 
 
 class Config(object):
-    def __init__(
-        self,
-        sections: Iterable[str],
-        kv: Mapping
-    ):
+    def __init__(self, sections: Iterable[str], kv: Mapping):
         self.sections = sections
         self.kv = kv
 
@@ -59,17 +55,20 @@ class Config(object):
             if fallback is not None:
                 return fallback
             else:
-                raise ValueError(f'''
+                raise ValueError(
+                    f"""
                     {section} section not mocked out in config mock,
-                    nor is fallback set''')
+                    nor is fallback set"""
+                )
         if key in self.kv:
             return self.kv[key]
         print(self.kv)
-        raise KeyError(f'Unexpected key {key} passed into config')
+        raise KeyError(f"Unexpected key {key} passed into config")
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def config_functor():
     def _config_functor(sections, kv):
         return Config(sections, kv)
+
     return _config_functor

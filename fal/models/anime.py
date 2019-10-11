@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 
 import functools
 from typing import TYPE_CHECKING, Optional
+
 if TYPE_CHECKING:
     from fal.models import PlanToWatch, Season, AnimeWeeklyStat, TeamWeeklyAnime
     from sqlalchemy.orm import relationship, Session
@@ -24,24 +25,25 @@ class Anime(Base):
     alias = Column(String, nullable=True)
 
     plan_to_watch = relationship("PlanToWatch", back_populates="anime")
-    anime_weekly_stats = relationship(
-        "AnimeWeeklyStat", back_populates="anime")
+    anime_weekly_stats = relationship("AnimeWeeklyStat", back_populates="anime")
     team_weekly_anime = relationship("TeamWeeklyAnime", back_populates="anime")
 
     def __repr__(self) -> str:
         return f"{self.name} - {self.id} from season id {self.season_id}"
 
     @staticmethod
-    def add_anime_to_database(id: int, name: str, season: Season, session: Session) -> None:
+    def add_anime_to_database(
+        id: int, name: str, season: Season, session: Session
+    ) -> None:
         """ Adds new anime row to database if it doesn't already exist """
         query = session.query(Anime).filter(Anime.id == id)
         anime = query.one_or_none()
 
         if anime:
-            print(f'{anime} already exists in database')
+            print(f"{anime} already exists in database")
         else:
             anime = Anime(id=id, name=name, season_id=season.id)
-            print(f'Adding {anime} to database')
+            print(f"Adding {anime} to database")
             session.add(anime)
 
     @staticmethod

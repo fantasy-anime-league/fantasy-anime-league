@@ -22,14 +22,14 @@ def check(name: str) -> None:
 
 def main() -> None:
     config = configparser.ConfigParser()
-    config.read('config.ini')
+    config.read("config.ini")
 
     f_name = "lists/team_headcount.txt"
     names = re.findall(r"\[b\](.+?)\[/b\]\n", open(f_name).read())
 
     for name in names:
         check(name)
-        time.sleep(config.getint('jikanpy', 'request-interval'))
+        time.sleep(config.getint("jikanpy", "request-interval"))
 
 
 if __name__ == "__main__":
