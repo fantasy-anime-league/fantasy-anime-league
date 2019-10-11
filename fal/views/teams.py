@@ -215,8 +215,8 @@ def write_teams_to_file(
     f.write(output_str.format(num_unique))
     for team_list in sorted(same_teams, key=lambda t: len(t), reverse=True):
         f.write(
-            f"[*]{', '.join([team.name for team in sorted(team_list, key=lambda t: t.name.lower())])}\n"
-        )  # type: ignore
+            f"[*]{', '.join([team.name for team in sorted(team_list, key=lambda t: t.name.lower())])}\n"  # type: ignore
+        )
 
 
 def get_dist(
