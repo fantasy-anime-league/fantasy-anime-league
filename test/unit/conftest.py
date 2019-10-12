@@ -63,7 +63,10 @@ class Config(object):
         if key in self.kv:
             return self.kv[key]
         print(self.kv)
-        raise KeyError(f"Unexpected key {key} passed into config")
+        if fallback is not None:
+            return fallback
+        else:
+            raise KeyError(f"Unexpected key {key} passed into config")
 
 
 @pytest.fixture(scope="session")

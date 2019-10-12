@@ -5,7 +5,7 @@ import dataclasses
 import math
 import re
 import time
-from typing import Dict, Union, List, Any, cast, Optional, Iterable, Sequence
+from typing import Dict, Union, List, Any, cast, Optional, Iterable, Sequence, Set
 
 import jikanpy
 from sqlalchemy import func
@@ -118,7 +118,11 @@ def get_anime_stats_from_jikan(anime: Anime) -> AnimeStats:
 
 
 def calculate_anime_weekly_points(
-    stat_data: AnimeStats, num_teams_owned_active: int, double_score_max_num_teams: int
+    stat_data: AnimeStats,
+    num_teams_owned_active: int,
+    double_score_max_num_teams: int,
+    num_regions: int,
+    is_licensed: bool,
 ) -> int:
     """
     Calculate the points for the week for the anime based on the stats
@@ -141,12 +145,66 @@ def calculate_anime_weekly_points(
             * stat_data.score
         )
 
-    # TODO: add scoring for simulcasts and licensing
+    # simulcast
+    points += (
+        config.getint("scoring.simulcast", str(stat_data.week), fallback=0)
+        * num_regions
+    )
+
+    # licensing
+    if is_licensed:
+        points += config.getint("scoring.license", str(stat_data.week), fallback=0)
 
     return points
 
 
-def populate_anime_weekly_stats() -> None:
+def is_week_to_calculate(config_key: str, week: int) -> bool:
+    """
+    Checks if it is the right week to calculate points for the extra feature
+    in the config
+    """
+    return config.get(config_key, str(week), fallback="No points") is not "No points"
+
+
+def get_anime_simulcast_region_counts(
+    simulcast_lines: Optional[Iterable[str]]
+) -> Dict[int, int]:
+    print("Getting region counts of each anime in simulcast file")
+    anime_simulcast_region_counts = {}
+    if simulcast_lines is not None:
+        with session_scope() as session:
+            for line in simulcast_lines:
+                title, subs = line.split("=")
+                title = title.strip()
+                anime = Anime.get_anime_from_database_by_name(title, session)
+                if anime is None:
+                    print(f"{title} is not found in database")
+                else:
+                    num_regions = len(
+                        [entry for entry in subs.split() if entry == "simul"]
+                    )
+                    anime_simulcast_region_counts[anime.id] = num_regions
+    return anime_simulcast_region_counts
+
+
+def get_licensed_anime(licenses_lines: Optional[Iterable[str]]) -> Set[int]:
+    print("Getting licensed anime from licenses file")
+    licensed_anime = set()
+    if licenses_lines is not None:
+        with session_scope() as session:
+            for title in licenses_lines:
+                anime = Anime.get_anime_from_database_by_name(title, session)
+                if anime is None:
+                    print(f"{title} is not found in database")
+                else:
+                    licensed_anime.add(anime.id)
+    return licensed_anime
+
+
+def populate_anime_weekly_stats(
+    simulcast_lines: Optional[Iterable[str]] = None,
+    licenses_lines: Optional[Iterable[str]] = None,
+) -> None:
     """
     Populates the AnimeWeeklyStat table with a row for each anime
     using data from Jikan.
@@ -155,6 +213,14 @@ def populate_anime_weekly_stats() -> None:
     season_of_year = config.get("season info", "season").lower()
     year = config.getint("season info", "year")
     week = config.getint("weekly info", "current-week")
+
+    if is_week_to_calculate("scoring.simulcast", week) and simulcast_lines is None:
+        raise ValueError(f"simulcast file is required for week {week}")
+    if is_week_to_calculate("scoring.license", week) and licenses_lines is None:
+        raise ValueError(f"licenses file is required for week {week}")
+
+    anime_simulcast_region_counts = get_anime_simulcast_region_counts(simulcast_lines)
+    licensed_anime = get_licensed_anime(licenses_lines)
 
     with session_scope() as session:
         season = Season.get_season_from_database(season_of_year, year, session)
@@ -208,10 +274,22 @@ def populate_anime_weekly_stats() -> None:
                 )
                 continue
 
+            if (
+                is_week_to_calculate("scoring.simulcast", week)
+                and anime.id not in anime_simulcast_region_counts
+            ):
+                print(
+                    f"{anime.id}-{anime.name} doesn't have an entry in simulcast file"
+                )
+
             stat_data.week = week
             stat_data.anime_id = anime.id
             stat_data.total_points = calculate_anime_weekly_points(
-                stat_data, anime_active_counts[anime.id], double_score_max_num_teams
+                stat_data,
+                anime_active_counts[anime.id],
+                double_score_max_num_teams,
+                anime_simulcast_region_counts.get(anime.id, 0),
+                anime.id in licensed_anime,
             )
 
             anime_weekly_stat = AnimeWeeklyStat()
