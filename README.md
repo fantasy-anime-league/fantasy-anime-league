@@ -43,6 +43,7 @@ $ python run_fal.py --team-dist
 ```
 
 ### Midseason
+* Save backup of database first!
 ```shell
 $ python run_fal.py --init-week
 $ python run_fal.py --load-aces

@@ -68,7 +68,7 @@ def load_aces(input_lines: Iterable[str]) -> None:
         for line in input_lines:
             teamname, animename = line.split(" ", 1)
             team = Team.get_team_from_database(teamname, season, session)
-            anime = Anime.get_anime_from_database_by_name(animename, session)
+            anime = Anime.get_anime_from_database_by_name(animename.strip(), session)
             assert anime
             if not team_anime_aced_already(team, anime, session):
                 this_week_team_anime = (

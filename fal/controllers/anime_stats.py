@@ -229,7 +229,9 @@ def populate_anime_weekly_stats(
         anime_ids_collected = [
             row[0]
             for row in session.query(AnimeWeeklyStat.anime_id)
+            .join(Anime)
             .filter(AnimeWeeklyStat.week == week)
+            .filter(Anime.season_id == season.id)
             .all()
         ]
 

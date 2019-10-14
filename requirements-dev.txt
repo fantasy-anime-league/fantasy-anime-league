@@ -7,3 +7,4 @@ vcrpy >= 2.0.1
 mypy>=0.720
 mypy-extensions>=0.4.1
 sqlalchemy-stubs>=0.2
+black >= 19.3b0~
