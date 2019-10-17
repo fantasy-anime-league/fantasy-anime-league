@@ -193,7 +193,7 @@ def get_licensed_anime(licenses_lines: Optional[Iterable[str]]) -> Set[int]:
     if licenses_lines is not None:
         with session_scope() as session:
             for title in licenses_lines:
-                anime = Anime.get_anime_from_database_by_name(title, session)
+                anime = Anime.get_anime_from_database_by_name(title.strip(), session)
                 if anime is None:
                     print(f"{title} is not found in database")
                 else:
@@ -229,7 +229,9 @@ def populate_anime_weekly_stats(
         anime_ids_collected = [
             row[0]
             for row in session.query(AnimeWeeklyStat.anime_id)
+            .join(Anime)
             .filter(AnimeWeeklyStat.week == week)
+            .filter(Anime.season_id == season.id)
             .all()
         ]
 

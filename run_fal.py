@@ -88,4 +88,3 @@ if args.anime_weekly_stats:
     populate_anime_weekly_stats(simulcast_lines, licenses_lines)
 if args.team_score:
     calculate_team_scores()
-simulcast_lines
