@@ -53,19 +53,3 @@ $ python run_fal.py --team-score
 # If you are confident
 $ python run_fal.py --init-week --load-aces --anime-weekly-stats --team-score
 ```
-
-## Tests
-
-### Unit and Integration Tests
-
-```shell
-# In root of repository
-$ python -m pytest
-```
-
-### Type Checking
-
-```shell
-$ mypy fal run_fal.py
-...
-```
