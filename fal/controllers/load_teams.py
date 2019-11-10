@@ -67,6 +67,7 @@ def add_anime_to_team(
             )
             return
 
+        assert anime.season_id == team.season_id
         if not anime.eligible:
             print(
                 f"{team.name} has {anime_name} on their team,"
