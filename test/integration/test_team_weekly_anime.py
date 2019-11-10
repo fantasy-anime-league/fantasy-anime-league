@@ -1,4 +1,4 @@
-from fal.models import TeamWeeklyAnime
+from fal.orm import TeamWeeklyAnime
 from fal.clients.mfalncfm_main import session_scope
 
 import pytest

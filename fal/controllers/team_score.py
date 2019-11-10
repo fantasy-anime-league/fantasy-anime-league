@@ -5,13 +5,13 @@ import configparser
 from sqlalchemy.sql import func, desc
 
 from fal.clients.mfalncfm_main import session_scope
-from fal.models import TeamWeeklyPoints, Season, TeamWeeklyAnime, AnimeWeeklyStat
+from fal.orm import TeamWeeklyPoints, Season, TeamWeeklyAnime, AnimeWeeklyStat
 
 from typing import TYPE_CHECKING, List, Tuple, Optional, Any, Iterable
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
-    from fal.models import Team
+    from fal.orm import Team
 
 config = configparser.ConfigParser()
 config.read("config.ini")

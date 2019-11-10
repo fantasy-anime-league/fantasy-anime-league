@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 from fal.controllers import init_new_week
-from fal.models import TeamWeeklyAnime, Season
+from fal.orm import TeamWeeklyAnime, Season
 
 
 @patch("fal.controllers.init_new_week.config")

@@ -2,7 +2,7 @@ import factory
 
 from .session import session_factory
 from .team import TeamFactory
-from fal.models import TeamWeeklyPoints
+from fal.orm import TeamWeeklyPoints
 
 
 class TeamWeeklyPointsFactory(factory.alchemy.SQLAlchemyModelFactory):

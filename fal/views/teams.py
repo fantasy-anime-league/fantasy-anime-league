@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from sqlalchemy import func
 
 from fal.clients.mfalncfm_main import session_scope
-from fal.models import Team, Season, TeamWeeklyAnime, Anime
+from fal.orm import Team, Season, TeamWeeklyAnime, Anime
 
 config = configparser.ConfigParser()
 config.read("config.ini")

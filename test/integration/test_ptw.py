@@ -1,4 +1,4 @@
-from fal.models import PlanToWatch
+from fal.orm import PlanToWatch
 from fal.clients.mfalncfm_main import session_scope
 
 import pytest

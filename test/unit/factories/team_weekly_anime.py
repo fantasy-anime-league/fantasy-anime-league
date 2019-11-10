@@ -3,7 +3,7 @@ import factory
 from .session import session_factory
 from .team import TeamFactory
 from .anime import AnimeFactory
-from fal.models import TeamWeeklyAnime
+from fal.orm import TeamWeeklyAnime
 
 
 class TeamWeeklyAnimeFactory(factory.alchemy.SQLAlchemyModelFactory):

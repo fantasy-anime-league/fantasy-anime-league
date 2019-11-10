@@ -2,7 +2,7 @@ from unittest.mock import patch
 import pytest
 
 from fal.views import teams
-from fal.models import TeamWeeklyAnime, Team, Anime
+from fal.orm import TeamWeeklyAnime, Team, Anime
 
 import os
 

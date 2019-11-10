@@ -6,7 +6,7 @@ import vcr
 import os
 
 import fal.controllers.collect_series as collect_series
-from fal.models import Season, Anime
+from fal.orm import Season, Anime
 
 config = configparser.ConfigParser()
 config.read("config.ini")

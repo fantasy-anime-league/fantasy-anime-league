@@ -5,7 +5,7 @@ import vcr
 import factory
 
 from fal.controllers import anime_stats
-from fal.models import AnimeWeeklyStat, Anime, Season
+from fal.orm import AnimeWeeklyStat, Anime, Season
 
 config = configparser.ConfigParser()
 config.read("config.ini")

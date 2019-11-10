@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 
-from fal.models import Anime, Season
+from fal.orm import Anime, Season
 
 
 def test_add_anime_to_database():

@@ -2,7 +2,7 @@ import factory
 
 from .session import session_factory
 from .anime import AnimeFactory
-from fal.models import AnimeWeeklyStat
+from fal.orm import AnimeWeeklyStat
 
 
 class AnimeWeeklyStatFactory(factory.alchemy.SQLAlchemyModelFactory):

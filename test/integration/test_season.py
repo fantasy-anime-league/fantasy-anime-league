@@ -1,4 +1,4 @@
-from fal.models import Season
+from fal.orm import Season
 from fal.clients.mfalncfm_main import session_scope
 
 
