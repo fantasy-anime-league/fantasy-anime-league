@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fal.clients.mfalncfm_main import session_scope
+from fal.orm.mfalncfm_main import session_scope
 from fal.orm import PlanToWatch, Anime, Season
 
 from jikanpy import Jikan

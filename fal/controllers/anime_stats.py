@@ -10,7 +10,7 @@ from typing import Dict, Union, List, Any, cast, Optional, Iterable, Sequence, S
 import jikanpy
 from sqlalchemy import func
 
-from fal.clients.mfalncfm_main import session_scope
+from fal.orm.mfalncfm_main import session_scope
 from fal.orm import AnimeWeeklyStat, Season, Anime, TeamWeeklyAnime, Team
 
 config = configparser.ConfigParser()

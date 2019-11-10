@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import configparser
 
-from fal.clients.mfalncfm_main import session_scope
+from fal.orm.mfalncfm_main import session_scope
 from fal.orm import TeamWeeklyAnime, Season, Team
 
 config = configparser.ConfigParser()

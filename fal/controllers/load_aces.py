@@ -6,7 +6,7 @@ from typing import Iterable, TYPE_CHECKING
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
-from fal.clients.mfalncfm_main import session_scope
+from fal.orm.mfalncfm_main import session_scope
 from fal.orm import TeamWeeklyAnime, Team, Season, Anime
 
 config = configparser.ConfigParser()
