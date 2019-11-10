@@ -60,7 +60,6 @@ def add_anime_to_team(
     for anime_name in anime_lines:
         anime_name = anime_name.strip()
         anime = Anime.get_anime_from_database_by_name(anime_name, session)
-        assert anime.season_id == team.season_id
         if not anime:
             print(
                 f"{team.name} has {anime_name} on their team,"
@@ -68,6 +67,7 @@ def add_anime_to_team(
             )
             return
 
+        assert anime.season_id == team.season_id
         if not anime.eligible:
             print(
                 f"{team.name} has {anime_name} on their team,"
