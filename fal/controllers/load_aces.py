@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 from fal.clients.mfalncfm_main import session_scope
-from fal.models import TeamWeeklyAnime, Team, Season, Anime
+from fal.orm import TeamWeeklyAnime, Team, Season, Anime
 
 config = configparser.ConfigParser()
 config.read("config.ini")

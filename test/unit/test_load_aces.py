@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 from fal.controllers import load_aces
-from fal.models import TeamWeeklyAnime
+from fal.orm import TeamWeeklyAnime
 
 
 def test_ace_already_loaded_this_week(

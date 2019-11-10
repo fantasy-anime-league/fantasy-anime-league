@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 from fal.controllers import team_score
-from fal.models import TeamWeeklyPoints
+from fal.orm import TeamWeeklyPoints
 
 
 def test_already_got_high_bonus(team_weekly_points_factory, team_factory, session):

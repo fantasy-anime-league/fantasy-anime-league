@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 
-from fal.models import Season
+from fal.orm import Season
 
 
 def test_get_season_from_database_adds_season():

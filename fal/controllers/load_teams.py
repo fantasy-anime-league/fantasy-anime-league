@@ -9,7 +9,7 @@ from typing import Sequence, List, TYPE_CHECKING, cast, Iterable
 import jikanpy
 
 from fal.clients.mfalncfm_main import session_scope
-from fal.models import Team, Anime, Season, TeamWeeklyAnime
+from fal.orm import Team, Anime, Season, TeamWeeklyAnime
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session

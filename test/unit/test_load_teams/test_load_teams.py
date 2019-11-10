@@ -3,7 +3,7 @@ import pytest
 import factory
 
 from fal.controllers import load_teams
-from fal.models import TeamWeeklyAnime, Team
+from fal.orm import TeamWeeklyAnime, Team
 
 
 @patch("fal.controllers.load_teams.config")

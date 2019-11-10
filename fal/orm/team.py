@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fal.models import Base, Season
+from fal.orm import Base, Season
 
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
@@ -9,7 +9,7 @@ import functools
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from fal.models import Season, WildcardUsage, TeamWeeklyAnime, TeamWeeklyPoints
+    from fal.orm import Season, WildcardUsage, TeamWeeklyAnime, TeamWeeklyPoints
     from sqlalchemy.orm import Session
 
 

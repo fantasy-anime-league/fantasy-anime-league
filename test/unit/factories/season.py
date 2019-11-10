@@ -1,12 +1,12 @@
 import factory
 
 from .session import session_factory
-import fal.models
+import fal.orm
 
 
 class SeasonFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
-        model = fal.models.Season
+        model = fal.orm.Season
         sqlalchemy_session = session_factory
 
     id = factory.Sequence(lambda x: x)

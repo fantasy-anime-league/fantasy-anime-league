@@ -6,7 +6,7 @@ import pytest
 import factories
 import sqlalchemy
 
-import fal.models
+import fal.orm
 
 register(factories.SeasonFactory)
 register(factories.AnimeFactory)
@@ -19,7 +19,7 @@ register(factories.AnimeWeeklyStatFactory)
 @pytest.fixture()
 def session_factory():
     engine = sqlalchemy.create_engine("sqlite://", echo=False)
-    fal.models.Base.metadata.create_all(engine)
+    fal.orm.Base.metadata.create_all(engine)
     factories.session_factory.configure(bind=engine)
     return factories.session_factory
 

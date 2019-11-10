@@ -1,11 +1,11 @@
-from fal.models import Base
+from fal.orm import Base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from fal.models import WildcardUsage
+    from fal.orm import WildcardUsage
 
 
 class Wildcard(Base):

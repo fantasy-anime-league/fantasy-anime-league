@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fal.models import Base
+from fal.orm import Base
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
@@ -9,7 +9,7 @@ import functools
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from fal.models import Anime, Team
+    from fal.orm import Anime, Team
     from sqlalchemy.orm import Session
 
 

@@ -4,7 +4,7 @@ import factory
 
 from .session import session_factory
 from .season import SeasonFactory
-from fal.models import Season, Anime
+from fal.orm import Season, Anime
 
 
 class AnimeFactory(factory.alchemy.SQLAlchemyModelFactory):

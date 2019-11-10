@@ -7,7 +7,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 import vcr
 
-from fal.models import PlanToWatch, Anime
+from fal.orm import PlanToWatch, Anime
 import fal.controllers.ptw_counter as ptw_counter
 
 

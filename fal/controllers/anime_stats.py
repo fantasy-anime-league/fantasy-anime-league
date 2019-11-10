@@ -11,7 +11,7 @@ import jikanpy
 from sqlalchemy import func
 
 from fal.clients.mfalncfm_main import session_scope
-from fal.models import AnimeWeeklyStat, Season, Anime, TeamWeeklyAnime, Team
+from fal.orm import AnimeWeeklyStat, Season, Anime, TeamWeeklyAnime, Team
 
 config = configparser.ConfigParser()
 config.read("config.ini")
