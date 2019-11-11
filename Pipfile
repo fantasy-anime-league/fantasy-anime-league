@@ -4,7 +4,6 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-jikanpy = "*"
 pytest = "*"
 pytest-datadir = "*"
 pytest-factoryboy = "*"
@@ -14,10 +13,11 @@ mypy = "*"
 mypy-extensions = "*"
 sqlalchemy-stubs = "*"
 black = "*"
-PyMySQL = "*"
-SQLAlchemy = "*"
 
 [packages]
+jikanpy = "*"
+pymysql = "*"
+sqlalchemy = "*"
 
 [requires]
 python_version = "3.8"

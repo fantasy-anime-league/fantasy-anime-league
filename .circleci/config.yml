@@ -23,7 +23,7 @@ jobs:
           command: |
             export PIPENV_VENV_IN_PROJECT=1
             pip install pipenv
-            pipenv install
+            pipenv install --dev
             pipenv install pytest-cov codecov
 
       - save_cache:
