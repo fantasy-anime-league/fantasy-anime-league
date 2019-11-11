@@ -31,7 +31,9 @@ class Season(Base):
     def get_season_from_database(
         season_of_year: str, year: int, session: Session
     ) -> Season:
-        """Adds the season to the Season table in the database if necessary, then returns Season object
+        """
+        (DEPRECATED: use models.season.get_or_create instead)
+        Adds the season to the Season table in the database if necessary, then returns Season object
         """
 
         query = session.query(Season).filter(

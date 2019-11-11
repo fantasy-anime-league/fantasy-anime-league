@@ -21,7 +21,6 @@ class Season(OrmFacade):
         cls: Type[T], season_of_year: str, year: int, session: Session
     ) -> T:
         """
-        (DEPRECATED: use models.season.get_or_create instead)
         Creates a new season in database if necessary, otherwise retrieves it. Returns Season object
         """
 
