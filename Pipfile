@@ -13,6 +13,7 @@ mypy = "*"
 mypy-extensions = "*"
 sqlalchemy-stubs = "*"
 black = "*"
+v = {editable = true,version = "*"}
 
 [packages]
 jikanpy = "*"
