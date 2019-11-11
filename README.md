@@ -7,10 +7,16 @@
 
 ## Setup
 
-### pip requirements
+### [pipenv](https://pipenv.kennethreitz.org/en/latest/install/#installing-pipenv) requirements
 
 ```shell
-$ pip install -r requirements.txt
+# if pipenv is not already installed
+$ pip install --user pipenv
+...
+$ pipenv install
+...
+# activate the Pipenv shell
+$ pipenv shell
 ...
 ```
 
@@ -28,12 +34,14 @@ $ pip install -r requirements.txt
 ## Order to run scripts
 
 ### Preseason (before registration)
+
 ```shell
 $ python run_fal.py --collect-series
 $ python run_fal.py --ptw-counter
 ```
 
 ### Preseason (after registration)
+
 ```shell
 $ python run_fal.py --load-teams
 $ python run_fal.py --headcount
@@ -43,7 +51,9 @@ $ python run_fal.py --team-dist
 ```
 
 ### Midseason
+
 * Save backup of database first!
+
 ```shell
 $ python run_fal.py --init-week
 $ python run_fal.py --load-aces

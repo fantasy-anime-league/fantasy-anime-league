@@ -1,0 +1,26 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+jikanpy = "*"
+pytest = "*"
+pytest-datadir = "*"
+pytest-factoryboy = "*"
+factory-boy = "*"
+vcrpy = "*"
+mypy = "*"
+mypy-extensions = "*"
+sqlalchemy-stubs = "*"
+black = "*"
+PyMySQL = "*"
+SQLAlchemy = "*"
+
+[packages]
+
+[requires]
+python_version = "3.8"
+
+[pipenv]
+allow_prereleases = true
