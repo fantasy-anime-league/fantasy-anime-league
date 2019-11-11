@@ -29,7 +29,10 @@ class Team(Base):
     @staticmethod
     @functools.lru_cache(maxsize=2048)
     def get_team_from_database(name: str, season: Season, session: Session) -> Team:
-        """ Adds new team row to database if necessary, then return the team object"""
+        """
+        (DEPRECATED: use models.team.get_or_create instead)
+        Adds new team row to database if necessary, then return the team object
+        """
         query = session.query(Team).filter(
             Team.name == name, Team.season_id == season.id
         )
