@@ -4,7 +4,7 @@ orbs:
 jobs:
   build:
     docker:
-      - image: circleci/python:3.7
+      - image: circleci/python:3.8
 
     working_directory: ~/repo
 
@@ -14,40 +14,38 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "requirements-dev.txt" }}
+            - v1-dependencies-{{ checksum "Pipfile.lock" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
       - run:
           name: Install dependencies
           command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install -r requirements-dev.txt
-            pip install pytest-cov codecov
+            export PIPENV_VENV_IN_PROJECT=1
+            pip install pipenv
+            pipenv install
+            pipenv install pytest-cov codecov
 
       - save_cache:
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "requirements-dev.txt" }}
+          key: v1-dependencies-{{ checksum "Pipfile.lock" }}
 
       - run:
           name: Run tests and mypy
           command: |
             export PYTHONPATH=$PYTHONPATH:$(pwd)
             cp config-secret-stub.ini config-secret.ini
-            . venv/bin/activate
-            pytest test/unit/
-            mypy run_fal.py fal/
+            pipenv run pytest test/unit/
+            pipenv run mypy run_fal.py fal/
 
       - run:
           name: Run codecov
           command: |
             set +e
             export PYTHONPATH=$PYTHONPATH:$(pwd)
-            . venv/bin/activate
-            pytest --cov fal test/
-            codecov
+            pipenv run pytest --cov fal test/
+            pipenv run codecov
 
       - store_artifacts:
           path: test-reports
