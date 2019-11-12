@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound=Team)
 
 
-@attr.s
+@attr.s(frozen=True)
 class Team(OrmFacade):
     name: str = attr.ib()
 
@@ -21,6 +21,7 @@ class Team(OrmFacade):
         Creates a new team in database if necessary, otherwise retrieves it. Returns Team object
         """
 
+        assert isinstance(season._entity, orm.Season)
         query = session.query(orm.Team).filter(
             orm.Team.name == name, orm.Team.season_id == season._entity.id
         )

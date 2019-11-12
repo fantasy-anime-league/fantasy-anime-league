@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound=Season)
 
 
-@attr.s
+@attr.s(frozen=True)
 class Season(OrmFacade):
     season_of_year: str = attr.ib()
     year: int = attr.ib()
