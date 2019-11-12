@@ -14,7 +14,11 @@
 # if pipenv is not already installed
 $ pip install --user pipenv
 ...
+# if end user
 $ pipenv install
+...
+# if dev
+$ pipenv install --dev
 ...
 # activate the Pipenv shell
 $ pipenv shell
