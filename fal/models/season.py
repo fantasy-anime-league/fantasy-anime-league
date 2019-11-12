@@ -11,10 +11,14 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound=Season)
 
 
-@attr.s(frozen=True)
+@attr.s(frozen=True, auto_attribs=True)
 class Season(OrmFacade):
-    season_of_year: str = attr.ib()
-    year: int = attr.ib()
+    _entity: orm.Season
+    season_of_year: str
+    year: int
+
+    def get_entity(self) -> orm.Base:
+        return self._entity
 
     @classmethod
     def get_or_create(

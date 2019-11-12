@@ -1,19 +1,23 @@
 import attr
 
 import abc
-from typing import TYPE_CHECKING, TypeVar, Generic
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
-    from fal.orm import Base
-
-T = TypeVar("T", bound=Base)
+    from fal import orm
 
 
-@attr.s
-class OrmFacade(abc.ABC, Generic[T]):
-    _entity: T = attr.ib()
-    _session: Session = attr.ib()
+@attr.s(auto_attribs=True)
+class OrmFacade(abc.ABC):
+    _session: Session
 
     def commit(self) -> None:
         self._session.commit()
+
+    @abc.abstractmethod
+    def get_entity(self) -> orm.Base:
+        """
+        _entity in general should not be directly accessed anywhere outside of child classes of OrmFacade
+        """
+        pass
