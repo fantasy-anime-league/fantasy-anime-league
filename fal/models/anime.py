@@ -16,7 +16,7 @@ T = TypeVar("T", bound=Anime)
 class Anime(OrmFacade):
     _entity: orm.Anime
     mal_id: int
-    names: Set[str] = attr.Factory(set)
+    names: Set[str]
     restricted: bool = False
     eligible: bool = True
 

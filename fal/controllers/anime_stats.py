@@ -163,7 +163,7 @@ def is_week_to_calculate(config_key: str, week: int) -> bool:
     Checks if it is the right week to calculate points for the extra feature
     in the config
     """
-    return config.get(config_key, str(week), fallback="No points") is not "No points"
+    return config.get(config_key, str(week), fallback="No points") != "No points"
 
 
 def get_anime_simulcast_region_counts(

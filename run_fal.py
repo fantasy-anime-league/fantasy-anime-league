@@ -10,13 +10,9 @@ Main file to run Fantasy Anime League Engine. Should replace old_run_fal.py once
 it is able to replicate all functionality
 """
 
-from fal.controllers.collect_series import collect_series
-from fal.controllers.ptw_counter import ptw_counter
-from fal.controllers.load_teams import load_teams, team_ages
-from fal.controllers.anime_stats import populate_anime_weekly_stats
-from fal.controllers.team_score import calculate_team_scores
-from fal.controllers.init_new_week import init_new_team_weekly_anime
-from fal.controllers.load_aces import load_aces
+from fal.controllers import collect_series, ptw_counter, load_teams, team_ages
+from fal.controllers import populate_anime_weekly_stats, calculate_team_scores
+from fal.controllers import init_new_team_weekly_anime, load_aces, process_bench_swaps
 from fal.views.teams import headcount, team_overview, team_stats, team_dist
 
 import argparse
@@ -40,6 +36,7 @@ parser.add_argument("--team-overview", action="store_true")
 parser.add_argument("--team-stats", action="store_true")
 parser.add_argument("--team-dist", action="store_true")
 parser.add_argument("--team-score", action="store_true")
+parser.add_argument("--bench-swap", action="store_true")
 parser.add_argument("--anime-weekly-stats", action="store_true")
 parser.add_argument("--simulcast-file", default="simulcast.txt")
 parser.add_argument("--licenses-file", default="licenses.txt")
@@ -70,6 +67,8 @@ if args.team_dist:
 
 if args.init_week:
     init_new_team_weekly_anime()
+if args.bench_swap:
+    process_bench_swaps()
 if args.load_aces:
     with open(args.ace_file, encoding="utf-8-sig") as f:
         ace_data = f.readlines()
