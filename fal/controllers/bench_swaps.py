@@ -5,8 +5,6 @@ import re
 import gzip
 import configparser
 
-import attr
-
 from fal.orm import Secret, mfalncfm_main
 from fal.models import Team, Season, Anime
 
@@ -21,13 +19,6 @@ config.read("config.ini")
 active_len = config.getint("season info", "num-active-on-team")
 
 PARAMS = ""
-
-
-@attr.s(frozen=True)
-class BenchSwap(object):
-    username = attr.ib(validator=attr.validators.instance_of(str), type=str)
-    active = attr.ib(validator=attr.validators.instance_of(str), type=str)
-    bench = attr.ib(validator=attr.validators.instance_of(str), type=str)
 
 
 def get_swaps(
@@ -102,12 +93,11 @@ def process_bench_swaps() -> None:
                 print(f"Unexpected post contents: {post_content}")
                 raise
             active, bench = match.group(1, 2)
-            bench_swap = BenchSwap(username, active, bench)
             team = Team.get_or_create(
-                name=bench_swap.username, season=season, session=session
+                name=username, season=season, session=session
             )
             team.bench_swap(
-                active_anime=Anime.get_by_name(bench_swap.active, session),
-                bench_anime=Anime.get_by_name(bench_swap.bench, session),
+                active_anime=Anime.get_by_name(active, session),
+                bench_anime=Anime.get_by_name(bench, session),
                 week=week
             )
