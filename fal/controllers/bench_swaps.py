@@ -8,7 +8,7 @@ import configparser
 import attr
 
 from fal.orm import Secret, mfalncfm_main
-from fal.models import Team, Season
+from fal.models import Team, Season, Anime
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -88,12 +88,13 @@ def get_swaps(
 def process_bench_swaps() -> None:
     season_of_year = config.get("season info", "season")
     year = config.getint("season info", "year")
+    week = config.getint("weekly info", "current-week")
 
     with mfalncfm_main.session_scope() as session:
         season = Season.get_or_create(season_of_year, year, session)
 
         post_content_regex = re.compile(r"(.+)\<br /\>.*\\n(.+)")
-        for username, post_content in get_swaps():
+        for username, post_content in get_swaps(session):
             match = post_content_regex.fullmatch(post_content)
             try:
                 assert match
@@ -105,4 +106,8 @@ def process_bench_swaps() -> None:
             team = Team.get_or_create(
                 name=bench_swap.username, season=season, session=session
             )
-            team.bench_swap(bench_swap.active, bench_swap.bench)
+            team.bench_swap(
+                active_anime=Anime.get_by_name(bench_swap.active, session),
+                bench_anime=Anime.get_by_name(bench_swap.bench, session),
+                week=week
+            )
