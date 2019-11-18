@@ -10,9 +10,14 @@ Main file to run Fantasy Anime League Engine. Should replace old_run_fal.py once
 it is able to replicate all functionality
 """
 
-from fal.controllers import collect_series, ptw_counter, load_teams, team_ages
-from fal.controllers import populate_anime_weekly_stats, calculate_team_scores
-from fal.controllers import init_new_team_weekly_anime, load_aces, process_bench_swaps
+from fal.controllers.collect_series import collect_series
+from fal.controllers.anime_stats import populate_anime_weekly_stats
+from fal.controllers.team_score import calculate_team_scores
+from fal.controllers.init_new_week import init_new_team_weekly_anime
+from fal.controllers.load_aces import load_aces
+from fal.controllers.bench_swaps import process_bench_swaps
+from fal.controllers.load_teams import team_ages, load_teams
+from fal.controllers.ptw_counter import ptw_counter
 from fal.views.teams import headcount, team_overview, team_stats, team_dist
 
 import argparse

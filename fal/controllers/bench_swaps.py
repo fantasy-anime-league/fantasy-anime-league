@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import List, Tuple, TYPE_CHECKING
 import io
 import http.client
@@ -93,11 +95,9 @@ def process_bench_swaps() -> None:
                 print(f"Unexpected post contents: {post_content}")
                 raise
             active, bench = match.group(1, 2)
-            team = Team.get_or_create(
-                name=username, season=season, session=session
-            )
+            team = Team.get_or_create(name=username, season=season, session=session)
             team.bench_swap(
                 active_anime=Anime.get_by_name(active, session),
                 bench_anime=Anime.get_by_name(bench, session),
-                week=week
+                week=week,
             )

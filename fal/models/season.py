@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, TypeVar, Type, Generic
 
 import attr
@@ -8,7 +10,7 @@ from fal import orm
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
-T = TypeVar("T", bound=Season)
+T = TypeVar("T", bound="Season")
 
 
 @attr.s(frozen=True, auto_attribs=True)

@@ -1,11 +1,13 @@
-import attr
+from __future__ import annotations
 
 import abc
 from typing import TYPE_CHECKING
 
+import attr
+
 if TYPE_CHECKING:
-    from sqlalchemy.orm import Session
     from fal import orm
+    from sqlalchemy.orm import Session
 
 
 @attr.s(auto_attribs=True)

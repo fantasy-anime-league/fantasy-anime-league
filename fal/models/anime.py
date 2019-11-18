@@ -1,15 +1,18 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, TypeVar, Type, Set, Optional
 
 import attr
 import sqlalchemy.orm.exc
 
-from fal.models import OrmFacade, Season
+from fal.models import OrmFacade
 from fal import orm
 
 if TYPE_CHECKING:
+    from fal.models import Season
     from sqlalchemy.orm import Session
 
-T = TypeVar("T", bound=Anime)
+T = TypeVar("T", bound="Anime")
 
 
 @attr.s(auto_attribs=True)
