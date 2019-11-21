@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from fal.orm import Base
+from fal.utils import deprecated
 
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
@@ -32,11 +33,11 @@ class Anime(Base):
         return f"{self.name} - {self.id} from season id {self.season_id}"
 
     @staticmethod
+    @deprecated("use models.anime.create instead")
     def add_anime_to_database(
         id: int, name: str, season: Season, session: Session
     ) -> None:
         """
-        (DEPRECATED: use models.anime.create instead)
         Adds new anime row to database if it doesn't already exist
         """
         query = session.query(Anime).filter(Anime.id == id)
@@ -51,9 +52,9 @@ class Anime(Base):
 
     @staticmethod
     @functools.lru_cache(maxsize=64)
+    @deprecated("use models.anime.get instead")
     def get_anime_from_database_by_name(name: str, session: Session) -> Optional[Anime]:
         """
-        (DEPRECATED: use models.anime.get instead)
         Get anime from database based on name. Return None if it's not there.
         """
         query = session.query(Anime).filter(Anime.name == name)

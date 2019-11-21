@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from fal.orm import Base, Season
+from fal.utils import deprecated
 
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
@@ -28,9 +29,9 @@ class Team(Base):
 
     @staticmethod
     @functools.lru_cache(maxsize=2048)
+    @deprecated("use models.team.get_or_create instead")
     def get_team_from_database(name: str, season: Season, session: Session) -> Team:
         """
-        (DEPRECATED: use models.team.get_or_create instead)
         Adds new team row to database if necessary, then return the team object
         """
         query = session.query(Team).filter(

@@ -36,7 +36,7 @@ class Team(OrmFacade):
         )
 
         if not orm_team:
-            team = orm_team.Team(name=name, season_id=season._entity.id)
+            team = orm.Team(name=name, season_id=season._entity.id)
             session.add(orm_team)
             session.commit()
 

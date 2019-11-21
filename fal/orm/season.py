@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from fal.orm import Base
+from fal.utils import deprecated
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
@@ -28,11 +29,11 @@ class Season(Base):
 
     @staticmethod
     @functools.lru_cache(maxsize=2)
+    @deprecated("use models.season.get_or_create instead")
     def get_season_from_database(
         season_of_year: str, year: int, session: Session
     ) -> Season:
         """
-        (DEPRECATED: use models.season.get_or_create instead)
         Adds the season to the Season table in the database if necessary, then returns Season object
         """
 
