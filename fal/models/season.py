@@ -30,6 +30,8 @@ class Season(OrmFacade):
     year: int
     current_week: int
 
+    min_weeks_between_bench_swaps: int
+
     def get_entity(self) -> orm.Base:
         return self._entity
 
@@ -59,6 +61,7 @@ class Season(OrmFacade):
             season_of_year=season_of_year,
             year=year,
             current_week=config.getint("weekly info", "current-week"),
+            min_weeks_between_bench_swaps=config.getint("season info", "min_weeks_between_bench_swaps")
         )
 
     def init_new_week(self) -> None:

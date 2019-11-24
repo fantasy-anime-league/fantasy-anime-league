@@ -37,7 +37,7 @@ def test_create_team_twice_throws_exception(session):
         Team.create(username, season, session)
 
 
-@patch("fal.models.team.config")
+@patch("fal.models.season.config")
 def test_add_same_anime_to_team_raises_exception(
     # patches
     config_mock,
@@ -57,10 +57,8 @@ def test_add_same_anime_to_team_raises_exception(
 
 
 @patch("fal.models.season.config")
-@patch("fal.models.team.config")
 def test_bench_swap(
     # patches
-    team_config_mock,
     season_config_mock,
     # fixtures
     session,
@@ -69,12 +67,6 @@ def test_bench_swap(
     config_function = config_functor(
         sections=["weekly info", "season info"],
         kv={"current-week": 0, "min-weeks-between-bench-swaps": 3},
-    )
-    team_config_mock.getint.side_effect = config_function
-
-    config_function = config_functor(
-        sections=["weekly info"],
-        kv={"current-week": 0},
     )
     season_config_mock.getint.side_effect = config_function
 

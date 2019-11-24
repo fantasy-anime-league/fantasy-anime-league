@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, TypeVar, Type, List
-import configparser
 
 from sqlalchemy import or_, func, desc
 import attr
@@ -14,19 +13,19 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 T = TypeVar("T", bound="Team")
-config = configparser.ConfigParser()
 
 
 @attr.s(frozen=True, auto_attribs=True)
 class Team(OrmFacade):
     _entity: orm.Team
     name: str
+    season: Season
 
     def get_entity(self) -> orm.Base:
         return self._entity
 
     @classmethod
-    def get_by_name(cls: Type[T], name: str, season: Season, session: Session) -> T:
+    def get_by_name(cls: Type[T], *, name: str, season: Season, session: Session) -> T:
         """
         Get team from database based on name and season.
 
@@ -38,10 +37,10 @@ class Team(OrmFacade):
             .one()
         )
 
-        return cls(entity=orm_team, session=session, name=name)
+        return cls(entity=orm_team, session=session, name=name, season=season)
 
     @classmethod
-    def create(cls: Type[T], name: str, season: Season, session: Session) -> T:
+    def create(cls: Type[T], *, name: str, season: Season, session: Session) -> T:
         """
         Adds new team to database. Returns Team object.
 
@@ -55,7 +54,7 @@ class Team(OrmFacade):
         orm_team = orm.Team(name=name, season_id=season._entity.id)
         session.add(orm_team)
         session.commit()
-        return cls(entity=orm_team, session=session, name=name)
+        return cls(entity=orm_team, session=session, name=name, season=season)
 
     def bench_swap(self, *, active_anime: Anime, bench_anime: Anime, week: int) -> None:
         """
@@ -66,8 +65,6 @@ class Team(OrmFacade):
         'min-weeks-between-bench-swaps' from config.ini
         """
 
-        config.read("config.ini")
-
         last_bench_swap_week_row = (
             self._session.query(orm.BenchSwap.week)
             .filter(orm.BenchSwap.team_id == self._entity.id)
@@ -77,7 +74,7 @@ class Team(OrmFacade):
 
         if last_bench_swap_week_row:
             last_bench_swap_week = last_bench_swap_week_row.week
-            assert (week - last_bench_swap_week) >= config.getint("season info", "min-weeks-between-bench-swaps")
+            assert week - last_bench_swap_week >= self.season.min_weeks_between_bench_swaps
 
         this_week_anime_involved = (
             self._session.query(orm.TeamWeeklyAnime)
@@ -106,7 +103,7 @@ class Team(OrmFacade):
             team_id=self._entity.id,
             week=week,
             to_bench=active_anime._entity.id,
-            from_bench=bench_anime._entity.id
+            from_bench=bench_anime._entity.id,
         )
         self._session.add(successful_swap)
         self.commit()
@@ -117,9 +114,7 @@ class Team(OrmFacade):
 
         Raises sqlalchemy.exc.IntegrityError if anime already exists on team.
         """
-        config.read("config.ini")
-
-        assert config.getint("weekly info", "current-week") == 0
+        assert self.season.current_week == 0
 
         first_week_anime = orm.TeamWeeklyAnime(
             team_id=self._entity.id,
