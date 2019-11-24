@@ -5,10 +5,10 @@ from fal.orm import TeamWeeklyAnime
 
 
 def test_ace_already_loaded_this_week(
-    team_weekly_anime_factory, team_factory, anime_factory, session
+    team_weekly_anime_factory, orm_team_factory, orm_anime_factory, session
 ):
-    team = team_factory()
-    anime = anime_factory.create_batch(3)
+    team = orm_team_factory()
+    anime = orm_anime_factory.create_batch(3)
     team_weekly_anime_factory(team=team, anime=anime[0], week=2)
     team_weekly_anime_factory(team=team, anime=anime[1], week=2, ace=1)
     team_weekly_anime_factory(team=team, anime=anime[2], week=2)
@@ -17,10 +17,10 @@ def test_ace_already_loaded_this_week(
 
 
 def test_ace_not_already_loaded_this_week(
-    team_weekly_anime_factory, team_factory, anime_factory, session
+    team_weekly_anime_factory, orm_team_factory, orm_anime_factory, session
 ):
-    team = team_factory()
-    anime = anime_factory.create_batch(3)
+    team = orm_team_factory()
+    anime = orm_anime_factory.create_batch(3)
     team_weekly_anime_factory(team=team, anime=anime[0], week=2)
     team_weekly_anime_factory(team=team, anime=anime[1], week=1, ace=1)
     team_weekly_anime_factory(team=team, anime=anime[2], week=2)
@@ -29,10 +29,10 @@ def test_ace_not_already_loaded_this_week(
 
 
 def test_team_anime_aced_already(
-    team_weekly_anime_factory, team_factory, anime_factory, session
+    team_weekly_anime_factory, orm_team_factory, orm_anime_factory, session
 ):
-    team = team_factory()
-    anime = anime_factory()
+    team = orm_team_factory()
+    anime = orm_anime_factory()
     team_weekly_anime_factory(team=team, anime=anime, week=0)
     team_weekly_anime_factory(team=team, anime=anime, week=1, ace=1)
     team_weekly_anime_factory(team=team, anime=anime, week=2)
@@ -41,10 +41,10 @@ def test_team_anime_aced_already(
 
 
 def test_team_anime_not_aced_already(
-    team_weekly_anime_factory, team_factory, anime_factory, session
+    team_weekly_anime_factory, orm_team_factory, orm_anime_factory, session
 ):
-    team = team_factory()
-    anime = anime_factory()
+    team = orm_team_factory()
+    anime = orm_anime_factory()
     team_weekly_anime_factory(team=team, anime=anime, week=0)
     team_weekly_anime_factory(team=team, anime=anime, week=1)
     team_weekly_anime_factory(team=team, anime=anime, week=2)
@@ -59,9 +59,9 @@ def test_load_aces(
     session_scope_mock,
     config_mock,
     # factories
-    season_factory,
-    team_factory,
-    anime_factory,
+    orm_season_factory,
+    orm_team_factory,
+    orm_anime_factory,
     team_weekly_anime_factory,
     # fixtures
     config_functor,
@@ -77,9 +77,9 @@ def test_load_aces(
     config_mock.getint.side_effect = config_function
     config_mock.get.side_effect = config_function
 
-    season = season_factory(season_of_year="spring", year=2018)
-    teams = team_factory.create_batch(2, season=season)
-    anime = anime_factory.create_batch(8, season=season)
+    season = orm_season_factory(season_of_year="spring", year=2018)
+    teams = orm_team_factory.create_batch(2, season=season)
+    anime = orm_anime_factory.create_batch(8, season=season)
 
     for week in range(3):
         for _anime in anime[:5]:

@@ -8,12 +8,13 @@ import sqlalchemy
 
 import fal.orm
 
-register(factories.SeasonFactory)
-register(factories.AnimeFactory)
-register(factories.TeamFactory)
+register(factories.OrmSeasonFactory)
+register(factories.OrmAnimeFactory)
+register(factories.OrmTeamFactory)
 register(factories.TeamWeeklyAnimeFactory)
 register(factories.TeamWeeklyPointsFactory)
 register(factories.AnimeWeeklyStatFactory)
+register(factories.SeasonFactory)
 
 
 @pytest.fixture()

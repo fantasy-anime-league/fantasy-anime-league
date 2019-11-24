@@ -14,33 +14,35 @@ fake.add_provider(faker.providers.internet)
 def test_create_and_retrieve_team_by_name(session):
     season = Season.get_or_create(SeasonOfYear.SPRING, 2006, session)
     username = fake.user_name()
-    team = Team.create(username, season, session)
+    team = Team.create(name=username, season=season, session=session)
 
-    assert team == Team.get_by_name(username, season, session)
+    assert team == Team.get_by_name(name=username, season=season, session=session)
 
 
 def test_retrieve_team_does_not_exist(session):
     season2006 = Season.get_or_create(SeasonOfYear.SPRING, 2006, session)
     season2007 = Season.get_or_create(SeasonOfYear.SPRING, 2007, session)
     username = fake.user_name()
-    team = Team.create(username, season2006, session)
+    team = Team.create(name=username, season=season2006, session=session)
 
     with pytest.raises(NoResultFound):
-        Team.get_by_name(username, season2007, session)
+        Team.get_by_name(name=username, season=season2007, session=session)
 
 
 def test_create_team_twice_throws_exception(session):
     season = Season.get_or_create(SeasonOfYear.SPRING, 2006, session)
     username = fake.user_name()
-    Team.create(username, season, session)
+    Team.create(name=username, season=season, session=session)
     with pytest.raises(AssertionError):
-        Team.create(username, season, session)
+        Team.create(name=username, season=season, session=session)
 
 
 @patch("fal.models.season.config")
 def test_add_same_anime_to_team_raises_exception(
     # patches
     config_mock,
+    # factories
+    season_factory,
     # fixtures
     session,
     config_functor,
@@ -48,9 +50,9 @@ def test_add_same_anime_to_team_raises_exception(
     config_function = config_functor(sections=["weekly info"], kv={"current-week": 0})
     config_mock.getint.side_effect = config_function
 
-    season = Season.get_or_create(SeasonOfYear.SPRING, 2006, session)
+    season = season_factory()
     anime = Anime.create(1234, "The Melancholy of Haruhi Suzumiya", season, session)
-    team = Team.create(fake.user_name(), season, session)
+    team = Team.create(name=fake.user_name(), season=season, session=session)
     team.add_anime_to_team(anime)
     with pytest.raises(IntegrityError):
         team.add_anime_to_team(anime, True)
@@ -73,7 +75,7 @@ def test_bench_swap(
     season = Season.get_or_create(SeasonOfYear.SPRING, 2006, session)
     haruhi = Anime.create(1234, "The Melancholy of Haruhi Suzumiya", season, session)
     bebop = Anime.create(4321, "Cowboy Bebop", season, session)
-    team = Team.create("kei-clone", season, session)
+    team = Team.create(name=fake.user_name(), season=season, session=session)
     team.add_anime_to_team(haruhi)
     team.add_anime_to_team(bebop, True)
 

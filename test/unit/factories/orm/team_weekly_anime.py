@@ -1,8 +1,8 @@
 import factory
 
 from .session import session_factory
-from .team import TeamFactory
-from .anime import AnimeFactory
+from .team import OrmTeamFactory
+from .anime import OrmAnimeFactory
 from fal.orm import TeamWeeklyAnime
 
 
@@ -23,5 +23,5 @@ class TeamWeeklyAnimeFactory(factory.alchemy.SQLAlchemyModelFactory):
     ace = 0
     bench = 0
 
-    team = factory.SubFactory(TeamFactory)
-    anime = factory.SubFactory(AnimeFactory)
+    team = factory.SubFactory(OrmTeamFactory)
+    anime = factory.SubFactory(OrmAnimeFactory)

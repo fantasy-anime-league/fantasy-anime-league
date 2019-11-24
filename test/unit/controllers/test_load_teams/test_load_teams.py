@@ -103,14 +103,14 @@ def test_slice_up_team_input_raises_if_length_is_not_expected(config_mock, team_
         load_teams.slice_up_team_input(team_input)
 
 
-def test_add_anime_to_team(session, team_factory, anime_factory):
-    team = team_factory()
+def test_add_anime_to_team(session, orm_team_factory, orm_anime_factory):
+    team = orm_team_factory()
 
     active_anime = ["Toaru Majutsu no Index III", "Zombieland Saga"]
     bench_anime = ["Kanon (2006)", "Fruits Basket (2019)"]
 
     for anime_name in active_anime + bench_anime:
-        anime_factory(name=anime_name, eligible=1)
+        orm_anime_factory(name=anime_name, eligible=1)
 
     load_teams.add_anime_to_team(team, active_anime, 0, session)
     load_teams.add_anime_to_team(team, bench_anime, 1, session)
@@ -144,10 +144,10 @@ def test_load_teams(
     shared_datadir,
     session_scope,
     session,
-    anime_factory,
-    season_factory,
+    orm_anime_factory,
+    orm_season_factory,
 ):
-    season = season_factory(id=0)
+    season = orm_season_factory(id=0)
 
     def mock_config_getitem(key):
         assert key == "season info"
@@ -171,7 +171,7 @@ def test_load_teams(
     with (shared_datadir / "anime.txt").open() as f:
         all_anime = f.readlines()
     for anime_name in all_anime:
-        anime_factory(name=anime_name.strip(), eligible=1)
+        orm_anime_factory(name=anime_name.strip(), eligible=1)
 
     with (shared_datadir / "registration.txt").open() as f:
         registration_data = f.readlines()

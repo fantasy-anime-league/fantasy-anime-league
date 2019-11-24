@@ -1,7 +1,7 @@
 import factory
 
 from .session import session_factory
-from .anime import AnimeFactory
+from .anime import OrmAnimeFactory
 from fal.orm import AnimeWeeklyStat
 
 
@@ -14,7 +14,7 @@ class AnimeWeeklyStatFactory(factory.alchemy.SQLAlchemyModelFactory):
     def anime_id(self):
         return self.anime.id
 
-    anime = factory.SubFactory(AnimeFactory)
+    anime = factory.SubFactory(OrmAnimeFactory)
     week = 0
     watching = factory.Faker("pyint")
     completed = factory.Faker("pyint")

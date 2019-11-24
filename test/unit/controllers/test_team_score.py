@@ -4,8 +4,8 @@ from fal.controllers import team_score
 from fal.orm import TeamWeeklyPoints
 
 
-def test_already_got_high_bonus(team_weekly_points_factory, team_factory, session):
-    team = team_factory()
+def test_already_got_high_bonus(team_weekly_points_factory, orm_team_factory, session):
+    team = orm_team_factory()
     team_weekly_points_factory(team=team, week=0)
     team_weekly_points_factory(team=team, week=1, is_highest=1)
     team_weekly_points_factory(team=team, week=2)
@@ -13,8 +13,8 @@ def test_already_got_high_bonus(team_weekly_points_factory, team_factory, sessio
     assert team_score.already_got_high_bonus(team.id, session)
 
 
-def test_did_not_get_high_bonus_yet(team_weekly_points_factory, team_factory, session):
-    team = team_factory()
+def test_did_not_get_high_bonus_yet(team_weekly_points_factory, orm_team_factory, session):
+    team = orm_team_factory()
     for week in range(4):
         team_weekly_points_factory(team=team, week=week)
 
@@ -22,10 +22,10 @@ def test_did_not_get_high_bonus_yet(team_weekly_points_factory, team_factory, se
 
 
 def test_get_team_scores_counts_this_week_returns_score_groups_descending_order_by_score(
-    team_weekly_points_factory, team_factory, session
+    team_weekly_points_factory, orm_team_factory, session
 ):
     week = 1
-    teams = team_factory.create_batch(9)
+    teams = orm_team_factory.create_batch(9)
     for team, points in zip(
         teams, (500, 2000, 2000, 1500, 3000, 1000, 1000, 1000, 1000)
     ):
@@ -51,8 +51,8 @@ def test_get_team_scores_counts_this_week_returns_score_groups_descending_order_
     assert score_counts[4] == (1, teams[0].id)
 
 
-def test_calculate_team_total_score(team_weekly_points_factory, team_factory, session):
-    team = team_factory()
+def test_calculate_team_total_score(team_weekly_points_factory, orm_team_factory, session):
+    team = orm_team_factory()
     team_points_per_week = [100, 1000, 400, 500]
     for week, weekly_points in zip(range(4), team_points_per_week):
         team_weekly_points_factory(team=team, week=week, weekly_points=weekly_points)
@@ -228,8 +228,8 @@ def test_calculate_team_scores_assigns_highest_team_correctly_and_adds_bonus(
     session_scope_mock,
     config_mock,
     # factories
-    season_factory,
-    team_factory,
+    orm_season_factory,
+    orm_team_factory,
     team_weekly_anime_factory,
     anime_weekly_stat_factory,
     # fixtures
@@ -253,8 +253,8 @@ def test_calculate_team_scores_assigns_highest_team_correctly_and_adds_bonus(
     config_mock.getint.side_effect = config_function
     config_mock.get.side_effect = config_function
 
-    season = season_factory(season_of_year="spring", year=2018)
-    teams = team_factory.create_batch(3, season=season)
+    season = orm_season_factory(season_of_year="spring", year=2018)
+    teams = orm_team_factory.create_batch(3, season=season)
     anime_weekly_stats = anime_weekly_stat_factory.create_batch(10, week=0)
     anime_scores = list(range(10, 101, 10))
 
