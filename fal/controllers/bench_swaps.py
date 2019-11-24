@@ -8,7 +8,7 @@ import gzip
 import configparser
 
 from fal.orm import Secret, mfalncfm_main
-from fal.models import Team, Season, Anime
+from fal.models import Team, Season, SeasonOfYear, Anime
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -84,7 +84,7 @@ def process_bench_swaps() -> None:
     week = config.getint("weekly info", "current-week")
 
     with mfalncfm_main.session_scope() as session:
-        season = Season.get_or_create(season_of_year, year, session)
+        season = Season.get_or_create(SeasonOfYear(season_of_year), year, session)
 
         post_content_regex = re.compile(r"(.+)\<br /\>.*\\n(.+)")
         for username, post_content in get_swaps(session):
@@ -95,7 +95,7 @@ def process_bench_swaps() -> None:
                 print(f"Unexpected post contents: {post_content}")
                 raise
             active, bench = match.group(1, 2)
-            team = Team.get_or_create(name=username, season=season, session=session)
+            team = Team.get_by_name(name=username, season=season, session=session)
             team.bench_swap(
                 active_anime=Anime.get_by_name(active, session),
                 bench_anime=Anime.get_by_name(bench, session),

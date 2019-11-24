@@ -1,4 +1,4 @@
 from .base import OrmFacade
-from .team import Team
-from .season import Season
+from .season import Season, SeasonOfYear
 from .anime import Anime
+from .team import Team, WeekSnapshotOfTeamAnime

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar, Type, Set, Optional
+from typing import TYPE_CHECKING, TypeVar, Type, Set, Optional, cast
 
 import attr
 import sqlalchemy.orm.exc
@@ -32,7 +32,7 @@ class Anime(OrmFacade):
         Get anime from database based on name.
 
         Raises sqlalchemy.orm.exc.NoResultFound if no anime of that name found.
-        Raises sqlalchemy.orm.exc.MultipleResultsFound if multiple object identities are returned,
+        Raises sqlalchemy.orm.exc.MultipleResultsFound if multiple object identities are returned.
         """
 
         try:
@@ -40,14 +40,23 @@ class Anime(OrmFacade):
         except sqlalchemy.orm.exc.NoResultFound:
             orm_anime = session.query(orm.Anime).filter(orm.Anime.alias == name).one()
 
-        names = {orm_anime.name}
+        return cls.from_orm_anime(orm_anime, session)
+
+    @classmethod
+    def from_orm_anime(cls: Type[T], orm_anime: orm.Anime, session: Session) -> T:
+        """
+        Conversion constructor from the orm class to our facade class
+        """
+
+        assert orm_anime.name  # sqlalchemy for some reason thinks name is optional
+        names: Set[str] = {orm_anime.name}
         if orm_anime.alias:
             names.add(orm_anime.alias)
 
         return cls(
             entity=orm_anime,
             session=session,
-            mal_id=orm_anime.mal_id,
+            mal_id=orm_anime.id,
             names=names,
             restricted=orm_anime.restricted,
             eligible=orm_anime.eligible,
@@ -62,9 +71,9 @@ class Anime(OrmFacade):
 
         Raises sqlalchemy.exc.IntegrityError if anime already exists.
         """
-        assert isinstance(season._entity, orm.Season)
         orm_anime = orm.Anime(id=mal_id, name=name, season_id=season._entity.id)
         session.add(orm_anime)
+        session.commit()
 
         return cls(entity=orm_anime, session=session, mal_id=mal_id, names={name})
 
