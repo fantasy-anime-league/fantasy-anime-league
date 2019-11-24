@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, TypeVar, Type, List
 import configparser
 
-from sqlalchemy import or_, func
+from sqlalchemy import or_, func, desc
 import attr
 
 from fal.models import OrmFacade, Anime
@@ -57,12 +57,27 @@ class Team(OrmFacade):
         session.commit()
         return cls(entity=orm_team, session=session, name=name)
 
-    def bench_swap(self, active_anime: Anime, bench_anime: Anime, week: int) -> None:
+    def bench_swap(self, *, active_anime: Anime, bench_anime: Anime, week: int) -> None:
         """
         Moves bench_anime to active and active_anime to bench.
 
         Raises if anime passed in are not actually active/bench.
+        Raises if the number of weeks since the last bench swap is less than
+        'min-weeks-between-bench-swaps' from config.ini
         """
+
+        config.read("config.ini")
+
+        last_bench_swap_week_row = (
+            self._session.query(orm.BenchSwap.week)
+            .filter(orm.BenchSwap.team_id == self._entity.id)
+            .order_by(desc(orm.BenchSwap.week))
+            .first()
+        )
+
+        if last_bench_swap_week_row:
+            last_bench_swap_week = last_bench_swap_week_row.week
+            assert (week - last_bench_swap_week) >= config.getint("season info", "min-weeks-between-bench-swaps")
 
         this_week_anime_involved = (
             self._session.query(orm.TeamWeeklyAnime)
@@ -86,6 +101,15 @@ class Team(OrmFacade):
             elif anime.anime_id == bench_anime._entity.id:
                 assert anime.bench
                 anime.bench = 0
+
+        successful_swap = orm.BenchSwap(
+            team_id=self._entity.id,
+            week=week,
+            to_bench=active_anime._entity.id,
+            from_bench=bench_anime._entity.id
+        )
+        self._session.add(successful_swap)
+        self.commit()
 
     def add_anime_to_team(self, anime: Anime, bench: bool = False) -> None:
         """
@@ -114,7 +138,7 @@ class Team(OrmFacade):
             self._session.query(orm.TeamWeeklyAnime)
             .filter(
                 orm.TeamWeeklyAnime.team_id == self._entity.id,
-                orm.TeamWeeklyAnime.week == week
+                orm.TeamWeeklyAnime.week == week,
             )
             .all()
         )

@@ -13,7 +13,7 @@ it is able to replicate all functionality
 from fal.controllers.collect_series import collect_series
 from fal.controllers.anime_stats import populate_anime_weekly_stats
 from fal.controllers.team_score import calculate_team_scores
-from fal.controllers.init_new_week import init_new_team_weekly_anime
+from fal.controllers.start_new_week import start_new_week
 from fal.controllers.load_aces import load_aces
 from fal.controllers.bench_swaps import process_bench_swaps
 from fal.controllers.load_teams import team_ages, load_teams
@@ -71,7 +71,7 @@ if args.team_dist:
     team_dist(args.season, args.year)
 
 if args.init_week:
-    init_new_team_weekly_anime()
+    start_new_week()
 if args.bench_swap:
     process_bench_swaps()
 if args.load_aces:
