@@ -5,13 +5,16 @@ import dataclasses
 import math
 import re
 import time
-from typing import Dict, Union, List, Any, cast, Optional, Iterable, Sequence, Set
+from typing import Dict, Union, List, Any, cast, Optional, Iterable, Sequence, Set, TYPE_CHECKING
 
 import jikanpy
 from sqlalchemy import func
 
 from fal.orm.mfalncfm_main import session_scope
 from fal.orm import AnimeWeeklyStat, Season, Anime, TeamWeeklyAnime, Team
+
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -25,9 +28,9 @@ class AnimeStats:
     score: float
     favorites: int
     forum_posts: int
-    total_points: int = dataclasses.field(init=False)
-    week: int = dataclasses.field(init=False)
-    anime_id: int = dataclasses.field(init=False)
+    total_points: Optional[int] = dataclasses.field(init=False, default=None)
+    week: Optional[int] = dataclasses.field(init=False, default=None)
+    anime_id: Optional[int] = dataclasses.field(init=False, default=None)
 
 
 def get_forum_posts(anime: Anime) -> int:
@@ -167,37 +170,36 @@ def is_week_to_calculate(config_key: str, week: int) -> bool:
 
 
 def get_anime_simulcast_region_counts(
-    simulcast_lines: Optional[Iterable[str]]
+    simulcast_lines: Optional[Iterable[str]],
+    session: Session
 ) -> Dict[int, int]:
     print("Getting region counts of each anime in simulcast file")
     anime_simulcast_region_counts = {}
     if simulcast_lines is not None:
-        with session_scope() as session:
-            for line in simulcast_lines:
-                title, subs = line.split("=")
-                title = title.strip()
-                anime = Anime.get_anime_from_database_by_name(title, session)
-                if anime is None:
-                    print(f"{title} is not found in database")
-                else:
-                    num_regions = len(
-                        [entry for entry in subs.split() if entry == "simul"]
-                    )
-                    anime_simulcast_region_counts[anime.id] = num_regions
+        for line in simulcast_lines:
+            title, subs = line.split("=")
+            title = title.strip()
+            anime = Anime.get_anime_from_database_by_name(title, session)
+            if anime is None:
+                print(f"{title} is not found in database")
+            else:
+                num_regions = len(
+                    [entry for entry in subs.split() if entry == "simul"]
+                )
+                anime_simulcast_region_counts[anime.id] = num_regions
     return anime_simulcast_region_counts
 
 
-def get_licensed_anime(licenses_lines: Optional[Iterable[str]]) -> Set[int]:
+def get_licensed_anime(licenses_lines: Optional[Iterable[str]], session: Session) -> Set[int]:
     print("Getting licensed anime from licenses file")
     licensed_anime = set()
     if licenses_lines is not None:
-        with session_scope() as session:
-            for title in licenses_lines:
-                anime = Anime.get_anime_from_database_by_name(title.strip(), session)
-                if anime is None:
-                    print(f"{title} is not found in database")
-                else:
-                    licensed_anime.add(anime.id)
+        for title in licenses_lines:
+            anime = Anime.get_anime_from_database_by_name(title.strip(), session)
+            if anime is None:
+                print(f"{title} is not found in database")
+            else:
+                licensed_anime.add(anime.id)
     return licensed_anime
 
 
@@ -219,10 +221,12 @@ def populate_anime_weekly_stats(
     if is_week_to_calculate("scoring.license", week) and licenses_lines is None:
         raise ValueError(f"licenses file is required for week {week}")
 
-    anime_simulcast_region_counts = get_anime_simulcast_region_counts(simulcast_lines)
-    licensed_anime = get_licensed_anime(licenses_lines)
-
     with session_scope() as session:
+        #import pdb; pdb.set_trace()
+        anime_simulcast_region_counts = get_anime_simulcast_region_counts(simulcast_lines, session)
+        licensed_anime = get_licensed_anime(licenses_lines, session)
+
+
         season = Season.get_season_from_database(season_of_year, year, session)
         anime_list = cast(Iterable[Anime], season.anime)
 
@@ -288,7 +292,7 @@ def populate_anime_weekly_stats(
             stat_data.anime_id = anime.id
             stat_data.total_points = calculate_anime_weekly_points(
                 stat_data,
-                anime_active_counts[anime.id],
+                anime_active_counts.get(anime.id, 0),
                 double_score_max_num_teams,
                 anime_simulcast_region_counts.get(anime.id, 0),
                 anime.id in licensed_anime,

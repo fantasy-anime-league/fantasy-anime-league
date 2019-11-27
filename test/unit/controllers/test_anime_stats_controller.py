@@ -41,7 +41,6 @@ def total_points_with_license(stats, i, num_regions, is_licensed, multiplier):
 @patch("fal.controllers.anime_stats.get_forum_posts")
 @patch("fal.controllers.anime_stats.config")
 @patch("fal.controllers.anime_stats.session_scope")
-@vcr.use_cassette(f"{vcrpath}/anime_stats/populate_anime_weekly_stats.yaml")
 @pytest.mark.parametrize(
     "week,points,total_points_function,section",
     [
@@ -50,16 +49,21 @@ def total_points_with_license(stats, i, num_regions, is_licensed, multiplier):
         ("13", LICENSE_POINTS, total_points_with_license, "scoring.license"),
     ],
 )
+@vcr.use_cassette(f"{vcrpath}/anime_stats/populate_anime_weekly_stats.yaml")
 def test_populate_anime_weekly_stats(
+    # mocks
     session_scope_mock,
     config_mock,
     get_forum_posts,
-    session_scope,
+    # factories
     config_functor,
     orm_season_factory,
     orm_anime_factory,
     orm_team_factory,
     team_weekly_anime_factory,
+    session,
+    session_scope,
+    # params
     week,
     points,
     total_points_function,
@@ -176,11 +180,9 @@ def test_is_week_to_calculate(config_mock, config_functor, week, is_valid, secti
     assert anime_stats.is_week_to_calculate(section, week) == is_valid
 
 
-@patch("fal.controllers.anime_stats.session_scope")
 def test_get_anime_simulcast_region_counts(
-    session_scope_mock, session_scope, orm_season_factory, orm_anime_factory
+    session, orm_season_factory, orm_anime_factory
 ):
-    session_scope_mock.side_effect = session_scope
 
     season = orm_season_factory(id=0, season_of_year="spring", year=2018)
     cowboy_bebop = orm_anime_factory(id=1, name="Cowboy Bebop", season=season)
@@ -192,21 +194,20 @@ def test_get_anime_simulcast_region_counts(
             "Cowboy Bebop = simul simul simul simul",
             "Suzumiya Haruhi no Yuuutsu = simul randomstring simul",
             "One Punch Man = simul simul randomstring simul",
-        ]
+        ],
+        session
     ) == {1: 4, 849: 2, 30276: 3}
 
 
-@patch("fal.controllers.anime_stats.session_scope")
 def test_get_licensed_anime(
-    session_scope_mock, session_scope, orm_season_factory, orm_anime_factory
+    session, orm_season_factory, orm_anime_factory
 ):
-    session_scope_mock.side_effect = session_scope
-
     season = orm_season_factory(id=0, season_of_year="spring", year=2018)
     cowboy_bebop = orm_anime_factory(id=1, name="Cowboy Bebop", season=season)
     haruhi = orm_anime_factory(id=849, name="Suzumiya Haruhi no Yuuutsu", season=season)
     opm = orm_anime_factory(id=30276, name="One Punch Man", season=season)
 
     assert anime_stats.get_licensed_anime(
-        ["Suzumiya Haruhi no Yuuutsu", "One Punch Man"]
+        ["Suzumiya Haruhi no Yuuutsu", "One Punch Man"],
+        session
     ) == {849, 30276}
