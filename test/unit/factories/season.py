@@ -17,5 +17,4 @@ class SeasonFactory(factory.Factory):
     session = None
     season_of_year = SeasonOfYear.SPRING
     year = 2006
-    current_week = 0
     min_weeks_between_bench_swaps = 3

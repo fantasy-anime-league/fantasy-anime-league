@@ -110,12 +110,10 @@ class Team(OrmFacade):
 
     def add_anime_to_team(self, anime: Anime, bench: bool = False) -> None:
         """
-        Can only be called in week 0, adds anime to team's active or bench.
+        Should only be called in week 0, adds anime to team's active or bench.
 
         Raises sqlalchemy.exc.IntegrityError if anime already exists on team.
         """
-        assert self.season.current_week == 0
-
         first_week_anime = orm.TeamWeeklyAnime(
             team_id=self._entity.id,
             anime_id=anime._entity.id,

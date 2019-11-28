@@ -95,8 +95,7 @@ def test_bench_swap(
         team.bench_swap(active_anime=bebop, bench_anime=haruhi, week=0)
 
     for week in range(1, 5):
-        season.current_week = week
-        season.init_new_week()
+        season.init_new_week(week)
 
     config_function = config_functor(
         sections=["weekly info", "season info"],

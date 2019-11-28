@@ -12,6 +12,14 @@ if TYPE_CHECKING:
 
 @attr.s(auto_attribs=True)
 class OrmFacade(abc.ABC):
+    """
+    Instances of OrmFacade should be the only ones accessing the ORM layer.
+    They should also generally not contain any business logic,
+    e.g. knowledge of the state of the config
+
+    Generally these will be the interface that controllers will access.
+    """
+
     _session: Session
 
     def commit(self) -> None:

@@ -28,7 +28,6 @@ class Season(OrmFacade):
     _entity: orm.Season
     season_of_year: SeasonOfYear
     year: int
-    current_week: int
 
     min_weeks_between_bench_swaps: int
 
@@ -60,13 +59,12 @@ class Season(OrmFacade):
             entity=orm_season,
             season_of_year=season_of_year,
             year=year,
-            current_week=config.getint("weekly info", "current-week"),
             min_weeks_between_bench_swaps=config.getint(
                 "season info", "min-weeks-between-bench-swaps"
             ),
         )
 
-    def init_new_week(self) -> None:
+    def init_new_week(self, current_week: int) -> None:
         """
         Initializes this week with a new set of TeamWeeklyAnime,
         which is the first thing needed before doing other stuff with the week.
@@ -78,7 +76,7 @@ class Season(OrmFacade):
         last_week_team_weekly_anime = (
             self._session.query(orm.TeamWeeklyAnime, orm.Team)
             .filter(
-                orm.TeamWeeklyAnime.week == self.current_week - 1,
+                orm.TeamWeeklyAnime.week == current_week - 1,
                 orm.Team.season_id == self._entity.id,
                 orm.Team.id == orm.TeamWeeklyAnime.team_id,
             )
@@ -89,8 +87,9 @@ class Season(OrmFacade):
             new_team_weekly_anime = orm.TeamWeeklyAnime(
                 team_id=team.id,
                 anime_id=team_weekly_anime.anime_id,
-                week=self.current_week,
+                week=current_week,
                 bench=team_weekly_anime.bench,
             )
             self._session.add(new_team_weekly_anime)
+
         self.commit()
