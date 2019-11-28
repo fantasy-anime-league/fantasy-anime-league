@@ -15,7 +15,7 @@ from fal.controllers.anime_stats import populate_anime_weekly_stats
 from fal.controllers.team_score import calculate_team_scores
 from fal.controllers.start_new_week import StartNewWeek
 from fal.controllers.load_aces import load_aces
-from fal.controllers.bench_swaps import process_bench_swaps
+from fal.controllers.bench_swaps import BenchSwaps
 from fal.controllers.load_teams import team_ages, load_teams
 from fal.controllers.ptw_counter import ptw_counter
 from fal.views.teams import headcount, team_overview, team_stats, team_dist
@@ -73,7 +73,7 @@ if args.team_dist:
 if args.init_week:
     StartNewWeek().execute()
 if args.bench_swap:
-    process_bench_swaps()
+    BenchSwaps().execute()
 if args.load_aces:
     with open(args.ace_file, encoding="utf-8-sig") as f:
         ace_data = f.readlines()
