@@ -1,6 +1,6 @@
 import factory
 
-from .orm import OrmSeasonFactory, session_factory
+from .orm import OrmSeasonFactory
 from fal.models import Season, SeasonOfYear
 
 
@@ -14,7 +14,7 @@ class SeasonFactory(factory.Factory):
             season_of_year=self.season_of_year.value, year=self.year
         )
 
-    session = session_factory()
+    session = None
     season_of_year = SeasonOfYear.SPRING
     year = 2006
     current_week = 0
