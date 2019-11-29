@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, TypeVar, Type, Generic
-from enum import Enum, auto
+from enum import Enum
 import configparser
 
 import attr

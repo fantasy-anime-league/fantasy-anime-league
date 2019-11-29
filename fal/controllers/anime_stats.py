@@ -222,7 +222,6 @@ def populate_anime_weekly_stats(
         raise ValueError(f"licenses file is required for week {week}")
 
     with session_scope() as session:
-        #import pdb; pdb.set_trace()
         anime_simulcast_region_counts = get_anime_simulcast_region_counts(simulcast_lines, session)
         licensed_anime = get_licensed_anime(licenses_lines, session)
 

@@ -43,14 +43,13 @@ class BenchSwaps(Controller):
         """
         header = dict(config.items("myanimelist.net request header"))
 
-        with mfalncfm_main.session_scope() as session:
-            secret_request_headers = (
-                session.query(Secret)
-                .filter(Secret.context == "myanimelist.net request header")
-                .all()
-            )
-            for row in secret_request_headers:
-                header[row.key] = row.value
+        secret_request_headers = (
+            session.query(Secret)
+            .filter(Secret.context == "myanimelist.net request header")
+            .all()
+        )
+        for row in secret_request_headers:
+            header[row.key] = row.value
 
         httpconn.connect()
         httpconn.request(
