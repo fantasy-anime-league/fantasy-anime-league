@@ -1,5 +1,5 @@
 from fal.orm import TeamWeeklyAnime
-from fal.clients.mfalncfm_main import session_scope
+from fal.orm.mfalncfm_main import session_scope
 
 import pytest
 

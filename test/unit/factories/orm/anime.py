@@ -3,11 +3,10 @@ import random
 import factory
 
 from .session import session_factory
-from .season import SeasonFactory
 from fal.orm import Season, Anime
 
 
-class AnimeFactory(factory.alchemy.SQLAlchemyModelFactory):
+class OrmAnimeFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = Anime
         sqlalchemy_session = session_factory

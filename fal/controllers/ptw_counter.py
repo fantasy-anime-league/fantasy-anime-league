@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fal.clients.mfalncfm_main import session_scope
+from fal.orm.mfalncfm_main import session_scope
 from fal.orm import PlanToWatch, Anime, Season
 
 from jikanpy import Jikan
@@ -86,10 +86,10 @@ def ptw_counter() -> None:
         anime_list = Season.get_season_from_database(
             season_of_year, year, session
         ).anime
-        print(f"Length of list of anime: {len(anime_list)}")  # type: ignore
+        print(f"Length of list of anime: {len(anime_list)}")
 
         # Store PTW of each anime in a list of tuples
-        ptw = get_ptw_info(anime_list)  # type: ignore
+        ptw = get_ptw_info(anime_list)
         pprint(ptw)
         output_ptw_info(season_of_year, year, ptw)
 

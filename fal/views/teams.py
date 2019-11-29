@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 from sqlalchemy import func
 
-from fal.clients.mfalncfm_main import session_scope
+from fal.orm.mfalncfm_main import session_scope
 from fal.orm import Team, Season, TeamWeeklyAnime, Anime
 
 config = configparser.ConfigParser()
@@ -66,9 +66,9 @@ def headcount(
         with open(filename, "w", encoding="utf-8") as f:
             f.write(HEADCOUNT_INTRO_TEXT.format(season_str.capitalize(), year))
             # Output participant names alphabetically
-            for team in sorted(teams, key=lambda t: t.name.lower()):  # type: ignore
+            for team in sorted(teams, key=lambda t: t.name.lower()):
                 f.write(f"[b]{team.name}[/b]\n")
-            f.write(HEADCOUNT_CONC_TEXT.format(len(teams)))  # type: ignore
+            f.write(HEADCOUNT_CONC_TEXT.format(len(teams)))
 
 
 def team_overview(
@@ -84,7 +84,7 @@ def team_overview(
         teams = Season.get_season_from_database(season_str, year, session).teams
         with open(filename, "w", encoding="utf-8") as f:
             f.write(f"Team List - FAL {season_str.capitalize()} {year}\n\n\n")
-            for team in sorted(teams, key=lambda t: t.name.lower()):  # type: ignore
+            for team in sorted(teams, key=lambda t: t.name.lower()):
                 # Query all the anime on the team for this week
                 base_query = (
                     session.query(TeamWeeklyAnime)
@@ -161,7 +161,7 @@ def team_dist(
     active_teams: Dict[Tuple[int, ...], List[Team]] = {}
     with session_scope() as session:
         teams = Season.get_season_from_database(season_str, year, session).teams
-        for i, team in enumerate(teams, 1):  # type: ignore
+        for i, team in enumerate(teams, 1):
             # Query all the anime on the team for this week
             base_query = (
                 session.query(TeamWeeklyAnime.anime_id)

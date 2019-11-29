@@ -8,7 +8,7 @@ from typing import Sequence, List, TYPE_CHECKING, cast, Iterable
 
 import jikanpy
 
-from fal.clients.mfalncfm_main import session_scope
+from fal.orm.mfalncfm_main import session_scope
 from fal.orm import Team, Anime, Season, TeamWeeklyAnime
 
 if TYPE_CHECKING:

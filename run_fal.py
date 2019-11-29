@@ -11,12 +11,13 @@ it is able to replicate all functionality
 """
 
 from fal.controllers.collect_series import collect_series
-from fal.controllers.ptw_counter import ptw_counter
-from fal.controllers.load_teams import load_teams, team_ages
 from fal.controllers.anime_stats import populate_anime_weekly_stats
 from fal.controllers.team_score import calculate_team_scores
-from fal.controllers.init_new_week import init_new_team_weekly_anime
+from fal.controllers.start_new_week import StartNewWeek
 from fal.controllers.load_aces import load_aces
+from fal.controllers.bench_swaps import BenchSwaps
+from fal.controllers.load_teams import team_ages, load_teams
+from fal.controllers.ptw_counter import ptw_counter
 from fal.views.teams import headcount, team_overview, team_stats, team_dist
 
 import argparse
@@ -40,6 +41,7 @@ parser.add_argument("--team-overview", action="store_true")
 parser.add_argument("--team-stats", action="store_true")
 parser.add_argument("--team-dist", action="store_true")
 parser.add_argument("--team-score", action="store_true")
+parser.add_argument("--bench-swap", action="store_true")
 parser.add_argument("--anime-weekly-stats", action="store_true")
 parser.add_argument("--simulcast-file", default="simulcast.txt")
 parser.add_argument("--licenses-file", default="licenses.txt")
@@ -69,7 +71,9 @@ if args.team_dist:
     team_dist(args.season, args.year)
 
 if args.init_week:
-    init_new_team_weekly_anime()
+    StartNewWeek().execute()
+if args.bench_swap:
+    BenchSwaps().execute()
 if args.load_aces:
     with open(args.ace_file, encoding="utf-8-sig") as f:
         ace_data = f.readlines()

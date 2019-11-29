@@ -4,7 +4,7 @@ import configparser
 
 from sqlalchemy.sql import func, desc
 
-from fal.clients.mfalncfm_main import session_scope
+from fal.orm.mfalncfm_main import session_scope
 from fal.orm import TeamWeeklyPoints, Season, TeamWeeklyAnime, AnimeWeeklyStat
 
 from typing import TYPE_CHECKING, List, Tuple, Optional, Any, Iterable

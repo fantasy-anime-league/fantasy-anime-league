@@ -8,6 +8,7 @@ pytest = "*"
 pytest-datadir = "*"
 pytest-factoryboy = "*"
 factory-boy = "*"
+faker = "*"
 vcrpy = "*"
 mypy = "*"
 mypy-extensions = "*"
@@ -19,6 +20,7 @@ v = {editable = true,version = "*"}
 jikanpy = "*"
 pymysql = "*"
 sqlalchemy = "*"
+attrs = "*"
 
 [requires]
 python_version = "3.8"

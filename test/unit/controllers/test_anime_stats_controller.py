@@ -41,7 +41,6 @@ def total_points_with_license(stats, i, num_regions, is_licensed, multiplier):
 @patch("fal.controllers.anime_stats.get_forum_posts")
 @patch("fal.controllers.anime_stats.config")
 @patch("fal.controllers.anime_stats.session_scope")
-@vcr.use_cassette(f"{vcrpath}/anime_stats/populate_anime_weekly_stats.yaml")
 @pytest.mark.parametrize(
     "week,points,total_points_function,section",
     [
@@ -50,16 +49,21 @@ def total_points_with_license(stats, i, num_regions, is_licensed, multiplier):
         ("13", LICENSE_POINTS, total_points_with_license, "scoring.license"),
     ],
 )
+@vcr.use_cassette(f"{vcrpath}/anime_stats/populate_anime_weekly_stats.yaml")
 def test_populate_anime_weekly_stats(
+    # mocks
     session_scope_mock,
     config_mock,
     get_forum_posts,
-    session_scope,
+    # factories
     config_functor,
-    season_factory,
-    anime_factory,
-    team_factory,
+    orm_season_factory,
+    orm_anime_factory,
+    orm_team_factory,
     team_weekly_anime_factory,
+    session,
+    session_scope,
+    # params
     week,
     points,
     total_points_function,
@@ -84,13 +88,13 @@ def test_populate_anime_weekly_stats(
 
     get_forum_posts.return_value = 0
 
-    season = season_factory(id=0, season_of_year="spring", year=2018)
-    cowboy_bebop = anime_factory(id=1, name="Cowboy Bebop", season=season)
-    haruhi = anime_factory(id=849, name="Suzumiya Haruhi no Yuuutsu", season=season)
-    opm = anime_factory(id=30276, name="One Punch Man", season=season)
+    season = orm_season_factory(id=0, season_of_year="spring", year=2018)
+    cowboy_bebop = orm_anime_factory(id=1, name="Cowboy Bebop", season=season)
+    haruhi = orm_anime_factory(id=849, name="Suzumiya Haruhi no Yuuutsu", season=season)
+    opm = orm_anime_factory(id=30276, name="One Punch Man", season=season)
 
     # Only 1 out of 34 teams owns Haruhi, which is <= 3%
-    teams = team_factory.create_batch(34, season=season)
+    teams = orm_team_factory.create_batch(34, season=season)
     team_weekly_anime_factory(team=teams[0], anime=cowboy_bebop, week=week)
     team_weekly_anime_factory(team=teams[0], anime=haruhi, week=week)
     for team in teams[1:]:
@@ -150,12 +154,12 @@ def test_populate_anime_weekly_stats(
 
 @patch("fal.controllers.anime_stats.config")
 @vcr.use_cassette(f"{vcrpath}/anime_stats/get_forum_posts.yaml")
-def test_get_forum_posts(config_mock, anime_factory, config_functor, session):
+def test_get_forum_posts(config_mock, orm_anime_factory, config_functor, session):
     config_mock.getint.side_effect = config_functor(
         sections=["weekly info", "scoring info"],
         kv={"current-week": 6, "forum-posts-every-n-weeks": 2},
     )
-    one_punch_man = anime_factory(id=30276, name="One Punch Man")
+    one_punch_man = orm_anime_factory(id=30276, name="One Punch Man")
     assert anime_stats.get_forum_posts(one_punch_man) == 327 + 426
 
 
@@ -176,37 +180,34 @@ def test_is_week_to_calculate(config_mock, config_functor, week, is_valid, secti
     assert anime_stats.is_week_to_calculate(section, week) == is_valid
 
 
-@patch("fal.controllers.anime_stats.session_scope")
 def test_get_anime_simulcast_region_counts(
-    session_scope_mock, session_scope, season_factory, anime_factory
+    session, orm_season_factory, orm_anime_factory
 ):
-    session_scope_mock.side_effect = session_scope
 
-    season = season_factory(id=0, season_of_year="spring", year=2018)
-    cowboy_bebop = anime_factory(id=1, name="Cowboy Bebop", season=season)
-    haruhi = anime_factory(id=849, name="Suzumiya Haruhi no Yuuutsu", season=season)
-    opm = anime_factory(id=30276, name="One Punch Man", season=season)
+    season = orm_season_factory(id=0, season_of_year="spring", year=2018)
+    cowboy_bebop = orm_anime_factory(id=1, name="Cowboy Bebop", season=season)
+    haruhi = orm_anime_factory(id=849, name="Suzumiya Haruhi no Yuuutsu", season=season)
+    opm = orm_anime_factory(id=30276, name="One Punch Man", season=season)
 
     assert anime_stats.get_anime_simulcast_region_counts(
         [
             "Cowboy Bebop = simul simul simul simul",
             "Suzumiya Haruhi no Yuuutsu = simul randomstring simul",
             "One Punch Man = simul simul randomstring simul",
-        ]
+        ],
+        session
     ) == {1: 4, 849: 2, 30276: 3}
 
 
-@patch("fal.controllers.anime_stats.session_scope")
 def test_get_licensed_anime(
-    session_scope_mock, session_scope, season_factory, anime_factory
+    session, orm_season_factory, orm_anime_factory
 ):
-    session_scope_mock.side_effect = session_scope
-
-    season = season_factory(id=0, season_of_year="spring", year=2018)
-    cowboy_bebop = anime_factory(id=1, name="Cowboy Bebop", season=season)
-    haruhi = anime_factory(id=849, name="Suzumiya Haruhi no Yuuutsu", season=season)
-    opm = anime_factory(id=30276, name="One Punch Man", season=season)
+    season = orm_season_factory(id=0, season_of_year="spring", year=2018)
+    cowboy_bebop = orm_anime_factory(id=1, name="Cowboy Bebop", season=season)
+    haruhi = orm_anime_factory(id=849, name="Suzumiya Haruhi no Yuuutsu", season=season)
+    opm = orm_anime_factory(id=30276, name="One Punch Man", season=season)
 
     assert anime_stats.get_licensed_anime(
-        ["Suzumiya Haruhi no Yuuutsu", "One Punch Man"]
+        ["Suzumiya Haruhi no Yuuutsu", "One Punch Man"],
+        session
     ) == {849, 30276}

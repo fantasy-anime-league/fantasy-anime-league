@@ -9,14 +9,14 @@ import os
 
 @patch("fal.views.teams.session_scope")
 def test_headcount(
-    session_scope_mock, session, session_scope, team_factory, shared_datadir
+    session_scope_mock, session, session_scope, orm_team_factory, shared_datadir
 ):
     session_scope_mock.side_effect = session_scope
 
     team_list = [
-        team_factory(name="kei-clone"),
-        team_factory(name="abhinavk99"),
-        team_factory(name="Congress"),
+        orm_team_factory(name="kei-clone"),
+        orm_team_factory(name="abhinavk99"),
+        orm_team_factory(name="Congress"),
     ]
     season = team_list[0].season
 
@@ -37,9 +37,9 @@ def test_team_overview(
     session,
     session_scope,
     shared_datadir,
-    team_factory,
+    orm_team_factory,
     team_weekly_anime_factory,
-    anime_factory,
+    orm_anime_factory,
 ):
     def mock_config_getweek(section, key):
         assert section == "weekly info"
@@ -51,12 +51,12 @@ def test_team_overview(
     session_scope_mock.side_effect = session_scope
 
     anime = [
-        anime_factory(name="Jojo no Kimyou na Bouken: Ougon no Kaze"),
-        anime_factory(name="Radiant"),
-        anime_factory(name="Gakuen Basara"),
-        anime_factory(name="Bakumatsu"),
+        orm_anime_factory(name="Jojo no Kimyou na Bouken: Ougon no Kaze"),
+        orm_anime_factory(name="Radiant"),
+        orm_anime_factory(name="Gakuen Basara"),
+        orm_anime_factory(name="Bakumatsu"),
     ]
-    team_list = [team_factory(name="kei-clone"), team_factory(name="abhinavk99")]
+    team_list = [orm_team_factory(name="kei-clone"), orm_team_factory(name="abhinavk99")]
     team_weekly_anime_list = [
         team_weekly_anime_factory(team=team_list[0], anime=anime[2]),
         team_weekly_anime_factory(team=team_list[0], anime=anime[3], bench=1),
@@ -82,9 +82,9 @@ def test_team_stats(
     session,
     session_scope,
     shared_datadir,
-    team_factory,
+    orm_team_factory,
     team_weekly_anime_factory,
-    anime_factory,
+    orm_anime_factory,
 ):
     def mock_config_getweek(section, key):
         assert section == "weekly info"
@@ -96,11 +96,11 @@ def test_team_stats(
     session_scope_mock.side_effect = session_scope
 
     anime = [
-        anime_factory(name="Jojo no Kimyou na Bouken: Ougon no Kaze"),
-        anime_factory(name="Kaze ga Tsuyoku Fuiteiru"),
-        anime_factory(name="Seishun Buta Yarou wa Bunny Girl Senpai no Yume wo"),
+        orm_anime_factory(name="Jojo no Kimyou na Bouken: Ougon no Kaze"),
+        orm_anime_factory(name="Kaze ga Tsuyoku Fuiteiru"),
+        orm_anime_factory(name="Seishun Buta Yarou wa Bunny Girl Senpai no Yume wo"),
     ]
-    team_list = [team_factory(name="kei-clone"), team_factory(name="abhinavk99")]
+    team_list = [orm_team_factory(name="kei-clone"), orm_team_factory(name="abhinavk99")]
     team_weekly_anime_list = [
         team_weekly_anime_factory(team=team_list[0], anime=anime[2]),
         team_weekly_anime_factory(team=team_list[0], anime=anime[0], bench=1),
@@ -125,9 +125,9 @@ def test_team_dist(
     session,
     session_scope,
     shared_datadir,
-    team_factory,
+    orm_team_factory,
     team_weekly_anime_factory,
-    anime_factory,
+    orm_anime_factory,
 ):
     def mock_config_getweek(section, key):
         assert section == "weekly info"
@@ -139,15 +139,15 @@ def test_team_dist(
     session_scope_mock.side_effect = session_scope
 
     anime = [
-        anime_factory(name="Jojo no Kimyou na Bouken: Ougon no Kaze"),
-        anime_factory(name="Kaze ga Tsuyoku Fuiteiru"),
-        anime_factory(name="Seishun Buta Yarou wa Bunny Girl Senpai no Yume wo"),
+        orm_anime_factory(name="Jojo no Kimyou na Bouken: Ougon no Kaze"),
+        orm_anime_factory(name="Kaze ga Tsuyoku Fuiteiru"),
+        orm_anime_factory(name="Seishun Buta Yarou wa Bunny Girl Senpai no Yume wo"),
     ]
     team_list = [
-        team_factory(name="kei-clone"),
-        team_factory(name="abhinavk99"),
-        team_factory(name="Congress"),
-        team_factory(name="Naruleach"),
+        orm_team_factory(name="kei-clone"),
+        orm_team_factory(name="abhinavk99"),
+        orm_team_factory(name="Congress"),
+        orm_team_factory(name="Naruleach"),
     ]
     team_weekly_anime_list = [
         team_weekly_anime_factory(team=team_list[0], anime=anime[0], bench=1),

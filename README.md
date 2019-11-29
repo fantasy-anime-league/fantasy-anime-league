@@ -61,10 +61,11 @@ $ python run_fal.py --team-dist
 
 ```shell
 $ python run_fal.py --init-week
+$ python run_fal.py --bench-swap
 $ python run_fal.py --load-aces
 $ python run_fal.py --anime-weekly-stats
 $ python run_fal.py --team-score
 
 # If you are confident
-$ python run_fal.py --init-week --load-aces --anime-weekly-stats --team-score
+$ python run_fal.py --init-week --bench-swap --load-aces --anime-weekly-stats --team-score
 ```
