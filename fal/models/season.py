@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar, Type, Generic
+from typing import TYPE_CHECKING, TypeVar, Type, Generic, Iterator, Iterable, cast
 from enum import Enum
 import configparser
 
 import attr
 
-from fal.models import OrmFacade
-from fal import orm
+from .base import OrmFacade
+import fal.models
+import fal.orm
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -25,14 +26,30 @@ class SeasonOfYear(Enum):
 
 @attr.s(auto_attribs=True)
 class Season(OrmFacade):
-    _entity: orm.Season
+    _entity: fal.orm.Season
     season_of_year: SeasonOfYear
     year: int
 
-    min_weeks_between_bench_swaps: int
+    # TODO: move this field to db so we don't have to retrieve it from config file every time
+    min_weeks_between_bench_swaps: int = 3
 
-    def get_entity(self) -> orm.Base:
+    def get_entity(self) -> fal.orm.Base:
         return self._entity
+
+    @classmethod
+    def from_orm_season(
+        cls: Type[T], orm_season: fal.orm.Season, session: Session
+    ) -> T:
+        assert (
+            orm_season.year is not None
+        )  # sqlalchemy for some reason thinks name is optional
+
+        return cls(
+            entity=orm_season,
+            session=session,
+            season_of_year=SeasonOfYear(orm_season.season_of_year),
+            year=orm_season.year
+        )
 
     @classmethod
     def get_or_create(
@@ -42,13 +59,14 @@ class Season(OrmFacade):
         Creates a new season in database if necessary, otherwise retrieves it. Returns Season object
         """
 
-        query = session.query(orm.Season).filter(
-            orm.Season.season_of_year == season_of_year.value, orm.Season.year == year
+        query = session.query(fal.orm.Season).filter(
+            fal.orm.Season.season_of_year == season_of_year.value,
+            fal.orm.Season.year == year,
         )
         orm_season = query.one_or_none()
 
         if not orm_season:
-            orm_season = orm.Season(season_of_year=season_of_year.value, year=year)
+            orm_season = fal.orm.Season(season_of_year=season_of_year.value, year=year)
             session.add(orm_season)
             session.commit()
 
@@ -58,10 +76,7 @@ class Season(OrmFacade):
             session=session,
             entity=orm_season,
             season_of_year=season_of_year,
-            year=year,
-            min_weeks_between_bench_swaps=config.getint(
-                "season info", "min-weeks-between-bench-swaps"
-            ),
+            year=year
         )
 
     def init_new_week(self, current_week: int) -> None:
@@ -74,17 +89,17 @@ class Season(OrmFacade):
         """
 
         last_week_team_weekly_anime = (
-            self._session.query(orm.TeamWeeklyAnime, orm.Team)
+            self._session.query(fal.orm.TeamWeeklyAnime, fal.orm.Team)
             .filter(
-                orm.TeamWeeklyAnime.week == current_week - 1,
-                orm.Team.season_id == self._entity.id,
-                orm.Team.id == orm.TeamWeeklyAnime.team_id,
+                fal.orm.TeamWeeklyAnime.week == current_week - 1,
+                fal.orm.Team.season_id == self._entity.id,
+                fal.orm.Team.id == fal.orm.TeamWeeklyAnime.team_id,
             )
             .all()
         )
 
         for team_weekly_anime, team in last_week_team_weekly_anime:
-            new_team_weekly_anime = orm.TeamWeeklyAnime(
+            new_team_weekly_anime = fal.orm.TeamWeeklyAnime(
                 team_id=team.id,
                 anime_id=team_weekly_anime.anime_id,
                 week=current_week,
@@ -93,3 +108,15 @@ class Season(OrmFacade):
             self._session.add(new_team_weekly_anime)
 
         self.commit()
+
+    def get_all_anime(self) -> Iterator[fal.models.Anime]:
+        return (
+            fal.models.Anime.from_orm_anime(anime, self._session)
+            for anime in cast(Iterable[fal.orm.Anime], self._entity.anime)
+        )
+
+    def get_all_teams(self) -> Iterator[fal.models.Team]:
+        return (
+            fal.models.Team.from_orm_team(team, self._session)
+            for team in cast(Iterable[fal.orm.Team], self._entity.teams)
+        )

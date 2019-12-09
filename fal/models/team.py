@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING, TypeVar, Type, List
 from sqlalchemy import or_, func, desc
 import attr
 
-from fal.models import OrmFacade, Anime
+from .base import OrmFacade
+import fal.models
 from fal import orm
 
 if TYPE_CHECKING:
-    from fal.models import Season
     from sqlalchemy.orm import Session
 
 T = TypeVar("T", bound="Team")
@@ -19,13 +19,26 @@ T = TypeVar("T", bound="Team")
 class Team(OrmFacade):
     _entity: orm.Team
     name: str
-    season: Season
+    season: fal.models.Season
 
     def get_entity(self) -> orm.Base:
         return self._entity
 
     @classmethod
-    def get_by_name(cls: Type[T], *, name: str, season: Season, session: Session) -> T:
+    def from_orm_team(cls: Type[T], orm_team: orm.Team, session: Session) -> T:
+        """
+        Conversion constructor from the orm class to our facade class
+        """
+        assert orm_team.name  # sqlalchemy for some reason thinks name is optional
+        return cls(
+            entity=orm_team,
+            session=session,
+            name=orm_team.name,
+            season=fal.models.Season.from_orm_season(orm_team.season, session),
+        )
+
+    @classmethod
+    def get_by_name(cls: Type[T], *, name: str, season: fal.models.Season, session: Session) -> T:
         """
         Get team from database based on name and season.
 
@@ -40,7 +53,7 @@ class Team(OrmFacade):
         return cls(entity=orm_team, session=session, name=name, season=season)
 
     @classmethod
-    def create(cls: Type[T], *, name: str, season: Season, session: Session) -> T:
+    def create(cls: Type[T], *, name: str, season: fal.models.Season, session: Session) -> T:
         """
         Adds new team to database. Returns Team object.
 
@@ -56,7 +69,7 @@ class Team(OrmFacade):
         session.commit()
         return cls(entity=orm_team, session=session, name=name, season=season)
 
-    def bench_swap(self, *, active_anime: Anime, bench_anime: Anime, week: int) -> None:
+    def bench_swap(self, *, active_anime: fal.models.Anime, bench_anime: fal.models.Anime, week: int) -> None:
         """
         Moves bench_anime to active and active_anime to bench.
 
@@ -74,7 +87,9 @@ class Team(OrmFacade):
 
         if last_bench_swap_week_row:
             last_bench_swap_week = last_bench_swap_week_row.week
-            assert week - last_bench_swap_week >= self.season.min_weeks_between_bench_swaps
+            assert (
+                week - last_bench_swap_week >= self.season.min_weeks_between_bench_swaps
+            )
 
         this_week_anime_involved = (
             self._session.query(orm.TeamWeeklyAnime)
@@ -108,7 +123,7 @@ class Team(OrmFacade):
         self._session.add(successful_swap)
         self.commit()
 
-    def add_anime_to_team(self, anime: Anime, bench: bool = False) -> None:
+    def add_anime_to_team(self, anime: fal.models.Anime, bench: bool = False) -> None:
         """
         Should only be called in week 0, adds anime to team's active or bench.
 
@@ -138,7 +153,7 @@ class Team(OrmFacade):
 
         snapshot = WeekSnapshotOfTeamAnime(week=week)
         for team_weekly_anime in this_week_anime:
-            anime = Anime.from_orm_anime(team_weekly_anime.anime, self._session)
+            anime = fal.models.Anime.from_orm_anime(team_weekly_anime.anime, self._session)
             if team_weekly_anime.bench:
                 snapshot.bench.append(anime)
             else:
@@ -150,5 +165,5 @@ class Team(OrmFacade):
 @attr.s(auto_attribs=True)
 class WeekSnapshotOfTeamAnime(object):
     week: int
-    active: List[Anime] = attr.Factory(list)
-    bench: List[Anime] = attr.Factory(list)
+    active: List[fal.models.Anime] = attr.Factory(list)
+    bench: List[fal.models.Anime] = attr.Factory(list)
