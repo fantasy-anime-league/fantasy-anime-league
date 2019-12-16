@@ -240,7 +240,6 @@ class AnimeStats(Controller):
         if self.licenses_lines is not None:
             for title in self.licenses_lines:
                 title = title.strip()
-                anime = Anime.get_by_name(title, session)
                 try:
                     anime = Anime.get_by_name(title, session)
                 except sqlalchemy.orm.exc.NoResultFound:

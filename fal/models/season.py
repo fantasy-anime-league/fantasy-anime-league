@@ -14,7 +14,9 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 T = TypeVar("T", bound="Season")
+
 config = configparser.ConfigParser()
+config.read("config.ini")
 
 
 class SeasonOfYear(Enum):
@@ -31,7 +33,9 @@ class Season(OrmFacade):
     year: int
 
     # TODO: move this field to db so we don't have to retrieve it from config file every time
-    min_weeks_between_bench_swaps: int = 3
+    min_weeks_between_bench_swaps: int = config.getint(
+        "season info", "min-weeks-between-bench-swaps"
+    )
 
     def get_entity(self) -> fal.orm.Base:
         return self._entity
@@ -48,7 +52,7 @@ class Season(OrmFacade):
             entity=orm_season,
             session=session,
             season_of_year=SeasonOfYear(orm_season.season_of_year),
-            year=orm_season.year
+            year=orm_season.year,
         )
 
     @classmethod
@@ -73,10 +77,7 @@ class Season(OrmFacade):
         config.read("config.ini")
 
         return cls(
-            session=session,
-            entity=orm_season,
-            season_of_year=season_of_year,
-            year=year
+            session=session, entity=orm_season, season_of_year=season_of_year, year=year
         )
 
     def init_new_week(self, current_week: int) -> None:
