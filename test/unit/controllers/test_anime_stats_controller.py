@@ -17,19 +17,23 @@ vcrpath = config.get("vcr", "path")
 DROPPED_POINTS = -4
 SIMULCAST_POINTS = 2000
 LICENSE_POINTS = 10000
+FORUM_POSTS_TWO_WEEKS_AGO = 100
+FORUM_POST_MULTIPLER = 25
 
 
-def total_points_with_dropped(stats, num_regions, is_licensed, multiplier):
+def total_points_with_dropped_and_forum_posts(
+    stats, num_regions, is_licensed, multiplier
+):
     return (
         multiplier * (stats.watching + stats.completed)
         + DROPPED_POINTS * stats.dropped
+        + (stats.total_forum_posts - FORUM_POSTS_TWO_WEEKS_AGO) * FORUM_POST_MULTIPLER
     )
 
 
 def total_points_with_simulcast(stats, num_regions, is_licensed, multiplier):
     return (
-        multiplier * (stats.watching + stats.completed)
-        + SIMULCAST_POINTS * num_regions
+        multiplier * (stats.watching + stats.completed) + SIMULCAST_POINTS * num_regions
     )
 
 
@@ -38,14 +42,20 @@ def total_points_with_license(stats, num_regions, is_licensed, multiplier):
         LICENSE_POINTS if is_licensed else 0
     )
 
+
 @patch("fal.controllers.anime_stats.AnimeStats._extract_file_contents")
-@patch("fal.controllers.anime_stats.AnimeStats.get_forum_posts")
+@patch("fal.controllers.anime_stats.AnimeStats.get_total_forum_posts")
 @patch("fal.controllers.anime_stats.config")
 @patch("fal.models.season.config")
 @pytest.mark.parametrize(
     "week,points,total_points_function,section",
     [
-        ("4", DROPPED_POINTS, total_points_with_dropped, "scoring.dropped"),
+        (
+            "4",
+            DROPPED_POINTS,
+            total_points_with_dropped_and_forum_posts,
+            "scoring.dropped",
+        ),
         ("5", SIMULCAST_POINTS, total_points_with_simulcast, "scoring.simulcast"),
         ("13", LICENSE_POINTS, total_points_with_license, "scoring.license"),
     ],
@@ -55,13 +65,14 @@ def test_populate_anime_weekly_stats(
     # mocks
     season_config_mock,
     anime_stats_config_mock,
-    get_forum_posts,
+    get_total_forum_posts,
     extract_file_contents,
     # factories
     config_functor,
     orm_season_factory,
     orm_anime_factory,
     orm_team_factory,
+    anime_weekly_stat_factory,
     team_weekly_anime_factory,
     anime_stats_factory,
     session,
@@ -74,10 +85,7 @@ def test_populate_anime_weekly_stats(
 ):
     config_function = config_functor(
         sections=["season info", section],
-        kv={
-            week: points,
-            "min-weeks-between-bench-swaps": 3
-        },
+        kv={week: points, "min-weeks-between-bench-swaps": 3},
     )
     anime_stats_config_mock.getint.side_effect = config_function
     anime_stats_config_mock.get.side_effect = config_function
@@ -85,12 +93,21 @@ def test_populate_anime_weekly_stats(
 
     extract_file_contents = lambda: None
 
-    get_forum_posts.return_value = 0
+    get_total_forum_posts.return_value = 1000
 
     orm_season = orm_season_factory(id=1, season_of_year="spring", year=2018)
     cowboy_bebop = orm_anime_factory(id=1, name="Cowboy Bebop", season=orm_season)
-    haruhi = orm_anime_factory(id=849, name="Suzumiya Haruhi no Yuuutsu", season=orm_season)
+    haruhi = orm_anime_factory(
+        id=849, name="Suzumiya Haruhi no Yuuutsu", season=orm_season
+    )
     opm = orm_anime_factory(id=30276, name="One Punch Man", season=orm_season)
+
+    # let's make sure we have some stats from "2 weeks ago"
+    # from which we can subtract forum posts counts from
+    for anime in [cowboy_bebop, haruhi, opm]:
+        anime_weekly_stat_factory(
+            anime=anime, week=int(week) - 2, total_forum_posts=100
+        )
 
     # Only 1 out of 34 teams owns Haruhi, which is <= 3%
     teams = orm_team_factory.create_batch(34, season=orm_season)
@@ -117,7 +134,12 @@ def test_populate_anime_weekly_stats(
     season = fal.models.Season.from_orm_season(orm_season, session)
     anime_stats._execute(session, season)
 
-    stats = session.query(AnimeWeeklyStat).order_by(AnimeWeeklyStat.anime_id).all()
+    stats = (
+        session.query(AnimeWeeklyStat)
+        .filter(AnimeWeeklyStat.week == int(week))
+        .order_by(AnimeWeeklyStat.anime_id)
+        .all()
+    )
 
     assert len(stats) == 3
 
@@ -143,7 +165,7 @@ def test_populate_anime_weekly_stats(
     )
 
     assert stats[2].dropped == 17066
-    assert stats[2].forum_posts == 0
+    assert stats[2].total_forum_posts == 1000
     assert stats[2].anime_id == 30276
     assert stats[2].total_points == total_points_function(
         stats=stats[2],
@@ -154,11 +176,25 @@ def test_populate_anime_weekly_stats(
 
 
 @vcr.use_cassette(f"{vcrpath}/anime_stats/get_forum_posts.yaml")
-def test_get_forum_posts(orm_anime_factory, config_functor, anime_stats_factory, session):
+@patch("fal.models.anime.Anime.get_forum_posts_for_week")
+def test_get_forum_posts(
+    get_forum_posts_for_week,
+    orm_anime_factory,
+    config_functor,
+    anime_stats_factory,
+    session,
+):
+    get_forum_posts_for_week.return_value = 100
     one_punch_man = orm_anime_factory(id=30276, name="One Punch Man")
     anime_stats = anime_stats_factory(current_week=6)
     anime_stats.forum_post_week_interval = 2
-    assert anime_stats.get_forum_posts(fal.models.Anime.from_orm_anime(one_punch_man, session)) == 327 + 426
+    assert (
+        anime_stats.get_total_forum_posts(
+            fal.models.Anime.from_orm_anime(one_punch_man, session)
+        )
+        == 5727
+    )
+
 
 @patch("fal.controllers.anime_stats.AnimeStats._extract_file_contents")
 @patch("fal.controllers.anime_stats.config")
@@ -173,16 +209,21 @@ def test_get_forum_posts(orm_anime_factory, config_functor, anime_stats_factory,
 )
 def test_is_week_to_calculate(
     # patches
-    config_mock, anime_stats_post_init,
+    config_mock,
+    anime_stats_post_init,
     # fixtures
     config_functor,
     # params
-    week, is_valid, section, anime_stats_factory):
+    week,
+    is_valid,
+    section,
+    anime_stats_factory,
+):
     anime_stats_post_init = lambda: None
     config_mock.get.side_effect = config_functor(
         sections=["scoring.simulcast", "scoring.license"], kv={"5": 2000, "13": 10000}
     )
-    anime_stats = anime_stats_factory(current_week = week)
+    anime_stats = anime_stats_factory(current_week=week)
     assert anime_stats.is_week_to_calculate(section) == is_valid
 
 
@@ -197,11 +238,15 @@ def test_get_anime_simulcast_region_counts(
 
     anime_stats = anime_stats_factory()
     anime_stats.simulcast_lines = [
-            "Cowboy Bebop = simul simul simul simul",
-            "Suzumiya Haruhi no Yuuutsu = simul randomstring simul",
-            "One Punch Man = simul simul randomstring simul",
+        "Cowboy Bebop = simul simul simul simul",
+        "Suzumiya Haruhi no Yuuutsu = simul randomstring simul",
+        "One Punch Man = simul simul randomstring simul",
     ]
-    assert anime_stats.get_anime_simulcast_region_counts(session) == {1: 4, 849: 2, 30276: 3}
+    assert anime_stats.get_anime_simulcast_region_counts(session) == {
+        1: 4,
+        849: 2,
+        30276: 3,
+    }
 
 
 def test_get_licensed_anime(

@@ -80,7 +80,7 @@ if args.load_aces:
     load_aces(ace_data)
 if args.anime_weekly_stats:
     AnimeStats(
-        simulcasts_filepath=args.simulcast_file, licenses_filepath=args.licenses_lines
-    )
+        simulcasts_filepath=args.simulcast_file, licenses_filepath=args.licenses_file
+    ).execute()
 if args.team_score:
     calculate_team_scores()

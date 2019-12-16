@@ -2,48 +2,65 @@ interactions:
 - request:
     body: null
     headers:
-      Accept: ['*/*']
-      Accept-Encoding: ['gzip, deflate']
-      Connection: [keep-alive]
-      User-Agent: [python-requests/2.21.0]
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.22.0
     method: GET
-    uri: https://api.jikan.moe/v3/anime/30276/forum
+    uri: https://api.jikan.moe/v3/anime/30276/forum/episodes
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAA82YbW/bNhSF/4qmD/uyaCYpknoBigJr1w1buw6thwGbB4O26EiILGkktdQN8t9L
-        0fVLEks0aMMZYCdxokNcnSfn6pJ3vuD/tlyqac5k7qebjymriiVPF4ssixMUZmBBIU6SaEbpHHIw
-        m8WczEOAUZbNMsT9q+06czbPeeanC1ZK/ujXU/6pKcTKT2OKAbjyVd0Uc+mnf9+tf5wWWggxDQlM
-        rvxWlLqgXKlGppPRZLRcmaLKQqrvK64mo0Ut2uVk9NJoi+zFV6UuRhWq5Fr8vuLe7201z713rPJ+
-        bApZZ9yDyHtdyHkrZVFX+uqMKT5taqm6un0EIAkgChAYA5Ca13fmq76StSqvxbRiy271j4qJm2j/
-        D9aSG1EvipJPRntawZuy4NqGONF3XTLtVleMn945W/Dtda3qF91SZqXHhf/066tcQ+GiapVL8Y/0
-        T/xLAhAHiI5hnAK08+/+/uoBaIpAEhIX0GtlL2jZzrxaeFk7O1RdFAAShNBG11Tg4s5GuOUKT8e6
-        vmEL1jFTsl0xl5p30sMwoYYJUhT2w8REZ9ottUZpTW1iDy0MUHLp0BJKTw+tccBCV7Wsum5XvHKp
-        fF98mDAIxwCnmPYTJiTCxCmua+Ue4UJ6KueCe8xb1vob1xd6cs41eJUz5X1khWJL5v0nvR9qUctD
-        VdMAJEfw/q1QgpW1k2t72l2Y45Nxr+2w4JZNkWmHPjVcOPXoR/pD0CPTBXGKwECswyTBsVOsjdIa
-        69AeaxDAyIb5XVGW0sWnjXALGAN8eqDNvVsIv3k/fvWzS8kb4WGmnVdJGg4xJd1M59aqO6V9wALH
-        DFiAXrpX427aOLlXdxZY0Or+9VrwW6e6t9IevGQMaBrCAbyIhBA64TVKO14rXd2ZL083wtHpdI0D
-        Frp/8eqtS9FfdT1ckYktGeCKY4KpE1ejtHKlx0xYIL401xCdgatxwML1phUsZ/rtUvm+uIcwHMMk
-        7fZE/YQRIW7JNUorYXzMwxaRixOG4AyEOweesS/DLr946LGLCYrcRimjtNIlR+XXuvE9+1MXnWGH
-        ZBx43vzqzgdpCgcONKI4honTYLVW7hHe7IBumfTaSk/yQteUed94Xk99NEDIRvaNqD/z6sOqvVk5
-        zZ0P5Fu+6GS667u30P2FV1Wx4BGlKMEwdrmBp0v0OBl3px1DR1dRFIMIOZE2yj3Sf+oNyHbD29S3
-        XHgz7gk+r6vi+jPPXvaUiQNofRSXeu29l4tnT5fYHX2cDt6Y8b8DP9TEKYSR2xBmlPbh2j5d670T
-        DC/exekZpjBjgQX3H1VLWub0v7qTHsarAwPDwVxjEsbIbQIzSive+KhTTGsnP/sERsIz7Iw7B56X
-        LkzJ4MEHhCFwo9sprXSjY+jCy8/X5PRn9NqBZ6ULSBo+OJ/+5/4LFtkAuMAcAAA=
+        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
     headers:
-      Access-Control-Allow-Methods: ['*']
-      Access-Control-Allow-Origin: ['*']
-      Connection: [keep-alive]
-      Content-Encoding: [gzip]
-      Content-Length: ['1073']
-      Content-Type: [application/json]
-      Date: ['Mon, 09 Sep 2019 03:54:01 GMT']
-      ETag: ['"40a95536de59c4efcfe2f37cb2cfc7f7"']
-      Server: [nginx/1.14.0 (Ubuntu)]
-      Vary: [Accept-Encoding]
-      X-Cache-Status: [HIT]
-      X-Request-Cache-Ttl: ['86400']
-      X-Request-Cached: ['']
-      X-Request-Hash: ['request:anime:ffdd8923d0f614997b66c1e0bb8e5c3042ddbd2e']
-    status: {code: 200, message: OK}
+      Access-Control-Allow-Methods:
+      - '*'
+      Access-Control-Allow-Origin:
+      - '*'
+      Cache-Control:
+      - private, must-revalidate
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Length:
+      - '785'
+      Content-Type:
+      - application/json
+      Date:
+      - Mon, 16 Dec 2019 05:53:52 GMT
+      ETag:
+      - '"e793993a266d8688f974f0917b601780"'
+      Expires:
+      - Tue, 17 Dec 2019 05:53:52 GMT
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept-Encoding
+      X-Request-Cache-Ttl:
+      - '86400'
+      X-Request-Cached:
+      - ''
+      X-Request-Hash:
+      - request:anime:4b406523c0a60afc02e04978132e26164a59f9ea
+    status:
+      code: 200
+      message: OK
 version: 1
