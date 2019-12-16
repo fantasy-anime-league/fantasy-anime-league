@@ -11,7 +11,7 @@ it is able to replicate all functionality
 """
 
 from fal.controllers.collect_series import collect_series
-from fal.controllers.anime_stats import populate_anime_weekly_stats
+from fal.controllers.anime_stats import AnimeStats
 from fal.controllers.team_score import calculate_team_scores
 from fal.controllers.start_new_week import StartNewWeek
 from fal.controllers.load_aces import load_aces
@@ -79,16 +79,8 @@ if args.load_aces:
         ace_data = f.readlines()
     load_aces(ace_data)
 if args.anime_weekly_stats:
-    try:
-        with open(args.simulcast_file, encoding="utf-8-sig") as f:
-            simulcast_lines: Optional[List[str]] = f.readlines()
-    except IOError:
-        simulcast_lines = None
-    try:
-        with open(args.licenses_file, encoding="utf-8-sig") as f:
-            licenses_lines: Optional[List[str]] = f.readlines()
-    except IOError:
-        licenses_lines = None
-    populate_anime_weekly_stats(simulcast_lines, licenses_lines)
+    AnimeStats(
+        simulcasts_filepath=args.simulcast_file, licenses_filepath=args.licenses_lines
+    )
 if args.team_score:
     calculate_team_scores()

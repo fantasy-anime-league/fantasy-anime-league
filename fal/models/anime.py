@@ -5,45 +5,29 @@ from typing import TYPE_CHECKING, TypeVar, Type, Set, Optional, cast
 import attr
 import sqlalchemy.orm.exc
 
-from fal.models import OrmFacade
+from .base import OrmFacade
 from fal import orm
 
 if TYPE_CHECKING:
     from fal.models import Season
     from sqlalchemy.orm import Session
 
-T = TypeVar("T", bound="Anime")
+
+Anime_T = TypeVar("Anime_T", bound="Anime")
 
 
-@attr.s(auto_attribs=True)
-class Anime(OrmFacade):
+@attr.s(auto_attribs=True, kw_only=True, frozen=True)
+class Anime(OrmFacade[orm.Anime]):
     _entity: orm.Anime
     mal_id: int
     names: Set[str]
     restricted: bool = False
     eligible: bool = True
 
-    def get_entity(self) -> orm.Base:
-        return self._entity
-
     @classmethod
-    def get_by_name(cls: Type[T], name: str, session: Session) -> T:
-        """
-        Get anime from database based on name.
-
-        Raises sqlalchemy.orm.exc.NoResultFound if no anime of that name found.
-        Raises sqlalchemy.orm.exc.MultipleResultsFound if multiple object identities are returned.
-        """
-
-        try:
-            orm_anime = session.query(orm.Anime).filter(orm.Anime.name == name).one()
-        except sqlalchemy.orm.exc.NoResultFound:
-            orm_anime = session.query(orm.Anime).filter(orm.Anime.alias == name).one()
-
-        return cls.from_orm_anime(orm_anime, session)
-
-    @classmethod
-    def from_orm_anime(cls: Type[T], orm_anime: orm.Anime, session: Session) -> T:
+    def from_orm_anime(
+        cls: Type[Anime_T], orm_anime: orm.Anime, session: Session
+    ) -> Anime_T:
         """
         Conversion constructor from the orm class to our facade class
         """
@@ -63,9 +47,25 @@ class Anime(OrmFacade):
         )
 
     @classmethod
+    def get_by_name(cls: Type[Anime_T], name: str, session: Session) -> Anime_T:
+        """
+        Get anime from database based on name.
+
+        Raises sqlalchemy.orm.exc.NoResultFound if no anime of that name found.
+        Raises sqlalchemy.orm.exc.MultipleResultsFound if multiple object identities are returned.
+        """
+
+        try:
+            orm_anime = session.query(orm.Anime).filter(orm.Anime.name == name).one()
+        except sqlalchemy.orm.exc.NoResultFound:
+            orm_anime = session.query(orm.Anime).filter(orm.Anime.alias == name).one()
+
+        return cls.from_orm_anime(orm_anime, session)
+
+    @classmethod
     def create(
-        cls: Type[T], mal_id: int, name: str, season: Season, session: Session
-    ) -> T:
+        cls: Type[Anime_T], mal_id: int, name: str, season: Season, session: Session
+    ) -> Anime_T:
         """
         Adds new anime to database. Returns Anime object.
 
@@ -79,4 +79,4 @@ class Anime(OrmFacade):
 
     def add_alias(self, alias: str) -> None:
         self.names.add(alias)
-        self._entity.alias = alias
+        self.entity.alias = alias

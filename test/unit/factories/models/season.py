@@ -1,6 +1,6 @@
 import factory
 
-from .orm import OrmSeasonFactory
+from test.unit.factories.orm import OrmSeasonFactory
 from fal.models import Season, SeasonOfYear
 
 

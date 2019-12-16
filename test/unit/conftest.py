@@ -15,6 +15,8 @@ register(factories.TeamWeeklyAnimeFactory)
 register(factories.TeamWeeklyPointsFactory)
 register(factories.AnimeWeeklyStatFactory)
 register(factories.SeasonFactory)
+register(factories.AnimeFactory)
+register(factories.AnimeStatsFactory)
 
 
 @pytest.fixture()
