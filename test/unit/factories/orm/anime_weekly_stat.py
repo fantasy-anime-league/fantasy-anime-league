@@ -23,7 +23,7 @@ class AnimeWeeklyStatFactory(factory.alchemy.SQLAlchemyModelFactory):
         "pyfloat"
     )  # min_value/max_value in Faker currently seem broken
     favorites = factory.Faker("pyint")
-    forum_posts = factory.Faker("pyint")
+    total_forum_posts = factory.Faker("pyint")
     total_points = 0
 
     class Params:

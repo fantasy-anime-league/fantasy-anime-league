@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import configparser
 import math
-import re
 import time
 from typing import (
     Dict,
@@ -38,7 +37,7 @@ class JikanResults:
     dropped: int
     score: float
     favorites: int
-    forum_posts: int
+    total_forum_posts: int
     week: int
     anime_id: int
     total_points: Optional[int] = attr.ib(init=False, default=None)
@@ -101,62 +100,27 @@ class AnimeStats(Controller):
         self.simulcast_multiplier = config.getint("scoring.simulcast", str(self.current_week), fallback=0)
         self.license_score = config.getint("scoring.license", str(self.current_week), fallback=0)
 
-    def get_forum_posts(self, anime: Anime) -> int:
+    def get_total_forum_posts(self, anime: Anime) -> int:
         """
-        Requests forum posts from Jikan, then sums up all the episode discussion
-        thread replies.
+        Requests episode discussion threads from Jikan, then sums up all the thread replies.
 
         Where N is the weekly interval forum posts are scored:
             if this week is not a multiple of N, return 0
             Otherwise:
                 Gathers all the posts in the forum discussion threads of the past N weeks,
 
-
-        Currently uses regex to match for Episode Discussion. This is brittle and
-        will stop working once we get over 15 forum threads on an anime.
-
-        ASAP we should fix Jikan's API so that it can filter for episode discussion threads
-        in its search. Alternatively, we could remove the 15 search result limit but that
-        seems harder to do.
-
         Also TODO: add functionality to subtract a certain number of forum posts,
         i.e. posts made before season started
         """
 
-        # don't score forum posts if this isn't the right week
-        if self.current_week % self.forum_post_week_interval != 0:
-            return 0
-
         jikan = jikanpy.Jikan()
-        forum_threads: List[Dict[str, Any]] = jikan.anime(anime.mal_id, extension="forum")[
-            "topics"
-        ]
-
-        # here we build the regex OR statement based on all the week numbers
-        # since the last time we checked forum posts
-        episode_nums_str = "|".join(
-            [
-                str(num)
-                for num in range(max(1, self.current_week - self.forum_post_week_interval + 1), self.current_week + 1)
-            ]
-        )
-
-        episode_discussions = [
-            thread
-            for thread in forum_threads
-            if re.fullmatch(
-                f"({'|'.join(anime.names)}) Episode ({episode_nums_str}) Discussion",
-                thread["title"],
-            )
-        ]
+        episode_discussions: List[Dict[str, Any]] = jikan.anime(anime.mal_id, extension="forum/episodes")["topics"]
 
         if not episode_discussions:
             print(
                 f"""
-                WARNING: did not find as many episode discussion threads for {anime}.
+                WARNING: did not find any episode discussion threads for {anime}.
                 Double check that this is expected and manually update if necessary.
-                (Found {len(episode_discussions)} discussions in the {self.forum_post_week_interval} weeks
-                before week {self.current_week})
                 """
             )
 
@@ -178,13 +142,14 @@ class AnimeStats(Controller):
             dropped=jikan_anime_stats["dropped"],
             score=general_anime_info.get("score", 0),
             favorites=general_anime_info["favorites"],
-            forum_posts=self.get_forum_posts(anime),
+            total_forum_posts=self.get_total_forum_posts(anime),
             week=self.current_week,
             anime_id=anime.mal_id
         )
 
     def calculate_anime_weekly_points(
         self,
+        anime: Anime,
         stat_data: JikanResults,
         num_teams_owned_active: int,
         double_score_max_num_teams: int,
@@ -198,15 +163,20 @@ class AnimeStats(Controller):
             2 if num_teams_owned_active <= double_score_max_num_teams else 1
         )
 
+
+
         # fmt: off
         points = (
             lower_ownership_multiplier * (stat_data.watching + stat_data.completed)
             + self.dropped_multiplier * stat_data.dropped
             + self.favorite_multiplier * stat_data.favorites
-            + self.forum_post_multipler * stat_data.forum_posts
             + self.simulcast_multiplier * num_regions
             + self.license_score * int(is_licensed)
         )
+
+        if self.current_week % self.forum_post_week_interval == 0:
+            previous_forum_posts = anime.get_forum_posts_for_week(self.current_week-self.forum_post_week_interval)
+            points += self.forum_post_multipler * (stat_data.total_forum_posts - previous_forum_posts)
 
         # multiplying by None type produces weird results
         # so we do these calculations only if stat_data.score exists
@@ -315,8 +285,8 @@ class AnimeStats(Controller):
                     f"{anime} doesn't have an entry in simulcast file"
                 )
 
-            stat_data.week = self.current_week
             stat_data.total_points = self.calculate_anime_weekly_points(
+                anime,
                 stat_data,
                 anime_active_counts.get(anime.mal_id, 0),
                 double_score_max_num_teams,

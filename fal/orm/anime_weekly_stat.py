@@ -20,7 +20,7 @@ class AnimeWeeklyStat(Base):
     dropped = Column(Integer)
     score = Column(Float, nullable=True)
     favorites = Column(Integer)
-    forum_posts = Column(Integer)
+    total_forum_posts = Column(Integer)
     total_points = Column(Integer, default=0)
 
     def __repr__(self) -> str:
@@ -31,6 +31,6 @@ class AnimeWeeklyStat(Base):
                 Dropped - {self.dropped}
                 Score - {self.score}
                 Favorites - {self.favorites}
-                Forum Posts - {self.forum_posts}
+                Forum Posts - {self.total_forum_posts}
                 Total Points - {self.total_points}
             """

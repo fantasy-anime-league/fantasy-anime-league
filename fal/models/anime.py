@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar, Type, Set, Optional, cast
+from typing import TYPE_CHECKING, TypeVar, Type, Set, Optional, cast, Dict
+import functools
 
 import attr
 import sqlalchemy.orm.exc
@@ -23,6 +24,8 @@ class Anime(OrmFacade[orm.Anime]):
     names: Set[str]
     restricted: bool = False
     eligible: bool = True
+
+    _anime_weekly_stat_cache: Dict[int, orm.AnimeWeeklyStat] = attr.Factory(dict)
 
     @classmethod
     def from_orm_anime(
@@ -47,6 +50,7 @@ class Anime(OrmFacade[orm.Anime]):
         )
 
     @classmethod
+    @functools.lru_cache()
     def get_by_name(cls: Type[Anime_T], name: str, session: Session) -> Anime_T:
         """
         Get anime from database based on name.
@@ -77,6 +81,25 @@ class Anime(OrmFacade[orm.Anime]):
 
         return cls(entity=orm_anime, session=session, mal_id=mal_id, names={name})
 
+    def get_forum_posts_for_week(self, week: int) -> int:
+        total_forum_posts = self._get_anime_weekly_stat(week).total_forum_posts
+        assert total_forum_posts  # because sqlalchemy thinks this is Optional for some reason
+        return total_forum_posts
+
     def add_alias(self, alias: str) -> None:
         self.names.add(alias)
         self.entity.alias = alias
+
+    def _get_anime_weekly_stat(self, week: int) -> orm.AnimeWeeklyStat:
+        if anime_weekly_stat := self._anime_weekly_stat_cache.get(week):
+            assert anime_weekly_stat  # mypy bug
+            return anime_weekly_stat
+
+        return (
+            self._session.query(orm.AnimeWeeklyStat)
+            .filter(
+                orm.AnimeWeeklyStat.week == week,
+                orm.AnimeWeeklyStat.anime_id == self.entity.id,
+            )
+            .one()
+        )
