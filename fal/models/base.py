@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import abc
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 import attr
 
@@ -10,8 +10,11 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 
-@attr.s(auto_attribs=True)
-class OrmFacade(abc.ABC):
+OrmBase_T = TypeVar("OrmBase_T", bound="orm.Base", covariant=True)
+
+
+@attr.s(auto_attribs=True, kw_only=True)
+class OrmFacade(Generic[OrmBase_T], abc.ABC):
     """
     Instances of OrmFacade should be the only ones accessing the ORM layer.
     They should also generally not contain any business logic,
@@ -20,14 +23,15 @@ class OrmFacade(abc.ABC):
     Generally these will be the interface that controllers will access.
     """
 
+    _entity: OrmBase_T
     _session: Session
 
     def commit(self) -> None:
         self._session.commit()
 
-    @abc.abstractmethod
-    def get_entity(self) -> orm.Base:
+    @property
+    def entity(self) -> OrmBase_T:
         """
-        _entity in general should not be directly accessed anywhere outside of child classes of OrmFacade
+        Entity in general should not be directly accessed anywhere outside of child classes of OrmFacade
         """
-        pass
+        return self._entity

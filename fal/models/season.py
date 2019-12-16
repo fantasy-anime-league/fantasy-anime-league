@@ -6,9 +6,8 @@ import configparser
 
 import attr
 
-from .base import OrmFacade
-import fal.models
-import fal.orm
+from . import OrmFacade
+from fal import orm, models
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -26,9 +25,9 @@ class SeasonOfYear(Enum):
     WINTER = "winter"
 
 
-@attr.s(auto_attribs=True)
-class Season(OrmFacade):
-    _entity: fal.orm.Season
+@attr.s(auto_attribs=True, kw_only=True, frozen=True)
+class Season(OrmFacade[orm.Season]):
+    _entity: orm.Season
     season_of_year: SeasonOfYear
     year: int
 
@@ -37,12 +36,10 @@ class Season(OrmFacade):
         "season info", "min-weeks-between-bench-swaps"
     )
 
-    def get_entity(self) -> fal.orm.Base:
-        return self._entity
 
     @classmethod
     def from_orm_season(
-        cls: Type[T], orm_season: fal.orm.Season, session: Session
+        cls: Type[T], orm_season: orm.Season, session: Session
     ) -> T:
         assert (
             orm_season.year is not None
@@ -63,14 +60,14 @@ class Season(OrmFacade):
         Creates a new season in database if necessary, otherwise retrieves it. Returns Season object
         """
 
-        query = session.query(fal.orm.Season).filter(
-            fal.orm.Season.season_of_year == season_of_year.value,
-            fal.orm.Season.year == year,
+        query = session.query(orm.Season).filter(
+            orm.Season.season_of_year == season_of_year.value,
+            orm.Season.year == year,
         )
         orm_season = query.one_or_none()
 
         if not orm_season:
-            orm_season = fal.orm.Season(season_of_year=season_of_year.value, year=year)
+            orm_season = orm.Season(season_of_year=season_of_year.value, year=year)
             session.add(orm_season)
             session.commit()
 
@@ -90,17 +87,17 @@ class Season(OrmFacade):
         """
 
         last_week_team_weekly_anime = (
-            self._session.query(fal.orm.TeamWeeklyAnime, fal.orm.Team)
+            self._session.query(orm.TeamWeeklyAnime, orm.Team)
             .filter(
-                fal.orm.TeamWeeklyAnime.week == current_week - 1,
-                fal.orm.Team.season_id == self._entity.id,
-                fal.orm.Team.id == fal.orm.TeamWeeklyAnime.team_id,
+                orm.TeamWeeklyAnime.week == current_week - 1,
+                orm.Team.season_id == self.entity.id,
+                orm.Team.id == orm.TeamWeeklyAnime.team_id,
             )
             .all()
         )
 
         for team_weekly_anime, team in last_week_team_weekly_anime:
-            new_team_weekly_anime = fal.orm.TeamWeeklyAnime(
+            new_team_weekly_anime = orm.TeamWeeklyAnime(
                 team_id=team.id,
                 anime_id=team_weekly_anime.anime_id,
                 week=current_week,
@@ -110,14 +107,14 @@ class Season(OrmFacade):
 
         self.commit()
 
-    def get_all_anime(self) -> Iterator[fal.models.Anime]:
+    def get_all_anime(self) -> Iterator[models.Anime]:
         return (
-            fal.models.Anime.from_orm_anime(anime, self._session)
-            for anime in cast(Iterable[fal.orm.Anime], self._entity.anime)
+            models.Anime.from_orm_anime(anime, self._session)
+            for anime in cast(Iterable[orm.Anime], self.entity.anime)
         )
 
-    def get_all_teams(self) -> Iterator[fal.models.Team]:
+    def get_all_teams(self) -> Iterator[models.Team]:
         return (
-            fal.models.Team.from_orm_team(team, self._session)
-            for team in cast(Iterable[fal.orm.Team], self._entity.teams)
+            models.Team.from_orm_team(team, self._session)
+            for team in cast(Iterable[orm.Team], self.entity.teams)
         )
